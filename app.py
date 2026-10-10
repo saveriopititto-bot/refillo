@@ -207,6 +207,7 @@ with adv_model:
     livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
     consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
     raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
+    use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
     self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
     livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
                             help="Sotto questo livello conviene sempre fare rifornimento.") / 100
@@ -233,12 +234,12 @@ with sb_foot:
 # Calcolo
 # --------------------------------------------------------------------------
 if origin is None:
-    stop_with(escape(attesa_pos) + "<br>In alternativa scegli <strong>Comune</strong> o <strong>Coordinate</strong> "
+    stop_with(escape(attesa_pos) + "<br>In alternativa scegli <strong>Comune</strong> "
               "in «1 · Dove sei» nella barra laterale.")
 params = fm.ModelParams(
     v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
     consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
-    ref_mode=ref_mode, theta=theta, livello_min=livello_min,
+    use_osrm=use_osrm, ref_mode=ref_mode, theta=theta, livello_min=livello_min,
 )
 cands = fm.build_candidates(anag, prezzi, fuel, self_service, float(max_age), extraction)
 edges, info = fm.compute_edges(cands, origin, params)

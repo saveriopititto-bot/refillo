@@ -15,6 +15,7 @@ verso i distributori vicini, a partire dai CSV open data MIMIT
 from __future__ import annotations
 
 import re
+import requests
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -221,6 +222,7 @@ class ModelParams:
     usura_eur_km: float = 0.05     # costo variabile di usura (€/km)
     road_factor: float = 1.3       # km su strada / km in linea d'aria
     raggio_km: float = 20.0        # raggio d'azione (km su strada stimati)
+    use_osrm: bool = True          # usa OSRM per i percorsi reali
     ref_mode: str = "mediana"      # "mediana" | "media" per P_market
     theta: float = 0.0             # soglia di consiglio (€)
     livello_min: float = 0.10      # L_min: sotto questa soglia si rifornisce comunque
@@ -229,6 +231,31 @@ class ModelParams:
     def litri_effettivi(self) -> float:
         cap = self.v_tot * (1 - self.livello)
         return cap if self.litri is None else float(min(self.litri, cap))
+
+
+def get_osrm_distances(origin: tuple[float, float], destinations: list[tuple[float, float]]) -> list[float | None]:
+    """Ottiene le distanze stradali in km usando l'API pubblica di OSRM (max 99 destinazioni)."""
+    if not destinations:
+        return []
+    
+    # OSRM si aspetta lon,lat
+    coords = [f"{origin[1]:.5f},{origin[0]:.5f}"]
+    for lat, lon in destinations:
+        coords.append(f"{lon:.5f},{lat:.5f}")
+    
+    url = f"http://router.project-osrm.org/table/v1/driving/{';'.join(coords)}?sources=0"
+    try:
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("code") == "Ok" and "distances" in data and data["distances"]:
+                # La prima riga contiene le distanze dall'origine a tutti i punti
+                return [d / 1000.0 if d is not None else None for d in data["distances"][0][1:]]
+    except Exception as e:
+        print(f"Errore OSRM: {e}")
+        pass
+    
+    return [None] * len(destinations)
 
 
 def compute_edges(
@@ -247,6 +274,20 @@ def compute_edges(
     df = cands.copy()
     df["dist_km"] = haversine_km(olat, olon, df.lat.values, df.lon.values) * p.road_factor
     df = df[df.dist_km <= p.raggio_km].copy()
+    
+    if getattr(p, "use_osrm", True) and not df.empty:
+        # Prendi i 99 più vicini per rispettare i limiti di OSRM (1 origin + 99 dest = 100)
+        cands_idx = df.nsmallest(99, "dist_km").index
+        dests = list(zip(df.loc[cands_idx, "lat"], df.loc[cands_idx, "lon"]))
+        
+        real_dists = get_osrm_distances(origin, dests)
+        
+        for idx, d in zip(cands_idx, real_dists):
+            if d is not None:
+                df.at[idx, "dist_km"] = d
+                
+        df = df[df.dist_km <= p.raggio_km].copy()
+
     summary: dict = {"n": len(df), "q": p.litri_effettivi}
     if df.empty:
         return df, summary
