@@ -214,10 +214,10 @@ def fetch_brent_yf(n_days: int) -> dict:
 BRENT_SCORE_TABELLA = "brent_score"
 # esito -> (etichetta, spiegazione); +1 = il Brent è sopra la media dei 30 giorni più del normale
 BRENT_SCORE_TESTI = {
-    1: ("Rifornisci", "Il petrolio è sopra la sua media degli ultimi 30 giorni più del solito: i prezzi alla "
-                      "pompa tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare."),
-    0: ("Neutro", "Il petrolio è vicino alla sua media degli ultimi 30 giorni: per ora non spinge i prezzi alla "
-                  "pompa né in su né in giù."),
+    1: ("Conviene", "Il petrolio è sopra la sua media degli ultimi 30 giorni più del solito: i prezzi alla "
+                    "pompa tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare."),
+    0: ("Rifornisci", "Il petrolio è vicino alla sua media degli ultimi 30 giorni: per ora non spinge i prezzi "
+                      "alla pompa né in su né in giù."),
     -1: ("Aspetta", "Il petrolio è sotto la sua media degli ultimi 30 giorni più del solito: i prezzi alla pompa "
                     "tendono a scendere nei prossimi giorni, quindi se puoi conviene aspettare."),
 }
