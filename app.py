@@ -314,9 +314,10 @@ with tab_res:
                         data=route_df,
                         get_path="path",
                         get_color=list(_hex_rgb(style.DEEP)) + [200],
-                        width_scale=20,
-                        width_min_pixels=4,
-                        get_width=5
+                        width_scale=1,
+                        width_min_pixels=3,
+                        width_max_pixels=8,
+                        get_width=15
                     )
                 )
 

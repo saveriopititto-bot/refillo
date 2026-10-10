@@ -273,7 +273,7 @@ def get_osrm_distances(origin: tuple[float, float], destinations: list[tuple[flo
 
 def get_osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> list[list[float]]:
     """Ottiene la geometria del percorso reale (GeoJSON: lista di [lon, lat]) dal server OSRM."""
-    url = f"http://router.project-osrm.org/route/v1/driving/{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}?geometries=geojson"
+    url = f"http://router.project-osrm.org/route/v1/driving/{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}?geometries=geojson&overview=full"
     try:
         resp = requests.get(url, timeout=3)
         if resp.status_code == 200:
