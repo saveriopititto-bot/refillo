@@ -1,11 +1,15 @@
 # ⛽ Score di rifornimento
 
+[![Apri l'app su Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fuelmode.streamlit.app/)
+
+**App online: https://fuelmode.streamlit.app/**
+
 App Streamlit che, data la posizione dell'auto, assegna un punteggio ai distributori vicini
 (open data MIMIT) e dice dove — e se — conviene fare rifornimento.
 
 $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 
-## Avvio
+## Avvio in locale
 
 ```bash
 pip install -r requirements.txt
