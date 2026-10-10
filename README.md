@@ -23,7 +23,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
   del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nella scheda
-  Risultato: «Conviene», «Rifornisci» o «Aspetta».
+  Risultato: «Conviene», «Rifornisci» o «Aspetta». Nella scheda Petrolio c'è la pagina dello score di
+  scorebrent, con grafico e verifiche sul passato.
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
@@ -164,6 +165,11 @@ impostazioni predefinite (α = 1, θ = 1), le stesse dello score in Supabase. Se
 inattività, nella scheda compare il pulsante di Streamlit per risvegliarla (circa un minuto). Il link «apri a
 tutto schermo» apre l'app completa. Se Supabase non è configurato o non risponde, sopra la pagina compare il
 motivo.
+
+Se nella scheda compare tutta l'app scorebrent (titolo, schede e barra laterale) invece della sola pagina dello
+score, scorebrent online non ha ancora caricato la versione che riconosce `?pagina=score`. Succede dopo un
+aggiornamento di scorebrent: basta riavviarla su https://share.streamlit.io, accanto a scorebrent,
+*⋮ → Reboot app*, poi ricaricare FuelMode.
 
 Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare
 la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance: decide solo il consiglio mostrato in cima.
