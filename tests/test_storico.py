@@ -97,3 +97,51 @@ def test_centri_comuni_e_unione(tmp_path, dati):
     storico.scrivi(u, tmp_path / "comuni.csv.gz")
     assert len(storico.leggi_comuni(tmp_path / "comuni.csv.gz")) == len(u)
     assert storico.leggi_comuni(tmp_path / "manca.csv.gz").empty
+
+
+# ---------------------------------------------------------------- score 30 giorni
+COMUNI = pd.DataFrame([{"comune": "VICINO", "provincia": "PG", "lat": 43.23, "lon": 12.78},
+                       {"comune": "ACCANTO", "provincia": "PG", "lat": 43.25, "lon": 12.80},
+                       {"comune": "LONTANO", "provincia": "RM", "lat": 41.90, "lon": 12.50}])
+
+
+def _storico(giorni, prezzi_per_comune, fuel="Benzina", self_=True, oggi="2026-10-10"):
+    righe = []
+    for d in pd.date_range(end=pd.Timestamp(oggi) - pd.Timedelta(days=1), periods=giorni):
+        for (comune, prov), (prezzo, n) in prezzi_per_comune.items():
+            righe.append({"data": d, "comune": comune, "provincia": prov, "carburante": fuel, "self": self_,
+                          "mediana": prezzo, "n": n})
+    return pd.DataFrame(righe)[storico.COLONNE]
+
+
+def test_media_zona_pesata_e_solo_nel_raggio():
+    medie = _storico(30, {("VICINO", "PG"): (1.80, 3), ("ACCANTO", "PG"): (1.70, 1), ("LONTANO", "RM"): (1.50, 9)})
+    oggi = pd.Timestamp("2026-10-10")
+    medie = pd.concat([medie, _storico(1, {("VICINO", "PG"): (9.0, 3)}, oggi="2026-10-11")])  # oggi: escluso
+    z = storico.media_zona(medie, COMUNI, (43.23, 12.78), 15, 1.3, "Benzina", True, oggi)
+    assert z["media"] == pytest.approx((1.80 * 3 + 1.70 * 1) / 4)  # LONTANO fuori raggio, oggi escluso
+    assert z["giorni"] == 30 and z["comuni"] == 2
+    assert storico.media_zona(medie, COMUNI, (43.23, 12.78), 15, 1.3, "Gasolio", True, oggi)["media"] is None
+    assert storico.media_zona(medie, COMUNI, (43.23, 12.78), 15, 1.3, "Benzina", False, oggi)["media"] is None
+
+
+def test_media_zona_solo_ultimi_30_giorni():
+    vecchi = _storico(10, {("VICINO", "PG"): (2.50, 1)}, oggi="2026-09-01")  # oltre i 30 giorni
+    recenti = _storico(5, {("VICINO", "PG"): (1.80, 1)})
+    z = storico.media_zona(pd.concat([vecchi, recenti]), COMUNI, (43.23, 12.78), 15, 1.3, "Benzina", True,
+                           pd.Timestamp("2026-10-10"))
+    assert z["media"] == pytest.approx(1.80) and z["giorni"] == 5
+
+
+@pytest.mark.parametrize("prezzo, atteso", [(1.70, 1), (1.77, 0), (1.80, 0), (1.83, 0), (1.90, -1)])
+def test_score_30gg(prezzo, atteso):
+    score, scarto = storico.score_30gg(prezzo, 1.80, giorni=30)
+    assert score == atteso and scarto == pytest.approx(prezzo / 1.80 - 1)
+
+
+def test_score_30gg_soglia_esatta_e_storico_corto():
+    assert storico.score_30gg(1.80 * 0.98, 1.80, 30)[0] == 1     # esattamente -2%: ottimo
+    assert storico.score_30gg(1.80 * 1.02, 1.80, 30)[0] == -1    # esattamente +2%: alto
+    assert storico.score_30gg(1.70, 1.80, 30, soglia=0.10)[0] == 0
+    assert storico.score_30gg(1.70, 1.80, giorni=6) == (None, None)
+    assert storico.score_30gg(1.70, None, giorni=30) == (None, None)
