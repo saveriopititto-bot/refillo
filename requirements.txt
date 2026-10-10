@@ -1,6 +1,5 @@
-streamlit
-yfinance
+streamlit>=1.50
 pandas
-plotly
-great-tables
-streamlit-extras
+numpy
+pydeck
+yfinance
