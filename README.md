@@ -105,8 +105,9 @@ Il risultato è diviso in quattro schede:
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
-- **Petrolio**: il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase
-  (vedi «Score del petrolio»).
+- **Petrolio**: la pagina «Score rifornimento» dell'app «Prezzo del petrolio»
+  ([scorebrent.streamlit.app](https://scorebrent.streamlit.app/)), incorporata così com'è (vedi «Score del
+  petrolio»).
 - **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
@@ -144,10 +145,9 @@ Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Bren
 
 ## Score del petrolio (da Supabase)
 
-Nella scheda **Petrolio** il riquadro «Il petrolio nei prossimi giorni» mostra lo score
-del Brent calcolato dall'app «Prezzo del petrolio» (repository
-[scorebrent](https://github.com/saveriopititto-bot/scorebrent)). Quell'app lo scrive ogni giorno di borsa,
-dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
+Lo score del Brent è calcolato dall'app «Prezzo del petrolio» (repository
+[scorebrent](https://github.com/saveriopititto-bot/scorebrent)), che lo scrive ogni giorno di borsa, dopo le
+22:30 UTC, nella tabella `brent_score` di Supabase. FuelMode legge da lì l'ultimo esito.
 
 - **Conviene** (+1): il Brent è sopra la sua media degli ultimi 30 giorni più del solito. I prezzi alla pompa
   tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare.
@@ -158,8 +158,12 @@ Lo stesso esito decide il riquadro «Consiglio» in cima, con il cerchio colorat
 (Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta). Il riquadro resta sempre
 blu petrolio, in tutti i casi; il cerchio è bianco dentro.
 
-Nel riquadro «Il petrolio nei prossimi giorni» compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
-dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggiornato.
+La scheda **Petrolio** incorpora la pagina «Score rifornimento» di scorebrent, con esito, numeri, grafico e
+verifiche sul passato, all'indirizzo `https://scorebrent.streamlit.app/?embed=true&pagina=score`. Usa le
+impostazioni predefinite (α = 1, θ = 1), le stesse dello score in Supabase. Se scorebrent è in pausa per
+inattività, nella scheda compare il pulsante di Streamlit per risvegliarla (circa un minuto). Il link «apri a
+tutto schermo» apre l'app completa. Se Supabase non è configurato o non risponde, sopra la pagina compare il
+motivo.
 
 Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare
 la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance: decide solo il consiglio mostrato in cima.
