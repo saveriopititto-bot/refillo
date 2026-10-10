@@ -342,13 +342,6 @@ with tab_res:
     else:
         best = info["best"]
         prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
-        style.lead(
-            f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
-            f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
-            f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
-            f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
-            f"considerando il costo del viaggio."
-        )
         # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
         bs, bs_err = leggi_brent_score()
         if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
@@ -372,6 +365,13 @@ with tab_res:
 
         with style.card("map"):
             style.title("Dove conviene andare")
+            style.lead(
+                f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
+                f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
+                f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
+                f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
+                f"considerando il costo del viaggio."
+            )
             st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
                        "arancione = conviene poco.")
             smin, smax = edges.score.min(), edges.score.max()
