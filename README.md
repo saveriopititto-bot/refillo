@@ -17,5 +17,6 @@ Metti i CSV MIMIT in `data/` (vedi `data/README.md`) oppure caricali dalla barra
 ## Struttura
 
 - `fuel_model.py` — lettura dei CSV, geometria, Brent e calcolo degli score.
-- `app.py` — interfaccia Streamlit (mappa pydeck, tabella degli archi, export CSV).
+- `app.py` — interfaccia Streamlit: schede Risultato (verdetto, mappa pydeck, migliori 5), Archi (tabella ed export CSV), Come funziona.
+- `style.py` + `.streamlit/config.toml` — stile dell'interfaccia, lo stesso di test4 (layout "1a": navigazione a pillole, schede bianche arrotondate, palette `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la 1.65).
 - `tests/` — test del modello: `pip install pytest && python -m pytest` (eseguiti anche in CI con GitHub Actions a ogni push e PR).
