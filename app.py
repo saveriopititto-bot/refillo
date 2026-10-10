@@ -59,6 +59,12 @@ if anag_b is None or prezzi_b is None:
     st.stop()
 
 anag, prezzi, extraction = load_data(anag_b, prezzi_b)
+if anag.empty or prezzi.empty:
+    st.title("⛽ Score di rifornimento")
+    st.error("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
+    st.stop()
+if extraction is None:
+    sb.warning("Data di estrazione non trovata nell'anagrafica: il filtro sull'età del prezzo è disattivato.")
 
 sb.header("Posizione (nodo centrale)")
 modo_pos = sb.radio("Imposta da", ["Comune", "Coordinate"], horizontal=True)
@@ -137,8 +143,9 @@ cands = fm.build_candidates(anag, prezzi, fuel, self_service, float(max_age), ex
 edges, info = fm.compute_edges(cands, origin, params, dest)
 
 st.title("⛽ Score di rifornimento")
+data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
 st.caption(
-    f"Estrazione MIMIT del {extraction:%d/%m/%Y} · {len(cands):,} distributori con prezzo "
+    f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
     f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia".replace(",", ".")
 )
 
