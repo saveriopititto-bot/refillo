@@ -509,9 +509,6 @@ with tab_petrolio:
     elif bs is None:
         style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
                    "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-    style.html(f'<p class="x-note">Dall\'app «Prezzo del petrolio» '
-               f'(<a href="{SCOREBRENT_URL}" target="_blank">apri a tutto schermo</a>). Se l\'app è in pausa '
-               "per inattività, qui sotto compare il pulsante per risvegliarla: ci vuole circa un minuto.</p>")
     components.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA, scrolling=True)
 
 
