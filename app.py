@@ -410,19 +410,4 @@ I prezzi e i distributori sono quelli ufficiali del MIMIT, aggiornati ogni giorn
 Finance. Le distanze sono stimate in linea d'aria, corrette per tenere conto delle strade.
 """
     )
-    with st.expander("La formula, per chi vuole i dettagli"):
-        st.markdown(
-            r"""
-$$S_i = q\,\big[(P_{market}-P_i)+\alpha\,P_{market}\,\Delta B\big]-D_i\,C_{km}$$
-
-- **q**: litri acquistati (`V_tot·(1−L)` se pieno).
-- **P_market**: mediana/media dei prezzi dei distributori nel raggio.
-- **ΔB**: variazione relativa del Brent in euro negli ultimi 7 giorni (scaricata da Yahoo Finance), limitata a ±10%; **α** è la quota di pass-through.
-- **D_i**: deviazione. Senza destinazione è andata e ritorno (2·d); con destinazione è `d(o,i)+d(i,dest)−d(o,dest)`.
-- **C_km** = consumo/100 · P_market + usura.
-- **Peso dell'arco**: `w = −S_i` (cammino minimo), oppure `w = S_max − S_i` se servono pesi non negativi.
-- **E_p**: efficienza posizionale, `1 − (P_i−P_min)/(P_max−P_min)`; la versione percentile resiste agli outlier.
-- Si rifornisce se `S_max > θ`, oppure se `L < L_min`.
-"""
-        )
     st.caption(fonte)

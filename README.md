@@ -44,7 +44,7 @@ Il risultato è diviso in tre schede:
 - **Risultato**: il riepilogo, il riquadro della decisione (con la data dei prezzi MIMIT usati e la
   variazione del Brent), gli indicatori, la mappa e i 5 distributori migliori.
 - **Archi**: la tabella completa ed export CSV.
-- **Come funziona**: la spiegazione a parole; la formula è in un riquadro richiudibile.
+- **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
 
