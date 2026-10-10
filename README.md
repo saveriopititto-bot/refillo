@@ -34,10 +34,25 @@ La barra laterale è divisa in tre sezioni:
 2. **Carburante**: prodotto e self/servito.
 3. **Veicolo**: capacità del serbatoio, livello attuale, consumo e raggio di ricerca.
 
-In «Opzioni avanzate» ci sono i parametri del modello (soglia di sicurezza del serbatoio, litri da fare,
-usura, età massima del prezzo, fattore strada, soglia θ e α, cioè quanto della variazione del Brent passa ai
-prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che
-aggiorna prezzi e Brent.
+In «Opzioni avanzate» ci sono i parametri del modello (soglia di riserva, litri da fare, usura dell'auto, età
+massima del prezzo, strada in più rispetto alla linea d'aria, prezzo tipico della zona, soglia di convenienza e
+peso del petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante
+«Riscarica ora», che aggiorna prezzi e Brent.
+
+L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:
+
+| Nell'app | Nella formula |
+|---|---|
+| Risparmio netto / Risparmio migliore | S_i / S_max |
+| Litri da fare | q |
+| Prezzo tipico della zona | P_market |
+| Km in più | D_i |
+| Costo al km | C_km |
+| Soglia di convenienza | θ |
+| Peso del petrolio sui prezzi | α |
+| Variazione del Brent | ΔB |
+| Carburante nel serbatoio / Soglia di riserva | L / L_min |
+| Convenienza prezzo | E_p |
 
 Il risultato è diviso in tre schede:
 
