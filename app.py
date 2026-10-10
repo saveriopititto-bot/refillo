@@ -274,7 +274,7 @@ with tab_res:
         best = info["best"]
         prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
         style.lead(
-            f"Il distributore migliore è <strong>{escape(best.bandiera)} · {escape(best.nome)}</strong> "
+            f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
             f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
             f"<strong>{num(best.dist_km)} km</strong>. Facendo {num(info['q'])} litri lì risparmi "
             f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo tipico della zona, "
@@ -287,8 +287,8 @@ with tab_res:
                    f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
-             f"{ref_mode} dei {info['n']} distributori nel raggio"),
-            ("Distributori nel raggio", str(info["n"]), f"entro {raggio} km su strada"),
+             f"{ref_mode} nel raggio"),
+            ("Distributori", str(info["n"]), f"nel raggio di {raggio} km"),
             ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
