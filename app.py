@@ -283,6 +283,7 @@ with tab_res:
 
         with style.card("map"):
             style.title("Dove conviene andare")
+            show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori", value=False)
             st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
                        "arancione = conviene poco.")
             smin, smax = edges.score.min(), edges.score.max()
@@ -301,10 +302,12 @@ with tab_res:
             )
             mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
             mappa["tgt"] = mappa[["lon", "lat"]].values.tolist()
-            layers = [
-                pdk.Layer("LineLayer", data=mappa, get_source_position="src", get_target_position="tgt",
-                          get_color="colore", get_width=2, width_min_pixels=1),
-            ]
+            layers = []
+            if show_all_lines:
+                layers.append(
+                    pdk.Layer("LineLayer", data=mappa, get_source_position="src", get_target_position="tgt",
+                              get_color="colore", get_width=2, width_min_pixels=1)
+                )
             
             if info.get("best_route"):
                 route_df = pd.DataFrame([{"path": info["best_route"]}])
