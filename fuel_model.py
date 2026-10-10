@@ -281,11 +281,11 @@ def compute_edges(
     best = df.iloc[0]
     sicurezza = p.livello < p.livello_min
     if sicurezza:
-        decisione, motivo = True, f"livello serbatoio sotto la soglia di sicurezza ({p.livello:.0%} < {p.livello_min:.0%})"
+        decisione, motivo = True, f"carburante nel serbatoio sotto la soglia di riserva ({p.livello:.0%} < {p.livello_min:.0%})"
     elif best.score > p.theta:
-        decisione, motivo = True, f"S migliore ({best.score:+.2f} €) supera la soglia θ = {p.theta:.2f} €"
+        decisione, motivo = True, f"il risparmio migliore ({best.score:+.2f} €) supera la soglia di convenienza ({p.theta:.2f} €)"
     else:
-        decisione, motivo = False, f"S migliore ({best.score:+.2f} €) non supera la soglia θ = {p.theta:.2f} €"
+        decisione, motivo = False, f"il risparmio migliore ({best.score:+.2f} €) non supera la soglia di convenienza ({p.theta:.2f} €)"
     summary.update(
         p_market=p_market, c_km=c_km, best=best, decisione=decisione, motivo=motivo,
         p_min=float(pmin), p_max=float(pmax),

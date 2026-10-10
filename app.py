@@ -140,10 +140,10 @@ if brent:
     dB = fm.brent_delta(brent["b_t"], brent["b_tn"], brent["fx_t"], brent["fx_tn"])
     db_txt = _it(f"{dB:+.2%}")
     nota_brent = (f"Brent {num(brent['b_tn'], 2)} → {num(brent['b_t'], 2)} $/bbl "
-                  f"({brent['data_tn']:%d/%m} → {brent['data_t']:%d/%m}, Yahoo Finance) · ΔB {db_txt}")
+                  f"({brent['data_tn']:%d/%m} → {brent['data_t']:%d/%m}, Yahoo Finance) · variazione {db_txt}")
 else:
     dB = 0.0
-    nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): ΔB = 0"
+    nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): non considerato"
 
 with adv_data:
     st.caption(f"Prezzi MIMIT e Brent si scaricano da soli e si aggiornano ogni {CACHE_ORE} ore. "
@@ -214,25 +214,29 @@ with sb_main:
     self_service = st.radio("Modalità", ["Self", "Servito"], horizontal=True, label_visibility="collapsed") == "Self"
 
     style.section("3 · Veicolo")
-    v_tot = st.number_input("Capacità serbatoio V_tot (l)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
-    livello = st.slider("Livello attuale L", 0.0, 1.0, 0.25, 0.01, format="%.2f")
+    v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
+    livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
     consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=6.5, step=0.1)
     raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 15)
 
 with adv_model:
-    livello_min = st.slider("Soglia di sicurezza L_min", 0.0, 0.5, 0.10, 0.01, format="%.2f")
+    livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
+                            help="Sotto questo livello conviene sempre fare rifornimento.") / 100
     litri = None
-    if st.checkbox("Imposta i litri q a mano (altrimenti pieno)"):
-        litri = st.number_input("Litri q", min_value=1.0, max_value=float(v_tot),
+    if st.checkbox("Scegli quanti litri fare (altrimenti il pieno)"):
+        litri = st.number_input("Litri da fare", min_value=1.0, max_value=float(v_tot),
                                 value=min(30.0, float(v_tot)), step=1.0)
-    usura = st.number_input("Usura variabile (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
+    usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
                             format="%.3f")
     max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
-    road_factor = st.slider("Fattore strada / linea d'aria", 1.0, 2.0, 1.3, 0.05)
-    ref_mode = st.radio("P_market = … dei prezzi nel raggio", ["mediana", "media"], horizontal=True)
-    theta = st.number_input("Soglia θ (€)", value=0.0, step=0.5)
-    alpha = st.slider("α (pass-through Brent)", 0.0, 0.4, 0.20, 0.01,
-                      help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.")
+    road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, 1.3, 0.05,
+                            help="1,3 = la strada è in media il 30% più lunga della distanza in linea d'aria.")
+    ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True,
+                        help="Mediana: il prezzo di mezzo, non risente dei prezzi anomali. Media: la media semplice.")
+    theta = st.number_input("Soglia di convenienza (€)", value=0.0, step=0.5,
+                            help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
+    alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
+                      help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
 with sb_foot:
     style.html('<p class="x-note">Prezzi dagli open data MIMIT. Le distanze sono stimate in linea d\'aria × '
@@ -280,12 +284,12 @@ with tab_res:
         if not info["decisione"]:
             corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
         style.hero("Decisione", "Rifornisci" if info["decisione"] else "Non conviene",
-                   f"S migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
+                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} dei {info['n']} distributori nel raggio"),
             ("Distributori nel raggio", str(info["n"]), f"entro {raggio} km su strada"),
-            ("Litri q", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
+            ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
 
@@ -304,7 +308,7 @@ with tab_res:
             mappa["colore"] = mappa.score.map(colore)
             mappa["etichetta"] = (
                 mappa.bandiera + " · " + mappa.nome + "\n" + mappa.prezzo.map(lambda x: _it(f"{x:.3f}") + " €/l")
-                + " · S = " + mappa.score.map(lambda x: eur(x, sign=True))
+                + " · risparmio " + mappa.score.map(lambda x: eur(x, sign=True))
                 + " · " + mappa.dist_km.map(lambda x: num(x) + " km")
             )
             mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
@@ -330,7 +334,7 @@ with tab_res:
         with style.card("top"):
             style.title("I 5 migliori")
             style.table(
-                ["#", "Distributore", "Comune", "Prezzo", "Distanza", "S"],
+                ["#", "Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
                 [[str(r["rank"]), escape(f"{r.bandiera} · {r.nome}"), escape(r.comune),
                   _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.score, sign=True)]
                  for _, r in edges.head(5).iterrows()],
@@ -346,15 +350,15 @@ with tab_arc:
         tab = edges.rename(
             columns={
                 "rank": "#", "bandiera": "Bandiera", "nome": "Impianto", "indirizzo": "Indirizzo", "comune": "Comune",
-                "prezzo": "P_i (€/l)", "dist_km": "Distanza (km)", "dev_km": "D_i (km)",
-                "guadagno": "Guadagno (€)", "brent": "Brent (€)", "costo_log": "Costo logistico (€)",
-                "score": "S_i (€)", "peso": "Peso w = −S", "peso_pos": "Peso w ≥ 0", "ep": "E_p",
-                "ep_pct": "E_p (percentile)", "eta_giorni": "Età prezzo (gg)",
+                "prezzo": "Prezzo (€/l)", "dist_km": "Distanza (km)", "dev_km": "Km in più",
+                "guadagno": "Risparmio sul prezzo (€)", "brent": "Effetto Brent (€)", "costo_log": "Costo del viaggio (€)",
+                "score": "Risparmio netto (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
+                "ep_pct": "Convenienza prezzo (posizione)", "eta_giorni": "Età prezzo (gg)",
             }
         )
-        cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", "P_i (€/l)", "Distanza (km)", "D_i (km)",
-                "Guadagno (€)", "Brent (€)", "Costo logistico (€)", "S_i (€)", "Peso w = −S", "Peso w ≥ 0",
-                "E_p", "E_p (percentile)", "Età prezzo (gg)", "id", "lat", "lon"]
+        cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", "Prezzo (€/l)", "Distanza (km)", "Km in più",
+                "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
+                "Convenienza prezzo", "Convenienza prezzo (posizione)", "Età prezzo (gg)", "id", "lat", "lon"]
         cols = [c for c in cols if c in tab.columns]
         export = tab[cols].copy()
         export.insert(0, "origine_lat", origin[0])
@@ -370,21 +374,24 @@ with tab_arc:
             st.dataframe(
                 tab[cols], hide_index=True, height=480, width="stretch",
                 column_config={
-                    "P_i (€/l)": st.column_config.NumberColumn(format="%.3f"),
+                    "Prezzo (€/l)": st.column_config.NumberColumn(format="%.3f"),
                     "Distanza (km)": st.column_config.NumberColumn(format="%.1f"),
-                    "D_i (km)": st.column_config.NumberColumn(format="%.1f"),
-                    "Guadagno (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Brent (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Costo logistico (€)": st.column_config.NumberColumn(format="%.2f"),
-                    "S_i (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Peso w = −S": st.column_config.NumberColumn(format="%+.2f"),
-                    "Peso w ≥ 0": st.column_config.NumberColumn(format="%.2f"),
-                    "E_p": st.column_config.NumberColumn(format="%.2f"),
-                    "E_p (percentile)": st.column_config.NumberColumn(format="%.2f"),
+                    "Km in più": st.column_config.NumberColumn(format="%.1f"),
+                    "Risparmio sul prezzo (€)": st.column_config.NumberColumn(format="%+.2f"),
+                    "Effetto Brent (€)": st.column_config.NumberColumn(format="%+.2f"),
+                    "Costo del viaggio (€)": st.column_config.NumberColumn(format="%.2f"),
+                    "Risparmio netto (€)": st.column_config.NumberColumn(format="%+.2f"),
+                    "Peso arco": st.column_config.NumberColumn(format="%+.2f"),
+                    "Peso arco (≥ 0)": st.column_config.NumberColumn(format="%.2f"),
+                    "Convenienza prezzo": st.column_config.NumberColumn(format="%.2f"),
+                    "Convenienza prezzo (posizione)": st.column_config.NumberColumn(format="%.2f"),
                     "Età prezzo (gg)": st.column_config.NumberColumn(format="%.1f"),
                 },
             )
-            st.caption("Peso w = −S per il cammino minimo; w ≥ 0 = S_max − S se servono pesi non negativi.")
+            st.caption("Risparmio netto = risparmio sul prezzo + effetto Brent − costo del viaggio. «Peso arco» è il "
+                       "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
+                       "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
+                       "della zona) a 0 (il più caro).")
 
 # --------------------------------------------------------------------------
 # Come funziona
