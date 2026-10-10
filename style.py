@@ -18,7 +18,7 @@ N100, N200, N300, N400, N500, N700 = "#f2f8fb", "#e2eef4", "#c9dde7", "#a5c2d1",
 A100, A600, A700 = "#fff3e6", "#e07600", "#a65600"
 
 BRAND = "⛽ Score di rifornimento"
-SIDEBAR_W = 340  # larghezza fissa della barra laterale (scheda + 20px di margine sinistro)
+SIDEBAR_W = 290  # larghezza fissa della barra laterale (scheda + 20px di margine sinistro)
 
 CSS = f"""
 <style>
@@ -51,26 +51,30 @@ section[data-testid="stSidebar"] div:has(> [data-testid="stSidebarResizeHandle"]
 section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ background: #fff; border-radius: var(--radius-lg); margin: 20px 0 20px 20px;
   box-shadow: var(--shadow-soft); width: calc(100% - 20px) !important; height: calc(100vh - 40px);
   padding: 0; overflow-x: hidden; overflow-y: auto; position: relative; }}
-[data-testid="stSidebarUserContent"] {{ padding: 16px 20px 14px; }}
+[data-testid="stSidebarUserContent"] {{ padding: 12px 14px 10px; }}
 [data-testid="stSidebarHeader"] {{ position: absolute; top: 12px; right: 12px; z-index: 2; padding: 0;
   height: auto; min-height: 0; width: auto; }}
 [data-testid="stSidebarHeader"] [data-testid="stLogoSpacer"] {{ display: none; }}
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 10px; }}
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {{ gap: 10px; }}
+/* barra laterale compatta: poco spazio tra i campi, campi e pulsanti bassi */
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 6px; }}
+[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {{ gap: 8px; }}
 [data-testid="stSidebar"] [data-baseweb="input"], [data-testid="stSidebar"] [data-testid="stNumberInputContainer"] {{
-  height: 36px; }}
-[data-testid="stSidebar"] [data-baseweb="select"] > div {{ min-height: 36px; }}
-/* schermi bassi: spazi ridotti perche' la barra laterale entri senza scroll */
-@media (max-height: 760px) {{
-  [data-testid="stSidebarUserContent"] {{ padding: 12px 20px 10px; }}
-  [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 6px; }}
-  [data-testid="stSidebar"] .stRadio [role="radiogroup"] {{ gap: 0; }}
-  [data-testid="stSidebar"] .stSlider {{ margin-top: -4px; margin-bottom: -6px; }}
-}}
+  height: 32px; }}
+[data-testid="stSidebar"] [data-baseweb="select"] > div {{ min-height: 32px; }}
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {{ min-height: 0; margin-bottom: 0; }}
+[data-testid="stSidebar"] .stRadio [role="radiogroup"] {{ gap: 0 12px; }}
+[data-testid="stSidebar"] .stSlider {{ margin-top: -6px; margin-bottom: -8px; }}
+[data-testid="stSidebar"] .stButton button, [data-testid="stSidebar"] .stDownloadButton button {{
+  min-height: 32px; padding: 4px 14px; }}
+[data-testid="stSidebar"] .stButton button p {{ font-size: 13px; }}
+[data-testid="stSidebar"] [data-testid="stExpander"] summary {{ padding: 8px 12px; }}
+[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {{ padding: 4px 12px 12px; }}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {{ padding: 6px 8px; }}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none; }}
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {{ font-size: 12px; color: {N700}; }}
-[data-testid="stSidebar"] .stRadio [data-testid="stWidgetLabel"] p {{ font-size: 13px; font-weight: 800;
+[data-testid="stSidebar"] .stRadio [data-testid="stWidgetLabel"] p {{ font-size: 12px; font-weight: 800;
   letter-spacing: .08em; text-transform: uppercase; color: {N700}; }}
-[data-testid="stSidebar"] .stRadio label p {{ font-size: 14px; color: {DEEP}; }}
+[data-testid="stSidebar"] .stRadio label p {{ font-size: 13px; color: {DEEP}; }}
 [data-testid="stRadioOption"]:not([data-selected="true"]) > div > div:first-child {{
   background: #fff; border: 1.5px solid {N500}; }}
 [data-testid="stRadioOption"]:not([data-selected="true"]):hover > div > div:first-child {{ border-color: {ORANGE}; }}

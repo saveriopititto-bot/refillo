@@ -203,23 +203,15 @@ with sb_main:
         origin = (c1.number_input("Lat", value=43.2300, format="%.5f"),
                   c2.number_input("Lon", value=12.7800, format="%.5f"))
 
-    dest = None
-    if st.checkbox("Ho una destinazione", help="La deviazione diventa il detour sul percorso."):
-        c1, c2 = st.columns(2)
-        dest = (c1.number_input("Lat dest.", value=43.1100, format="%.5f"),
-                c2.number_input("Lon dest.", value=12.3900, format="%.5f"))
-
     style.section("2 · Carburante")
-    fuel = st.selectbox("Prodotto", fm.FUELS)
-    self_service = st.radio("Modalità", ["Self", "Servito"], horizontal=True, label_visibility="collapsed") == "Self"
-
-    style.section("3 · Veicolo")
+    fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
     v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
     livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
     consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=6.5, step=0.1)
     raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 15)
 
 with adv_model:
+    self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
     livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
                             help="Sotto questo livello conviene sempre fare rifornimento.") / 100
     litri = None
@@ -254,7 +246,7 @@ params = fm.ModelParams(
     ref_mode=ref_mode, theta=theta, livello_min=livello_min,
 )
 cands = fm.build_candidates(anag, prezzi, fuel, self_service, float(max_age), extraction)
-edges, info = fm.compute_edges(cands, origin, params, dest)
+edges, info = fm.compute_edges(cands, origin, params)
 
 data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
@@ -278,7 +270,7 @@ with tab_res:
             f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
             f"<strong>{num(best.dist_km)} km</strong>. Facendo {num(info['q'])} litri lì risparmi "
             f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo tipico della zona, "
-            f"già tolto il costo della deviazione."
+            f"già tolto il costo del viaggio."
         )
         corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
         if not info["decisione"]:
@@ -404,8 +396,8 @@ L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparm
 
 - **Il prezzo**: confronta il prezzo di ogni distributore con quello tipico della zona e calcola quanto spendi
   in meno (o in più) per i litri che devi fare.
-- **Il viaggio**: toglie quanto ti costa arrivarci, cioè carburante e usura dell'auto per i chilometri in più.
-  Se indichi una destinazione conta solo la deviazione dal percorso, altrimenti andata e ritorno.
+- **Il viaggio**: toglie quanto ti costa arrivarci e tornare, cioè carburante e usura dell'auto per i
+  chilometri di andata e ritorno.
 - **Il petrolio**: se negli ultimi giorni il Brent è salito, i prezzi alla pompa tenderanno a salire e fare
   rifornimento ora conviene un po' di più; se è sceso, conviene un po' meno. Questo vale per tutti i
   distributori allo stesso modo, quindi cambia il verdetto ma non la classifica.
