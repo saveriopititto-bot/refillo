@@ -16,8 +16,6 @@ import style
 st.set_page_config(page_title="Score di rifornimento", page_icon="⛽", layout="wide")
 style.apply_style()
 
-tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"])
-
 BASE = Path(__file__).parent
 ANAG_FILE, PREZZI_FILE = fm.ANAG_FILE, fm.PREZZI_FILE
 CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
@@ -233,8 +231,7 @@ with adv_model:
                       help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
 with sb_foot:
-    style.html('<p class="x-note">Prezzi dagli open data MIMIT. Le distanze sono stimate in linea d\'aria × '
-               'fattore strada.</p>')
+    style.html('')
 
 # --------------------------------------------------------------------------
 # Calcolo
@@ -253,6 +250,8 @@ edges, info = fm.compute_edges(cands, origin, params)
 data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
          f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
+
+tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"])
 
 # --------------------------------------------------------------------------
 # Risultato
