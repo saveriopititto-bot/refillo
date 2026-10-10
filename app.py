@@ -15,7 +15,7 @@ import streamlit_js_eval
 import fuel_model as fm
 import style
 
-st.set_page_config(page_title="Score di rifornimento", page_icon="⛽", layout="wide")
+st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide")
 style.apply_style()
 
 BASE = Path(__file__).parent
