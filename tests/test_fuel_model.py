@@ -63,7 +63,7 @@ def test_compute_edges(dati):
     assert edges.iloc[0].id == "2"  # più economico, poco più lontano
     assert (edges.score == edges.guadagno + edges.brent - edges.costo_log).all()
     assert (edges.peso_pos >= 0).all()
-    assert info["decisione"] == (edges.score.max() > p.theta)
+    assert info["consiglio"] == (edges.score.max() > p.theta)
 
 
 def test_compute_edges_vuoto(dati):
@@ -105,3 +105,47 @@ def test_download_csv_rifiuta_html(monkeypatch):
                         lambda req, timeout: _Risposta(b"<!DOCTYPE html><html>errore | manutenzione</html>"))
     with pytest.raises(ValueError):
         fm.download_csv(fm.PREZZI_FILE)
+
+
+# --------------------------------------------------------------------------
+# Score del Brent da Supabase
+# --------------------------------------------------------------------------
+class _RispostaJSON:
+    def __init__(self, stato, corpo):
+        self.status_code, self._corpo = stato, corpo
+
+    def json(self):
+        return self._corpo
+
+
+RIGA_SCORE = {"data": "2026-10-09", "esito": 1, "score": 1.42, "brent_eur": 70.5, "media_30_eur": 66.0,
+              "aggiornato_il": "2026-10-09T22:31:00+00:00"}
+
+
+def test_fetch_brent_score(monkeypatch):
+    chiamate = []
+
+    def finto_get(url, params=None, headers=None, timeout=None):
+        chiamate.append((url, params, headers))
+        return _RispostaJSON(200, [RIGA_SCORE])
+
+    monkeypatch.setattr(fm.requests, "get", finto_get)
+    s = fm.fetch_brent_score("https://prova.supabase.co/", "chiave-anon")
+    url, params, headers = chiamate[0]
+    assert url == "https://prova.supabase.co/rest/v1/brent_score"
+    assert params["order"] == "data.desc" and params["limit"] == "1"
+    assert headers["apikey"] == "chiave-anon"
+    assert s["esito"] == 1 and s["data"] == pd.Timestamp("2026-10-09")
+    assert s["brent_eur"] == pytest.approx(70.5) and s["media_30_eur"] == pytest.approx(66.0)
+    assert set(fm.BRENT_SCORE_TESTI) == {1, 0, -1}
+
+
+@pytest.mark.parametrize("risposta, messaggio", [
+    (_RispostaJSON(200, []), "vuota"),
+    (_RispostaJSON(401, {"message": "Invalid API key"}), "401"),
+    (_RispostaJSON(200, [dict(RIGA_SCORE, esito=2)]), "esito non valido"),
+])
+def test_fetch_brent_score_errori(monkeypatch, risposta, messaggio):
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: risposta)
+    with pytest.raises(ValueError, match=messaggio):
+        fm.fetch_brent_score("https://prova.supabase.co", "chiave-anon")

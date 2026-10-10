@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import os
 from html import escape
 from pathlib import Path
 
@@ -69,6 +70,27 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
     try:
         return fm.fetch_brent_yf(n_giorni), ""
     except Exception as e:  # rete assente, Yahoo non risponde, dati insufficienti
+        return None, str(e) or type(e).__name__
+
+
+def segreto(nome: str) -> str:
+    """Valore dai Secrets di Streamlit, oppure dalla variabile d'ambiente; stringa vuota se manca."""
+    try:
+        valore = st.secrets.get(nome, "")
+    except Exception:  # nessun file dei segreti
+        valore = ""
+    return str(valore or os.environ.get(nome, ""))
+
+
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Leggo lo score del petrolio…")
+def brent_score() -> tuple[dict | None, str]:
+    """Ultimo score del Brent da Supabase; (None, motivo) se non configurato o non raggiungibile."""
+    url, chiave = segreto("SUPABASE_URL"), segreto("SUPABASE_ANON_KEY")
+    if not (url and chiave):
+        return None, "non configurato"
+    try:
+        return fm.fetch_brent_score(url, chiave), ""
+    except Exception as e:  # rete assente, tabella vuota, chiave sbagliata
         return None, str(e) or type(e).__name__
 
 
@@ -151,6 +173,7 @@ with adv_data:
     if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
         download.clear()
         brent_yahoo.clear()
+        brent_score.clear()
         st.rerun()
 
 if anag_b is None or prezzi_b is None:
@@ -281,6 +304,26 @@ with tab_res:
             ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
+
+        # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
+        bs, bs_err = brent_score()
+        with style.card("brent-score"):
+            style.title("Il petrolio nei prossimi giorni")
+            if bs is None:
+                motivo = ("collegamento a Supabase non configurato" if bs_err == "non configurato"
+                          else f"non raggiungibile ({escape(bs_err)})")
+                style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
+            else:
+                etichetta, spiegazione = fm.BRENT_SCORE_TESTI[bs["esito"]]
+                tipo = {1: "accent", 0: "neutral", -1: "outline"}[bs["esito"]]
+                scarto = bs["brent_eur"] / bs["media_30_eur"] - 1
+                giorni = (pd.Timestamp.now(tz="Europe/Rome").tz_localize(None).normalize() - bs["data"]).days
+                vecchio = (f" Attenzione: il dato ha {giorni} giorni, potrebbe non essere aggiornato."
+                           if giorni > 4 else "")
+                style.html(f'<p style="margin:0">{style.tag(etichetta, tipo)} {escape(spiegazione)}</p>')
+                style.html(f'<p class="x-note">Petrolio Brent del {bs["data"]:%d/%m/%Y}: {num(bs["brent_eur"], 2)} € al '
+                           f'barile, {_it(f"{scarto:+.1%}")} rispetto alla media degli ultimi 30 giorni '
+                           f'({num(bs["media_30_eur"], 2)} €). Dall\'app «Prezzo del petrolio».{vecchio}</p>')
 
         with style.card("map"):
             style.title("Dove conviene andare")

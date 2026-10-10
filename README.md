@@ -20,6 +20,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   conveniente (arancione), e la classifica dei 5 migliori.
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
+- **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
+  del petrolio» (test2) e lo mostra nella scheda Risultato: «Rifornisci», «Neutro» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
@@ -85,6 +87,8 @@ Il risultato è diviso in tre schede:
     Brent, in poco spazio anche da telefono;
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
+  - il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase (vedi «Score del
+    petrolio»);
   - la mappa e i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
@@ -124,6 +128,35 @@ download compaiono nel riquadro della decisione.
 
 Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
 Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Brent.
+
+## Score del petrolio (da Supabase)
+
+Nella scheda **Risultato**, sotto gli indicatori, il riquadro «Il petrolio nei prossimi giorni» mostra lo score
+del Brent calcolato dall'app «Prezzo del petrolio» (repository test2). Quell'app lo scrive ogni giorno di borsa,
+dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
+
+- **Rifornisci**: il Brent è sopra la sua media degli ultimi 30 giorni più del solito. I prezzi alla pompa
+  tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare.
+- **Neutro**: il Brent è vicino alla sua media; il petrolio non spinge i prezzi né in su né in giù.
+- **Aspetta**: il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
+
+Sotto compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
+dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggiornato.
+
+È solo un'informazione in più: **non entra nel calcolo** del risparmio né nel verdetto, che continuano a
+usare la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance.
+
+**Configurazione**: in Streamlit Cloud, *Manage app → ⋮ → Settings → Secrets*, aggiungi
+
+```toml
+SUPABASE_URL = "https://<progetto>.supabase.co"
+SUPABASE_ANON_KEY = "<chiave anon o publishable>"
+```
+
+Va usata la chiave **pubblica** (`anon` o `publishable`) del progetto, non quella `service_role`: permette
+solo di leggere. In locale si possono usare le variabili d'ambiente con gli stessi nomi, oppure il file
+`.streamlit/secrets.toml` (escluso da git). Senza configurazione il riquadro dice semplicemente che il
+collegamento non è configurato. Il dato è tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
 
 ## Storico dei prezzi
 
@@ -185,13 +218,13 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | File | Contenuto |
 |---|---|
 | `app.py` | Interfaccia Streamlit: barra laterale, schede Risultato, Archi e Come funziona, geolocalizzazione |
-| `fuel_model.py` | Download e lettura dei CSV MIMIT, geometria, Brent da Yahoo Finance, calcolo degli score |
+| `fuel_model.py` | Download e lettura dei CSV MIMIT, geometria, Brent da Yahoo Finance, score del Brent da Supabase, calcolo degli score |
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
-| `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent e score |
+| `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent, score del Brent da Supabase e score |
 | `tests/test_storico.py` | Test dello storico: mediane, finestra di 40 giorni, archivi, lettura e scrittura |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
