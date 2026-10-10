@@ -5,5 +5,7 @@ Metti qui i due CSV open data MIMIT (https://www.mimit.gov.it/it/open-data/elenc
 - `anagrafica_impianti_attivi.csv`
 - `prezzo_alle_8.csv`
 
-L'app li legge automaticamente all'avvio; in alternativa si possono caricare dalla barra laterale.
+Non è obbligatorio: se la cartella è vuota l'app scarica da sola i file aggiornati dal sito del MIMIT.
+I file messi qui hanno la precedenza sul download (utile offline o per analizzare un giorno preciso);
+quelli caricati a mano dalla barra laterale hanno la precedenza su tutto.
 I CSV non sono versionati (vedi `.gitignore`).
