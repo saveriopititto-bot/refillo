@@ -321,7 +321,7 @@ data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data 
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
          f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
 
-tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"])
+tab_res, tab_arc, tab_petrolio, tab_how = st.tabs(["Risultato", "Archi", "Petrolio", "Come funziona"])
 
 # --------------------------------------------------------------------------
 # Risultato
@@ -360,28 +360,6 @@ with tab_res:
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
 
-        with style.card("brent-score"):
-            style.title("Il petrolio nei prossimi giorni")
-            if bs is None:
-                if bs_err.startswith("non configurato|"):
-                    _, mancano, trovati = bs_err.split("|", 2)
-                    motivo = ("collegamento a Supabase non configurato: nei Secrets di questa app su Streamlit "
-                              f"manca <code>{escape(mancano)}</code>. Segreti trovati: "
-                              f"<code>{escape(trovati)}</code>")
-                else:
-                    motivo = f"non raggiungibile ({escape(bs_err)})"
-                style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
-            else:
-                etichetta, spiegazione = fm.BRENT_SCORE_TESTI[bs["esito"]]
-                tipo = {1: "accent", 0: "neutral", -1: "outline"}[bs["esito"]]
-                scarto = bs["brent_eur"] / bs["media_30_eur"] - 1
-                giorni = (pd.Timestamp.now(tz="Europe/Rome").tz_localize(None).normalize() - bs["data"]).days
-                vecchio = (f" Attenzione: il dato ha {giorni} giorni, potrebbe non essere aggiornato."
-                           if giorni > 4 else "")
-                style.html(f'<p style="margin:0">{style.tag(etichetta, tipo)} {escape(spiegazione)}</p>')
-                style.html(f'<p class="x-note">Petrolio Brent del {bs["data"]:%d/%m/%Y}: {num(bs["brent_eur"], 2)} € al '
-                           f'barile, {_it(f"{scarto:+.1%}")} rispetto alla media degli ultimi 30 giorni '
-                           f'({num(bs["media_30_eur"], 2)} €).{vecchio}</p>')
 
         with style.card("map"):
             style.title("Dove conviene andare")
@@ -502,6 +480,33 @@ with tab_arc:
                        "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
                        "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
                        "della zona) a 0 (il più caro).")
+
+# --------------------------------------------------------------------------
+# Petrolio
+# --------------------------------------------------------------------------
+with tab_petrolio:
+    with style.card("brent-score"):
+        style.title("Il petrolio nei prossimi giorni")
+        if bs is None:
+            if bs_err.startswith("non configurato|"):
+                _, mancano, trovati = bs_err.split("|", 2)
+                motivo = ("collegamento a Supabase non configurato: nei Secrets di questa app su Streamlit "
+                          f"manca <code>{escape(mancano)}</code>. Segreti trovati: "
+                          f"<code>{escape(trovati)}</code>")
+            else:
+                motivo = f"non raggiungibile ({escape(bs_err)})"
+            style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
+        else:
+            etichetta, spiegazione = fm.BRENT_SCORE_TESTI[bs["esito"]]
+            tipo = {1: "accent", 0: "neutral", -1: "outline"}[bs["esito"]]
+            scarto = bs["brent_eur"] / bs["media_30_eur"] - 1
+            giorni = (pd.Timestamp.now(tz="Europe/Rome").tz_localize(None).normalize() - bs["data"]).days
+            vecchio = (f" Attenzione: il dato ha {giorni} giorni, potrebbe non essere aggiornato."
+                       if giorni > 4 else "")
+            style.html(f'<p style="margin:0">{style.tag(etichetta, tipo)} {escape(spiegazione)}</p>')
+            style.html(f'<p class="x-note">Petrolio Brent del {bs["data"]:%d/%m/%Y}: {num(bs["brent_eur"], 2)} € al '
+                       f'barile, {_it(f"{scarto:+.1%}")} rispetto alla media degli ultimi 30 giorni '
+                       f'({num(bs["media_30_eur"], 2)} €).{vecchio}</p>')
 
 # --------------------------------------------------------------------------
 # Come funziona
