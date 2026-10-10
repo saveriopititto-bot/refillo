@@ -85,14 +85,14 @@ Il risultato è diviso in tre schede:
 
 - **Risultato**:
   - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
-  - il riquadro «Consiglio», compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio
-    dello stesso colore, grande quanto il riquadro (più piccolo da telefono):
+  - il riquadro «Consiglio», blu petrolio in tutti i casi e compatto anche da telefono. Segue lo score del
+    petrolio, con a destra un cerchio colorato, grande quanto il riquadro (più piccolo da telefono):
 
     | Score | Consiglio | Frase sotto, in bianco | Cerchio |
     |---|---|---|---|
     | +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
     | 0 | Rifornisci | Quando ti serve | arancione, pallino |
-    | −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù (riquadro ambra) |
+    | −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù |
 
     Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
     conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
@@ -154,8 +154,8 @@ dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
 - **Aspetta** (−1): il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
 
 Lo stesso esito decide il riquadro «Consiglio» in cima, con il cerchio colorato: verde con freccia in su
-(Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta, su fondo ambra). Il cerchio
-è bianco dentro, così si legge sia sul riquadro blu sia su quello ambra.
+(Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta). Il riquadro resta sempre
+blu petrolio, in tutti i casi; il cerchio è bianco dentro.
 
 Nel riquadro «Il petrolio nei prossimi giorni» compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
 dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggiornato.

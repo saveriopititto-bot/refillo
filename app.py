@@ -353,14 +353,14 @@ with tab_res:
         bs, bs_err = leggi_brent_score()
         if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
             titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
-            style.hero("Consiglio", titolo, frase, "", ok=bs["esito"] != -1,
+            style.hero("Consiglio", titolo, frase, "",
                        aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
         else:
             corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
             if not info["consiglio"]:
                 corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
             style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                       "", corpo, ok=info["consiglio"], meta_html=note_dati)
+                       "", corpo, meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} nel raggio"),
