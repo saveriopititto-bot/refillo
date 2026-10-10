@@ -159,17 +159,17 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
   .x-metric .s {{ display: none; }}
 }}
 .x-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft); padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px 32px; align-items: end; }}
-.x-hero .k {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: {SKY}; }}
-.x-hero .v {{ font-size: 48px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
-.x-hero .s {{ font-size: 18px; font-weight: 600; }}
-.x-hero .m {{ font-size: 13px; line-height: 1.5; color: {SKY}; margin: 6px 0 4px; }}
+  box-shadow: var(--shadow-soft); padding: 16px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 8px 28px; align-items: center; }}
+.x-hero .k {{ font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: {SKY}; }}
+.x-hero .v {{ font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
+.x-hero .s {{ font-size: 15px; font-weight: 600; }}
+.x-hero .m {{ font-size: 12px; line-height: 1.4; color: {SKY}; margin: 2px 0; }}
 .x-hero.wait .m {{ color: {A100}; }}
 .x-hero.wait {{ background: linear-gradient(135deg, {A700}, {A600}); }}
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
-.x-hero p {{ margin: 0; font-size: 16px; line-height: 1.5; text-wrap: pretty; color: #fff; }}
+.x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
@@ -244,7 +244,7 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
     """
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
     html(f"""<div class="x-hero{'' if ok else ' wait'}">
-<div style="display:flex;flex-direction:column;gap:4px"><span class="k">{escape(kicker)}</span>
+<div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
 <span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
 <p>{body_html}</p></div>""")
 
