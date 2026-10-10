@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import streamlit_js_eval
 
 import fuel_model as fm
 import style
@@ -77,6 +78,32 @@ def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
     return data, "scaricato"
 
 
+GEO_ERRORI = {
+    1: "hai negato il permesso di accedere alla posizione (puoi riattivarlo dalle impostazioni del sito nel browser)",
+    2: "il dispositivo non riesce a determinare la posizione",
+    3: "la richiesta di posizione è scaduta",
+}
+
+
+def posizione_browser() -> tuple[tuple[float, float] | None, str]:
+    """Posizione reale dal browser (API Geolocation): ((lat, lon), nota) oppure (None, motivo)."""
+    giro = st.session_state.get("geo_giro", 0)
+    geo = streamlit_js_eval.get_geolocation(component_key=f"geo_{giro}")
+    if not geo:
+        return None, "Consenti l'accesso alla posizione quando il browser lo chiede…"
+    if "error" in geo:
+        err = geo["error"] or {}
+        return None, "Posizione non disponibile: " + GEO_ERRORI.get(err.get("code"), err.get("message", "errore sconosciuto")) + "."
+    c = geo["coords"]
+    lat, lon = float(c["latitude"]), float(c["longitude"])
+    acc = c.get("accuracy")
+    nota = f"Posizione rilevata: {lat:.5f}, {lon:.5f}" + (f" (precisione ±{acc:,.0f} m)".replace(",", ".") if acc else "")
+    la0, la1, lo0, lo1 = fm.ITALY_BBOX
+    if not (la0 <= lat <= la1 and lo0 <= lon <= lo1):
+        nota += ". Sei fuori dall'Italia: i dati MIMIT coprono solo i distributori italiani."
+    return (lat, lon), nota
+
+
 def stop_with(msg: str) -> None:
     style.html(f'<div class="x-lead"><strong>⛽ Score di rifornimento</strong><br>{msg}</div>')
     st.stop()
@@ -122,8 +149,17 @@ with sb:
                    'il filtro sull\'età del prezzo è disattivato.</p>')
 
     style.section("2 · Dove sei")
-    modo_pos = st.radio("Imposta da", ["Comune", "Coordinate"], horizontal=True, label_visibility="collapsed")
-    if modo_pos == "Comune":
+    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune", "Coordinate"], horizontal=True,
+                        label_visibility="collapsed")
+    origin, attesa_pos = None, ""
+    if modo_pos == "La mia posizione":
+        origin, nota = posizione_browser()
+        attesa_pos = nota if origin is None else ""
+        st.caption(nota)
+        if st.button("Aggiorna posizione", width="stretch"):
+            st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+            st.rerun()
+    elif modo_pos == "Comune":
         comuni = sorted(anag.comune.unique())
         idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
         comune = st.selectbox("Comune", comuni, index=idx)
@@ -194,6 +230,9 @@ with sb:
 # --------------------------------------------------------------------------
 # Calcolo
 # --------------------------------------------------------------------------
+if origin is None:
+    stop_with(escape(attesa_pos) + "<br>In alternativa scegli <strong>Comune</strong> o <strong>Coordinate</strong> "
+              "in «2 · Dove sei» nella barra laterale.")
 params = fm.ModelParams(
     v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
     consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
