@@ -18,7 +18,6 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   costo dei chilometri in più. Il verdetto è «Rifornisci» o «Non conviene».
 - **Mostra dove andare**: una mappa con i distributori colorati dal più conveniente (verde-azzurro) al meno
   conveniente (arancione), e la classifica dei 5 migliori.
-- **Tiene conto del tragitto**: se indichi una destinazione, conta solo la deviazione dal percorso.
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
@@ -32,15 +31,15 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 ## Come si usa
 
-La barra laterale è divisa in tre sezioni:
+La barra laterale è compatta e divisa in due sezioni:
 
-1. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate». Opzionalmente, una destinazione.
-2. **Carburante**: prodotto e self/servito.
-3. **Veicolo**: capacità del serbatoio, carburante nel serbatoio (in %), consumo e raggio di ricerca.
+1. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate».
+2. **Carburante**: prodotto, capacità del serbatoio, carburante nel serbatoio (in %), consumo e raggio di
+   ricerca.
 
-In «Opzioni avanzate» ci sono i parametri del modello (soglia di riserva, litri da fare, usura dell'auto, età
-massima del prezzo, strada in più rispetto alla linea d'aria, prezzo tipico della zona, soglia di convenienza e
-peso del petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante
+In «Opzioni avanzate» ci sono self o servito (predefinito: self), i parametri del modello (soglia di riserva,
+litri da fare, usura dell'auto, età massima del prezzo, strada in più rispetto alla linea d'aria, prezzo
+tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante
 «Riscarica ora», che aggiorna prezzi e Brent.
 
 L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:
@@ -68,6 +67,7 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Raggio d'azione | 15 km su strada |
 | Soglia di riserva | 10% |
 | Litri da fare | il pieno |
+| Self o servito | self |
 | Usura dell'auto | 0,05 €/km |
 | Età massima del prezzo | 7 giorni |
 | Strada in più rispetto alla linea d'aria | × 1,3 |
@@ -100,8 +100,9 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 - **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
   Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
   distributori: sposta il verdetto ma non la classifica.
-- **D_i**: chilometri in più. Senza destinazione è andata e ritorno; con destinazione è la deviazione dal
-  percorso diretto. Le distanze sono in linea d'aria per un fattore strada (1,3 di default).
+- **D_i**: chilometri in più, cioè andata e ritorno dalla tua posizione al distributore. Le distanze sono in
+  linea d'aria per un fattore strada (1,3 di default). Il modello in `fuel_model.compute_edges` gestisce anche
+  una destinazione (conta solo la deviazione dal percorso), ma l'app non la usa.
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
