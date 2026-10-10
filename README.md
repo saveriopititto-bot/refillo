@@ -155,7 +155,9 @@ dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggi
 È solo un'informazione in più: **non entra nel calcolo** del risparmio né nel verdetto, che continuano a
 usare la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance.
 
-**Configurazione**: in Streamlit Cloud, *Manage app → ⋮ → Settings → Secrets*, aggiungi
+**Configurazione**: i segreti vanno nei Secrets **di questa app su Streamlit Cloud** (non nei secret del
+repository GitHub, che servono solo all'esportazione di scorebrent). Su https://share.streamlit.io, accanto a
+FuelMode, *⋮ → Settings → Secrets*, incolla e salva:
 
 ```toml
 SUPABASE_URL = "https://<progetto>.supabase.co"
@@ -164,7 +166,11 @@ SUPABASE_ANON_KEY = "<chiave anon o publishable>"
 
 Va usata la chiave **pubblica** (`anon` o `publishable`) del progetto, non quella `service_role`: permette
 solo di leggere. In locale si possono usare le variabili d'ambiente con gli stessi nomi, oppure il file
-`.streamlit/secrets.toml` (escluso da git). In alternativa i due valori possono stare in una sezione:
+`.streamlit/secrets.toml` (escluso da git).
+
+I nomi non distinguono maiuscole e minuscole. Per la chiave vanno bene anche `SUPABASE_KEY` e
+`SUPABASE_PUBLISHABLE_KEY`. In alternativa i due valori possono stare in una sezione che nel nome contiene
+«supabase», come `[supabase]` o `[connections.supabase]`:
 
 ```toml
 [supabase]
@@ -172,11 +178,11 @@ url = "https://<progetto>.supabase.co"
 anon_key = "<chiave anon o publishable>"
 ```
 
-Senza configurazione il riquadro dice che il collegamento non è configurato e indica i nomi dei due segreti.
-Quel messaggio non resta in memoria: appena i segreti vengono salvati, alla prossima apertura l'app li trova.
-Lo score letto, invece, è tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
+Senza configurazione il riquadro dice quale segreto manca ed elenca i nomi dei segreti che l'app trova (mai i
+valori), per capire se sono stati salvati con un altro nome o nell'app sbagliata. Quel messaggio non resta in
+memoria: appena i segreti vengono salvati, alla prossima apertura l'app li trova. Lo score letto, invece, è
+tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
 
-Il collegamento è attivo sull'app online: i segreti sono configurati e il riquadro mostra l'esito più recente.
 Se compare «non raggiungibile», il messaggio tra parentesi dice perché: per esempio `401` se la chiave è
 sbagliata, «tabella vuota» se l'esportazione di scorebrent non ha ancora scritto nessuna riga.
 
