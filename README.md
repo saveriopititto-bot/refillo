@@ -166,6 +166,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent e score |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
+| `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
 Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole, schede bianche arrotondate, palette
 `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
