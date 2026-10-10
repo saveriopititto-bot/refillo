@@ -125,6 +125,29 @@ download compaiono nel riquadro della decisione.
 Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
 Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Brent.
 
+## Storico dei prezzi
+
+Per confrontare i prezzi di oggi con quelli delle settimane passate, un'azione GitHub
+(`.github/workflows/storico.yml`) gira ogni mattina alle 7:17 UTC: scarica i CSV MIMIT del giorno e salva
+nel branch **`dati`** due file:
+
+- `storico/medie_comuni.csv.gz`: per ogni giorno, comune, carburante e self/servito, la mediana dei prezzi e
+  il numero di distributori (stessi filtri dell'app: prezzi plausibili e non più vecchi di 7 giorni). Tiene
+  gli ultimi 40 giorni;
+- `storico/comuni.csv.gz`: il centro di ogni comune (mediana delle coordinate dei distributori), per sapere
+  quali comuni cadono nel raggio.
+
+L'azione si può avviare anche a mano da GitHub (*Actions → Storico prezzi → Run workflow*): con il campo
+«archivio» vuoto salva i prezzi di oggi; con uno o più URL degli archivi trimestrali MIMIT (tar.gz) riempie
+lo storico a ritroso con i giorni che il file conserva. In locale:
+
+```bash
+python scripts/raccogli_storico.py --cartella storico                  # prezzi di oggi
+python scripts/raccogli_storico.py --cartella storico --archivio X.tar.gz
+```
+
+Lo storico servirà allo score «prezzi rispetto agli ultimi 30 giorni», in sviluppo su un branch separato.
+
 ## Posizione
 
 La posizione arriva dall'API Geolocation del browser, tramite `streamlit-js-eval`. Funziona solo su HTTPS
@@ -166,8 +189,12 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
+| `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
+| `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
 | `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent e score |
+| `tests/test_storico.py` | Test dello storico: mediane, finestra di 40 giorni, archivi, lettura e scrittura |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
+| `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
 Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole, schede bianche arrotondate, palette
