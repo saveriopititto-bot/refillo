@@ -172,6 +172,9 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}
 [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ margin-top: -6px; }}
 [data-testid="stSidebar"] .x-note {{ font-size: 11px; }}
+/* componente invisibile che chiede la posizione al browser: niente spazio vuoto */
+[data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
+  overflow: hidden; margin: 0; }}
 </style>
 """
 

@@ -20,6 +20,14 @@ All'avvio l'app scarica da sola i CSV aggiornati dal sito del MIMIT (con una cac
 "Riscarica ora"). In alternativa si possono caricare a mano dalla barra laterale o mettere in `data/`
 (vedi `data/README.md`): i file caricati a mano hanno la precedenza, poi quelli in `data/`, poi il download.
 
+## Posizione
+
+In «2 · Dove sei» la scelta predefinita è **La mia posizione**: il browser chiede il permesso e l'app usa
+le coordinate reali del dispositivo (API Geolocation, tramite `streamlit-js-eval`); il pulsante
+"Aggiorna posizione" la rileva di nuovo. Funziona solo su HTTPS (come su Streamlit Cloud) o su `localhost`.
+Se il permesso viene negato o la posizione non è disponibile, si può scegliere un **Comune** o inserire
+le **Coordinate** a mano.
+
 ## Struttura
 
 - `fuel_model.py` — lettura dei CSV, geometria, Brent e calcolo degli score.
