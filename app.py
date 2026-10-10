@@ -73,30 +73,54 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-def supabase_config() -> tuple[str, str]:
-    """(indirizzo, chiave pubblica) di Supabase dai Secrets di Streamlit o dalle variabili d'ambiente.
+NOMI_URL = ("supabase_url", "url")
+NOMI_CHIAVE = ("supabase_anon_key", "supabase_publishable_key", "supabase_key", "anon_key",
+               "publishable_key", "key")
 
-    Accetta SUPABASE_URL e SUPABASE_ANON_KEY (o SUPABASE_KEY) in cima ai Secrets, oppure una sezione
-    [supabase] con url e anon_key (o key). Stringhe vuote se mancano."""
+
+def _segreti_piatti() -> dict[str, str]:
+    """Tutti i Secrets di Streamlit come {«sezione.nome» in minuscolo: valore}, sezioni annidate comprese."""
     try:
         segreti = dict(st.secrets)
     except Exception:  # nessun file dei segreti
-        segreti = {}
-    sezione = next((v for k, v in segreti.items() if k.lower() == "supabase" and hasattr(v, "get")), {})
+        return {}
+    piatti: dict[str, str] = {}
 
-    def primo(nomi: tuple[str, ...], nomi_sezione: tuple[str, ...]) -> str:
-        for n in nomi:
-            v = segreti.get(n) or os.environ.get(n)
-            if v and isinstance(v, str):
-                return v.strip()
-        for n in nomi_sezione:
-            v = sezione.get(n)
-            if v and isinstance(v, str):
-                return v.strip()
+    def visita(d, prefisso: str) -> None:
+        for k, v in d.items():
+            nome = f"{prefisso}{str(k).strip().lower()}"
+            if hasattr(v, "items"):
+                visita(v, nome + ".")
+            elif isinstance(v, str):
+                piatti[nome] = v.strip()
+
+    visita(segreti, "")
+    return piatti
+
+
+def supabase_config() -> tuple[str, str, list[str]]:
+    """(indirizzo, chiave pubblica, nomi dei Secrets presenti) di Supabase.
+
+    Cerca, senza badare a maiuscole e minuscole, SUPABASE_URL e SUPABASE_ANON_KEY (o SUPABASE_KEY,
+    SUPABASE_PUBLISHABLE_KEY) in cima ai Secrets o nelle variabili d'ambiente, oppure url e anon_key (o key)
+    in una sezione che nel nome contiene «supabase», come [supabase] o [connections.supabase]."""
+    piatti = _segreti_piatti()
+
+    def cerca(nomi: tuple[str, ...]) -> str:
+        for n in nomi:  # in cima ai Secrets o nell'ambiente: solo i nomi completi SUPABASE_…
+            if not n.startswith("supabase_"):
+                continue
+            v = piatti.get(n) or os.environ.get(n.upper(), "").strip()
+            if v:
+                return v
+        for n in nomi:  # dentro una sezione «supabase»
+            for chiave, v in piatti.items():
+                sezione, _, nome = chiave.rpartition(".")
+                if v and nome == n and "supabase" in sezione:
+                    return v
         return ""
 
-    return (primo(("SUPABASE_URL",), ("url", "SUPABASE_URL")),
-            primo(("SUPABASE_ANON_KEY", "SUPABASE_KEY"), ("anon_key", "key", "SUPABASE_ANON_KEY")))
+    return cerca(NOMI_URL), cerca(NOMI_CHIAVE), sorted(piatti)
 
 
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Leggo lo score del petrolio…")
@@ -111,9 +135,11 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
 def leggi_brent_score() -> tuple[dict | None, str]:
     """Score del petrolio, oppure (None, motivo). «Non configurato» non va in cache: appena si aggiungono i
     Secrets, l'app li trova."""
-    url, chiave = supabase_config()
+    url, chiave, nomi = supabase_config()
     if not (url and chiave):
-        return None, "non configurato"
+        mancano = [n for n, v in (("SUPABASE_URL", url), ("SUPABASE_ANON_KEY", chiave)) if not v]
+        trovati = ", ".join(nomi) if nomi else "nessuno"
+        return None, f"non configurato|{', '.join(mancano)}|{trovati}"
     return brent_score(url, chiave)
 
 
@@ -336,9 +362,13 @@ with tab_res:
         with style.card("brent-score"):
             style.title("Il petrolio nei prossimi giorni")
             if bs is None:
-                motivo = ("collegamento a Supabase non configurato (nei Secrets dell'app servono "
-                          "<code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>)" if bs_err == "non configurato"
-                          else f"non raggiungibile ({escape(bs_err)})")
+                if bs_err.startswith("non configurato|"):
+                    _, mancano, trovati = bs_err.split("|", 2)
+                    motivo = ("collegamento a Supabase non configurato: nei Secrets di questa app su Streamlit "
+                              f"manca <code>{escape(mancano)}</code>. Segreti trovati: "
+                              f"<code>{escape(trovati)}</code>")
+                else:
+                    motivo = f"non raggiungibile ({escape(bs_err)})"
                 style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
             else:
                 etichetta, spiegazione = fm.BRENT_SCORE_TESTI[bs["esito"]]
