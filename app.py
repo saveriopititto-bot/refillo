@@ -166,7 +166,7 @@ if anag.empty or prezzi.empty:
     style.error_card("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
     st.stop()
 
-# righe (HTML già sicuro) sui dati usati, mostrate nel riquadro della decisione
+# righe (HTML già sicuro) sui dati usati, mostrate nel riquadro del consiglio
 del_giorno = f" del {extraction:%d/%m/%Y}" if extraction is not None else ""
 if "caricato" in (src_a, src_p):
     nota_prezzi = f"Prezzi MIMIT{del_giorno} da file caricati a mano"
@@ -181,7 +181,7 @@ note_dati = [escape(nota_prezzi), nota_brent]
 
 with sb_main:
     style.section("1 · Dove sei")
-    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune", "Coordinate"], horizontal=True,
+    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
                         label_visibility="collapsed")
     origin, attesa_pos = None, ""
     if modo_pos == "La mia posizione":
@@ -191,17 +191,13 @@ with sb_main:
         if st.button("Aggiorna posizione", width="stretch"):
             st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
             st.rerun()
-    elif modo_pos == "Comune":
+    else:
         comuni = sorted(anag.comune.unique())
         idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
         comune = st.selectbox("Comune", comuni, index=idx)
         sel = anag[anag.comune == comune]
         origin = (float(sel.lat.median()), float(sel.lon.median()))
         st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
-    else:
-        c1, c2 = st.columns(2)
-        origin = (c1.number_input("Lat", value=43.2300, format="%.5f"),
-                  c2.number_input("Lon", value=12.7800, format="%.5f"))
 
     style.section("2 · Carburante")
     fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
@@ -272,10 +268,10 @@ with tab_res:
             f"considerando il costo del viaggio."
         )
         corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-        if not info["decisione"]:
+        if not info["consiglio"]:
             corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
-        style.hero("Decisione", "Rifornisci" if info["decisione"] else "Non conviene",
-                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
+        style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
+                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["consiglio"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} nel raggio"),
