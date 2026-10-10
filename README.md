@@ -23,6 +23,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
+- **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
+  alla larghezza dello schermo.
 - **Parla italiano semplice**: niente simboli né formule nell'interfaccia; percentuali e cifre in euro, con
   i numeri in formato italiano.
 
@@ -77,8 +79,13 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 Il risultato è diviso in tre schede:
 
-- **Risultato**: il riepilogo, il riquadro della decisione (verdetto, motivo, data dei prezzi MIMIT usati e
-  variazione del Brent), gli indicatori, la mappa e i 5 distributori migliori.
+- **Risultato**:
+  - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
+  - il riquadro della decisione: verdetto, motivo, data dei prezzi MIMIT usati e variazione del Brent;
+  - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
+    al km), che restano su una riga anche da telefono;
+  - la mappa e i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
+    insegna.
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
