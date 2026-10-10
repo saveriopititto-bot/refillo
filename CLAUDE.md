@@ -46,4 +46,10 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Dati**: prezzi e anagrafica MIMIT scaricati da `fuel_model.download_csv` (cache 3 ore), Brent da Yahoo
   Finance (`fetch_brent_yf`, cache 3 ore). Precedenza: CSV caricati a mano → cartella `data/` → download.
   I CSV in `data/` non si versionano.
+- **Storico**: `storico.py` + `scripts/raccogli_storico.py`, lanciati ogni mattina da
+  `.github/workflows/storico.yml`, che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
+  giorni) e `storico/comuni.csv.gz` nel branch `dati`. Non fare mai merge del branch `dati` in `main` e non
+  modificarlo a mano. Le azioni programmate girano solo se il loro file è su `main`.
+- **Score 30 giorni (1 / 0 / -1)**: in sviluppo sul branch `claude/score-30gg`, **senza merge** su `main`
+  finché l'utente non lo chiede (eccezione al flusso di lavoro qui sopra).
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.

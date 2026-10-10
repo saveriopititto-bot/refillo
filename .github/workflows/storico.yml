@@ -1,0 +1,61 @@
+name: Storico prezzi
+
+# Ogni mattina salva nel branch `dati` le mediane dei prezzi per comune (storico/medie_comuni.csv.gz,
+# ultimi 40 giorni) e il centro dei comuni (storico/comuni.csv.gz). Si può avviare anche a mano,
+# indicando uno o più archivi trimestrali MIMIT per riempire lo storico a ritroso.
+on:
+  schedule:
+    - cron: "17 7 * * *"  # 7:17 UTC, dopo la pubblicazione dei prezzi delle 8
+  workflow_dispatch:
+    inputs:
+      archivio:
+        description: "URL di archivi trimestrali MIMIT (tar.gz), separati da spazi; vuoto = prezzi di oggi"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: storico
+  cancel-in-progress: false
+
+jobs:
+  raccogli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installa le dipendenze
+        run: pip install pandas numpy
+      - name: Prepara il branch dati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin dati > /dev/null; then
+            git fetch --depth 1 origin dati
+            git worktree add dati-wt FETCH_HEAD
+            git -C dati-wt switch -c dati
+          else
+            git worktree add --detach dati-wt
+            git -C dati-wt switch --orphan dati
+          fi
+      - name: Aggiorna lo storico
+        env:
+          ARCHIVIO: ${{ github.event.inputs.archivio }}
+        run: |
+          args=()
+          for u in $ARCHIVIO; do args+=(--archivio "$u"); done
+          python scripts/raccogli_storico.py --cartella dati-wt/storico "${args[@]}"
+      - name: Salva nel branch dati
+        working-directory: dati-wt
+        run: |
+          git add storico
+          if git diff --cached --quiet; then
+            echo "Nessuna modifica."
+          else
+            git commit -m "Storico prezzi: $(date -u +%Y-%m-%d)"
+            git push origin dati
+          fi
