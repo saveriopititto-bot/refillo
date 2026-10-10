@@ -56,6 +56,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   Supabase, scritta ogni giorno dal repository `scorebrent`. Usa la chiave pubblica: segreti `SUPABASE_URL` e
   `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Lo score decide il riquadro
   «Consiglio» (Conviene / Rifornisci / Aspetta, con il cerchio), ma non entra nel calcolo del risparmio né nella
-  classifica; senza score il riquadro torna al verdetto sul risparmio. Nei test va simulato
+  classifica; senza score il riquadro torna al verdetto sul risparmio. La scheda «Petrolio» incorpora con un iframe la pagina
+  «Score rifornimento» di scorebrent (`SCOREBRENT_URL` + `?embed=true&pagina=score`). Nei test va simulato
   `fm.fetch_brent_score`.
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.

@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import streamlit.components.v1 as components
 import streamlit_js_eval
 
 import fuel_model as fm
@@ -131,6 +132,10 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
     except Exception as e:  # rete assente, tabella vuota, chiave sbagliata
         return None, str(e) or type(e).__name__
 
+
+# app «Prezzo del petrolio» (repository scorebrent): la scheda Petrolio ne incorpora la pagina «Score rifornimento»
+SCOREBRENT_URL = "https://scorebrent.streamlit.app/"
+SCOREBRENT_ALTEZZA = 2100  # px; la pagina scorre dentro il riquadro se serve
 
 # frase sotto il consiglio quando lo score del petrolio è disponibile (stesso colore del cerchio)
 CONSIGLIO_PETROLIO = {
@@ -334,6 +339,9 @@ tab_res, tab_arc, tab_petrolio, tab_how = st.tabs(["Risultato", "Archi", "Petrol
 # --------------------------------------------------------------------------
 # Risultato
 # --------------------------------------------------------------------------
+# score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per Risultato e Petrolio
+bs, bs_err = leggi_brent_score()
+
 with tab_res:
     if edges.empty:
         style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
@@ -342,8 +350,6 @@ with tab_res:
     else:
         best = info["best"]
         prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
-        # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
-        bs, bs_err = leggi_brent_score()
         if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
             titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
             style.hero("Consiglio", titolo, frase, "",
@@ -494,28 +500,20 @@ with tab_arc:
 # Petrolio
 # --------------------------------------------------------------------------
 with tab_petrolio:
-    with style.card("brent-score"):
-        style.title("Il petrolio nei prossimi giorni")
-        if bs is None:
-            if bs_err.startswith("non configurato|"):
-                _, mancano, trovati = bs_err.split("|", 2)
-                motivo = ("collegamento a Supabase non configurato: nei Secrets di questa app su Streamlit "
-                          f"manca <code>{escape(mancano)}</code>. Segreti trovati: "
-                          f"<code>{escape(trovati)}</code>")
-            else:
-                motivo = f"non raggiungibile ({escape(bs_err)})"
-            style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
-        else:
-            etichetta, spiegazione = fm.BRENT_SCORE_TESTI[bs["esito"]]
-            tipo = {1: "accent", 0: "neutral", -1: "outline"}[bs["esito"]]
-            scarto = bs["brent_eur"] / bs["media_30_eur"] - 1
-            giorni = (pd.Timestamp.now(tz="Europe/Rome").tz_localize(None).normalize() - bs["data"]).days
-            vecchio = (f" Attenzione: il dato ha {giorni} giorni, potrebbe non essere aggiornato."
-                       if giorni > 4 else "")
-            style.html(f'<p style="margin:0">{style.tag(etichetta, tipo)} {escape(spiegazione)}</p>')
-            style.html(f'<p class="x-note">Petrolio Brent del {bs["data"]:%d/%m/%Y}: {num(bs["brent_eur"], 2)} € al '
-                       f'barile, {_it(f"{scarto:+.1%}")} rispetto alla media degli ultimi 30 giorni '
-                       f'({num(bs["media_30_eur"], 2)} €).{vecchio}</p>')
+    # la pagina «Score rifornimento» dell'app scorebrent, incorporata così com'è
+    if bs is None and bs_err.startswith("non configurato|"):
+        _, mancano, trovati = bs_err.split("|", 2)
+        style.html('<p class="x-note">Collegamento a Supabase non configurato: nei Secrets di questa app su '
+                   f"Streamlit manca <code>{escape(mancano)}</code>. Segreti trovati: "
+                   f"<code>{escape(trovati)}</code>. Il riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
+    elif bs is None:
+        style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
+                   "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
+    style.html(f'<p class="x-note">Dall\'app «Prezzo del petrolio» '
+               f'(<a href="{SCOREBRENT_URL}" target="_blank">apri a tutto schermo</a>). Se l\'app è in pausa '
+               "per inattività, qui sotto compare il pulsante per risvegliarla: ci vuole circa un minuto.</p>")
+    components.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA, scrolling=True)
+
 
 # --------------------------------------------------------------------------
 # Come funziona
