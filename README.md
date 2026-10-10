@@ -21,7 +21,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
-  del petrolio» (test2) e lo mostra nella scheda Risultato: «Rifornisci», «Neutro» o «Aspetta».
+  del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nella scheda
+  Risultato: «Rifornisci», «Neutro» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
@@ -132,7 +133,8 @@ Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Bren
 ## Score del petrolio (da Supabase)
 
 Nella scheda **Risultato**, sotto gli indicatori, il riquadro «Il petrolio nei prossimi giorni» mostra lo score
-del Brent calcolato dall'app «Prezzo del petrolio» (repository test2). Quell'app lo scrive ogni giorno di borsa,
+del Brent calcolato dall'app «Prezzo del petrolio» (repository
+[scorebrent](https://github.com/saveriopititto-bot/scorebrent)). Quell'app lo scrive ogni giorno di borsa,
 dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
 
 - **Rifornisci**: il Brent è sopra la sua media degli ultimi 30 giorni più del solito. I prezzi alla pompa
@@ -157,6 +159,10 @@ Va usata la chiave **pubblica** (`anon` o `publishable`) del progetto, non quell
 solo di leggere. In locale si possono usare le variabili d'ambiente con gli stessi nomi, oppure il file
 `.streamlit/secrets.toml` (escluso da git). Senza configurazione il riquadro dice semplicemente che il
 collegamento non è configurato. Il dato è tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
+
+Il collegamento è attivo sull'app online: i segreti sono configurati e il riquadro mostra l'esito più recente.
+Se compare «non raggiungibile», il messaggio tra parentesi dice perché: per esempio `401` se la chiave è
+sbagliata, «tabella vuota» se l'esportazione di scorebrent non ha ancora scritto nessuna riga.
 
 ## Storico dei prezzi
 

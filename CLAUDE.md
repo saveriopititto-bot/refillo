@@ -52,4 +52,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   modificarlo a mano. Le azioni programmate girano solo se il loro file è su `main`.
 - **Score 30 giorni (1 / 0 / -1)**: in sviluppo sul branch `claude/score-30gg`, **senza merge** su `main`
   finché l'utente non lo chiede (eccezione al flusso di lavoro qui sopra).
+- **Score del petrolio**: `fuel_model.fetch_brent_score` legge l'ultima riga della tabella `brent_score` di
+  Supabase, scritta ogni giorno dal repository `scorebrent`. Usa la chiave pubblica: segreti `SUPABASE_URL` e
+  `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Il riquadro «Il petrolio nei prossimi
+  giorni» è solo informativo: non entra nel calcolo né nel verdetto. Nei test va simulato
+  `fm.fetch_brent_score`.
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.
