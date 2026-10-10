@@ -19,6 +19,7 @@ style.apply_style()
 BASE = Path(__file__).parent
 ANAG_FILE, PREZZI_FILE = fm.ANAG_FILE, fm.PREZZI_FILE
 CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
+BRENT_GIORNI = 7  # n: finestra della variazione del Brent
 
 
 # --------------------------------------------------------------------------
@@ -60,6 +61,15 @@ def load_data(anag_bytes: bytes, prezzi_bytes: bytes):
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico i dati aggiornati dal MIMIT…")
 def download(name: str) -> tuple[bytes, pd.Timestamp]:
     return fm.download_csv(name), pd.Timestamp.now(tz="Europe/Rome")
+
+
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico il Brent da Yahoo Finance…")
+def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
+    """Brent ed EUR/USD da Yahoo Finance; in caso di errore (None, motivo), così anche il fallimento resta in cache."""
+    try:
+        return fm.fetch_brent_yf(n_giorni), ""
+    except Exception as e:  # rete assente, Yahoo non risponde, dati insufficienti
+        return None, str(e) or type(e).__name__
 
 
 def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
@@ -126,11 +136,26 @@ with sb:
         quando = st.session_state["scaricato_alle"]
         st.caption(f"Dati scaricati dal MIMIT alle {quando:%H:%M} del {quando:%d/%m}; "
                    f"si aggiornano da soli ogni {CACHE_ORE} ore.")
-        if st.button("Riscarica ora", width="stretch"):
-            download.clear()
-            st.rerun()
     elif src_a or src_p:
         st.caption("Dati da file " + ("caricati a mano." if "caricato" in (src_a, src_p) else "nella cartella data/."))
+
+    brent, brent_err = brent_yahoo(BRENT_GIORNI)
+    if brent:
+        dB = fm.brent_delta(brent["b_t"], brent["b_tn"], brent["fx_t"], brent["fx_tn"])
+        db_txt = _it(f"{dB:+.2%}")
+        st.caption(
+            f"Brent da Yahoo Finance, {brent['data_tn']:%d/%m} → {brent['data_t']:%d/%m}: "
+            f"{num(brent['b_tn'], 2)} → {num(brent['b_t'], 2)} $/bbl, EUR/USD "
+            f"{num(brent['fx_tn'], 4)} → {num(brent['fx_t'], 4)}. "
+            f"Variazione in euro ΔB = **{db_txt}** (limitata a ±10%)."
+        )
+    else:
+        dB = 0.0
+        st.caption(f"Brent non disponibile da Yahoo Finance ({brent_err}): uso ΔB = 0.")
+    if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
+        download.clear()
+        brent_yahoo.clear()
+        st.rerun()
 if anag_b is None or prezzi_b is None:
     errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
     stop_with("Non sono riuscito a scaricare i dati dal sito del MIMIT"
@@ -199,30 +224,8 @@ with sb:
         road_factor = st.slider("Fattore strada / linea d'aria", 1.0, 2.0, 1.3, 0.05)
         ref_mode = st.radio("P_market = … dei prezzi nel raggio", ["mediana", "media"], horizontal=True)
         theta = st.number_input("Soglia θ (€)", value=0.0, step=0.5)
-        alpha = st.slider("α (pass-through Brent)", 0.0, 0.4, 0.20, 0.01)
-        brent_mode = st.radio("Variazione Brent ΔB", ["Manuale", "Yahoo Finance"], horizontal=True)
-        if brent_mode == "Manuale":
-            dB = st.number_input("Variazione Brent in € (%)", value=0.0, step=0.5) / 100
-            dB = fm.brent_delta(1 + dB, 1.0)  # applica il limite ±10%
-        else:
-            n_days = st.number_input("n (giorni)", min_value=1, max_value=60, value=7)
-            if st.button("Scarica Brent e EUR/USD", width="stretch"):
-                try:
-                    st.session_state["brent"] = fm.fetch_brent_yf(int(n_days))
-                except Exception as e:  # rete assente, yfinance mancante, ecc.
-                    st.session_state.pop("brent", None)
-                    st.error(f"Download non riuscito: {e}")
-            data = st.session_state.get("brent")
-            if data:
-                dB = fm.brent_delta(data["b_t"], data["b_tn"], data["fx_t"], data["fx_tn"])
-                st.caption(
-                    f"Brent {data['b_tn']:.2f} → {data['b_t']:.2f} $/bbl, EUR/USD {data['fx_tn']:.4f} → "
-                    f"{data['fx_t']:.4f} ({data['data_tn']:%d/%m} → {data['data_t']:%d/%m})"
-                )
-            else:
-                dB = 0.0
-                st.caption("Nessun dato scaricato: ΔB = 0.")
-        st.caption(f"ΔB usato (limitato a ±10%): **{_it(f'{dB:+.2%}')}**")
+        alpha = st.slider("α (pass-through Brent)", 0.0, 0.4, 0.20, 0.01,
+                          help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.")
 
     style.html('<p class="x-note">Prezzi dagli open data MIMIT. Le distanze sono stimate in linea d\'aria × '
                'fattore strada.</p>')
@@ -385,7 +388,7 @@ $$S_i = q\,\big[(P_{market}-P_i)+\alpha\,P_{market}\,\Delta B\big]-D_i\,C_{km}$$
 
 - **q**: litri acquistati (`V_tot·(1−L)` se pieno).
 - **P_market**: mediana/media dei prezzi dei distributori nel raggio.
-- **ΔB**: variazione relativa del Brent in euro su *n* giorni, limitata a ±10%; **α** è la quota di pass-through.
+- **ΔB**: variazione relativa del Brent in euro negli ultimi 7 giorni (scaricata da Yahoo Finance), limitata a ±10%; **α** è la quota di pass-through.
 - **D_i**: deviazione. Senza destinazione è andata e ritorno (2·d); con destinazione è `d(o,i)+d(i,dest)−d(o,dest)`.
 - **C_km** = consumo/100 · P_market + usura.
 - **Peso dell'arco**: `w = −S_i` (cammino minimo), oppure `w = S_max − S_i` se servono pesi non negativi.

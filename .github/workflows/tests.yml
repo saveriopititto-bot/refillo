@@ -19,5 +19,7 @@ jobs:
           cache: pip
       - name: Installa le dipendenze
         run: pip install -r requirements.txt pytest
+      - name: Controlla la sintassi di tutti i file
+        run: python -m compileall -q -x '/\.' .
       - name: Esegui i test
         run: python -m pytest -v
