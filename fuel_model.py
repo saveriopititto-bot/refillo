@@ -211,21 +211,34 @@ def fetch_brent_yf(n_days: int) -> dict:
 # --------------------------------------------------------------------------
 # Modello
 # --------------------------------------------------------------------------
-@dataclass
 class ModelParams:
-    v_tot: float = 50.0            # capacità serbatoio (l)
-    livello: float = 0.25          # L in [0, 1]
-    litri: float | None = None     # q; None -> v_tot * (1 - L)
-    alpha: float = 0.2             # pass-through del Brent, [0, 0.4]
-    delta_brent: float = 0.0       # dB relativo (già limitato)
-    consumo_l100: float = 5.0      # l/100 km
-    usura_eur_km: float = 0.05     # costo variabile di usura (€/km)
-    road_factor: float = 1.3       # km su strada / km in linea d'aria
-    raggio_km: float = 20.0        # raggio d'azione (km su strada stimati)
-    use_osrm: bool = True          # usa OSRM per i percorsi reali
-    ref_mode: str = "mediana"      # "mediana" | "media" per P_market
-    theta: float = 0.0             # soglia di consiglio (€)
-    livello_min: float = 0.10      # L_min: sotto questa soglia si rifornisce comunque
+    def __init__(self,
+                 v_tot: float = 50.0,
+                 livello: float = 0.25,
+                 litri: float | None = None,
+                 alpha: float = 0.2,
+                 delta_brent: float = 0.0,
+                 consumo_l100: float = 5.0,
+                 usura_eur_km: float = 0.05,
+                 road_factor: float = 1.3,
+                 raggio_km: float = 20.0,
+                 use_osrm: bool = True,
+                 ref_mode: str = "mediana",
+                 theta: float = 0.0,
+                 livello_min: float = 0.10):
+        self.v_tot = v_tot
+        self.livello = livello
+        self.litri = litri
+        self.alpha = alpha
+        self.delta_brent = delta_brent
+        self.consumo_l100 = consumo_l100
+        self.usura_eur_km = usura_eur_km
+        self.road_factor = road_factor
+        self.raggio_km = raggio_km
+        self.use_osrm = use_osrm
+        self.ref_mode = ref_mode
+        self.theta = theta
+        self.livello_min = livello_min
 
     @property
     def litri_effettivi(self) -> float:
