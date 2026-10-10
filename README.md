@@ -18,4 +18,4 @@ Metti i CSV MIMIT in `data/` (vedi `data/README.md`) oppure caricali dalla barra
 
 - `fuel_model.py` — lettura dei CSV, geometria, Brent e calcolo degli score.
 - `app.py` — interfaccia Streamlit (mappa pydeck, tabella degli archi, export CSV).
-- `tests/` — test del modello: `pip install pytest && pytest`.
+- `tests/` — test del modello: `pip install pytest && python -m pytest` (eseguiti anche in CI con GitHub Actions a ogni push e PR).
