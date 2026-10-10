@@ -208,6 +208,7 @@ with adv_model:
     consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
     raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
     use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
+    show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
     self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
     livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
                             help="Sotto questo livello conviene sempre fare rifornimento.") / 100
@@ -283,7 +284,6 @@ with tab_res:
 
         with style.card("map"):
             style.title("Dove conviene andare")
-            show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori", value=False)
             st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
                        "arancione = conviene poco.")
             smin, smax = edges.score.min(), edges.score.max()
