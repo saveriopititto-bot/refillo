@@ -273,10 +273,10 @@ with tab_res:
             f"considerando il costo del viaggio."
         )
         corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-        if not info["CONSIGLIO"]:
+        if not info["decisione"]:
             corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
-        style.hero("CONSIGLIO", "Rifornisci" if info["CONSIGLIO"] else "Non conviene",
-                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["CONSIGLIO"], meta_html=note_dati)
+        style.hero("Decisione", "Rifornisci" if info["decisione"] else "Non conviene",
+                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} nel raggio"),
