@@ -81,10 +81,9 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 ### Schede
 
-Il risultato è diviso in tre schede:
+Il risultato è diviso in quattro schede:
 
 - **Risultato**:
-  - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
   - il riquadro «Consiglio», blu petrolio in tutti i casi e compatto anche da telefono. Segue lo score del
     petrolio, con a destra un cerchio colorato, grande quanto il riquadro (più piccolo da telefono):
 
@@ -99,13 +98,15 @@ Il risultato è diviso in tre schede:
     (il risparmio migliore rispetto alla soglia di convenienza);
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
-  - il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase (vedi «Score del
-    petrolio»);
-  - la mappa e i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
+  - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
+    del distributore migliore, prezzo, distanza e risparmio), poi la mappa;
+  - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
+- **Petrolio**: il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase
+  (vedi «Score del petrolio»).
 - **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
@@ -143,7 +144,7 @@ Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Bren
 
 ## Score del petrolio (da Supabase)
 
-Nella scheda **Risultato**, sotto gli indicatori, il riquadro «Il petrolio nei prossimi giorni» mostra lo score
+Nella scheda **Petrolio** il riquadro «Il petrolio nei prossimi giorni» mostra lo score
 del Brent calcolato dall'app «Prezzo del petrolio» (repository
 [scorebrent](https://github.com/saveriopititto-bot/scorebrent)). Quell'app lo scrive ogni giorno di borsa,
 dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
