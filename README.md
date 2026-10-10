@@ -85,7 +85,8 @@ Il risultato è diviso in tre schede:
 - **Risultato**:
   - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
   - il riquadro della decisione, compatto: verdetto, data dei prezzi MIMIT usati e variazione del Brent, in
-    poco spazio anche da telefono. A destra c'è un cerchio con lo score del petrolio: bordo verde e freccia
+    poco spazio anche da telefono. A destra, grande quanto il riquadro (più piccolo da telefono), c'è un
+    cerchio con lo score del petrolio: bordo verde e freccia
     in su se è positivo (Rifornisci), bordo arancione e pallino se è neutro, bordo rosso e freccia in giù se è
     negativo (Aspetta). Se lo score del petrolio non è disponibile, al posto del cerchio c'è il motivo del
     verdetto (il risparmio migliore rispetto alla soglia di convenienza);

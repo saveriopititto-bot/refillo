@@ -343,14 +343,15 @@ with tab_res:
         )
         # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
         bs, bs_err = leggi_brent_score()
-        if bs is not None:  # al posto del motivo, il cerchio con lo score del petrolio
-            corpo = style.cerchio_score(bs["esito"], "Petrolio: " + fm.BRENT_SCORE_TESTI[bs["esito"]][0])
+        corpo, cerchio = "", ""
+        if bs is not None:  # al posto del motivo, a destra, il cerchio con lo score del petrolio
+            cerchio = style.cerchio_score(bs["esito"], "Petrolio: " + fm.BRENT_SCORE_TESTI[bs["esito"]][0])
         else:
             corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
             if not info["consiglio"]:
                 corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
         style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                   "", corpo, ok=info["consiglio"], meta_html=note_dati)
+                   "", corpo, ok=info["consiglio"], meta_html=note_dati, aside_html=cerchio)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} nel raggio"),
