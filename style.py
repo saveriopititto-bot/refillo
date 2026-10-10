@@ -138,11 +138,22 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
   font-size: 19px; line-height: 1.5; text-wrap: pretty; }}
 .x-lead strong {{ color: {A700}; }}
 .x-label {{ font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: {N700}; }}
-.x-metrics {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }}
-.x-metric {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 20px 22px;
-  display: flex; flex-direction: column; gap: 6px; }}
-.x-metric .v {{ font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; font-variant-numeric: tabular-nums; }}
-.x-metric .s {{ font-size: 13px; color: {N700}; }}
+/* indicatori: riquadri compatti, sempre tutti su una riga */
+.x-metrics {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }}
+.x-metric {{ background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-soft); padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; }}
+.x-metric .x-label {{ font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+.x-metric .v {{ font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums;
+  white-space: nowrap; }}
+.x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+@media (max-width: 640px) {{
+  .x-metrics {{ gap: 6px; }}
+  .x-metric {{ padding: 8px 8px; }}
+  .x-metric {{ justify-content: space-between; }}
+  .x-metric .x-label {{ font-size: 9px; letter-spacing: .03em; white-space: normal; line-height: 1.25; }}
+  .x-metric .v {{ font-size: 13px; letter-spacing: -.03em; }}
+  .x-metric .s {{ display: none; }}
+}}
 .x-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px 32px; align-items: end; }}
