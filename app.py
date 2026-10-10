@@ -270,7 +270,7 @@ with tab_res:
             f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
             f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
             f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
-            f"togliendo il costo del viaggio."
+            f"considerando il costo del viaggio."
         )
         corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
         if not info["decisione"]:
