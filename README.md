@@ -1,13 +1,87 @@
 # ⛽ Score di rifornimento
 
 [![Apri l'app su Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fuelmode.streamlit.app/)
+[![Test](https://github.com/saveriopititto-bot/test3/actions/workflows/tests.yml/badge.svg)](https://github.com/saveriopititto-bot/test3/actions/workflows/tests.yml)
 
 **App online: https://fuelmode.streamlit.app/**
 
-App Streamlit che, data la posizione dell'auto, assegna un punteggio ai distributori vicini
-(open data MIMIT) e dice dove — e se — conviene fare rifornimento.
+App Streamlit che, partendo dalla tua posizione, assegna un punteggio ai distributori vicini usando i prezzi
+ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
+
+## Cosa fa
+
+- **Usa la tua posizione reale**: il browser chiede il permesso e l'app parte dalle coordinate del dispositivo.
+  In alternativa puoi scegliere un comune o inserire le coordinate a mano.
+- **Usa dati sempre aggiornati**: all'apertura scarica da sola anagrafica e prezzi dal sito del MIMIT,
+  senza file da caricare.
+- **Dice se conviene**: confronta il prezzo di ogni distributore con il prezzo tipico della zona e toglie il
+  costo dei chilometri in più. Il verdetto è «Rifornisci» o «Non conviene».
+- **Mostra dove andare**: una mappa con i distributori colorati dal più conveniente (verde-azzurro) al meno
+  conveniente (arancione), e la classifica dei 5 migliori.
+- **Tiene conto del tragitto**: se indichi una destinazione, conta solo la deviazione dal percorso.
+- **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
+  7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
+- **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
+  come grafo pesato.
+
+Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
+
+## Come si usa
+
+La barra laterale è divisa in quattro sezioni:
+
+1. **Dati**: di solito non serve toccarla. Mostra l'ora del download dei prezzi, la variazione del Brent e
+   il pulsante «Riscarica ora», che aggiorna entrambi. Da «Carica i CSV a mano» si possono usare file propri.
+2. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate». Opzionalmente, una destinazione.
+3. **Carburante**: prodotto e self/servito.
+4. **Veicolo**: capacità del serbatoio, livello attuale, consumo e raggio di ricerca.
+
+In «Opzioni avanzate» ci sono i parametri del modello: soglia di sicurezza del serbatoio, litri da fare,
+usura, età massima del prezzo, fattore strada, soglia θ e α (quanto della variazione del Brent passa ai prezzi).
+
+Il risultato è diviso in tre schede: **Risultato** (verdetto, indicatori, mappa, migliori 5), **Archi**
+(tabella completa ed export CSV) e **Come funziona** (la formula spiegata).
+
+## Il modello
 
 $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
+
+- **q**: litri da fare (di default il pieno, `V_tot·(1−L)`).
+- **P_market**: mediana (o media) dei prezzi dei distributori nel raggio.
+- **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
+  Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
+  distributori: sposta il verdetto ma non la classifica.
+- **D_i**: chilometri in più. Senza destinazione è andata e ritorno; con destinazione è la deviazione dal
+  percorso diretto. Le distanze sono in linea d'aria per un fattore strada (1,3 di default).
+- **C_km**: costo al km, cioè consumo × P_market + usura.
+
+Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
+sicurezza. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
+negativi.
+
+## Dati
+
+L'app usa gli open data MIMIT `anagrafica_impianti_attivi.csv` e `prezzo_alle_8.csv`. Li prende da, in
+ordine:
+
+1. i file caricati a mano dalla barra laterale;
+2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
+3. il download dal sito del MIMIT, tenuto in cache per 3 ore perché i prezzi cambiano una volta al giorno.
+
+Se il download non riesce, l'app lo dice e propone di caricare i file a mano.
+
+Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
+Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Brent.
+
+## Posizione
+
+La posizione arriva dall'API Geolocation del browser, tramite `streamlit-js-eval`. Funziona solo su HTTPS
+(come su Streamlit Cloud) o su `localhost`. Su telefono usa il GPS; su computer di solito è più approssimativa,
+perché il browser la stima dalla rete. Nella barra laterale compaiono coordinate e precisione, e
+«Aggiorna posizione» la rileva di nuovo.
+
+Se il permesso viene negato, l'app spiega come riattivarlo dalle impostazioni del sito nel browser e propone
+Comune o Coordinate.
 
 ## Avvio in locale
 
@@ -16,21 +90,34 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-All'avvio l'app scarica da sola i CSV aggiornati dal sito del MIMIT (con una cache di 3 ore e il pulsante
-"Riscarica ora"). In alternativa si possono caricare a mano dalla barra laterale o mettere in `data/`
-(vedi `data/README.md`): i file caricati a mano hanno la precedenza, poi quelli in `data/`, poi il download.
+## Test
 
-## Posizione
+```bash
+pip install pytest
+python -m pytest
+```
 
-In «2 · Dove sei» la scelta predefinita è **La mia posizione**: il browser chiede il permesso e l'app usa
-le coordinate reali del dispositivo (API Geolocation, tramite `streamlit-js-eval`); il pulsante
-"Aggiorna posizione" la rileva di nuovo. Funziona solo su HTTPS (come su Streamlit Cloud) o su `localhost`.
-Se il permesso viene negato o la posizione non è disponibile, si può scegliere un **Comune** o inserire
-le **Coordinate** a mano.
+I test girano anche in CI con GitHub Actions, su Python 3.10 e 3.12, a ogni pull request e a ogni push su
+`main`, insieme a un controllo della sintassi di tutti i file (compreso `app.py`, che i test non importano).
+
+## Deploy
+
+L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py`, Python 3.12): ogni merge su
+`main` aggiorna l'app online.
 
 ## Struttura
 
-- `fuel_model.py` — lettura dei CSV, geometria, Brent e calcolo degli score.
-- `app.py` — interfaccia Streamlit: schede Risultato (verdetto, mappa pydeck, migliori 5), Archi (tabella ed export CSV), Come funziona.
-- `style.py` + `.streamlit/config.toml` — stile dell'interfaccia, lo stesso di test4 (layout "1a": navigazione a pillole, schede bianche arrotondate, palette `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la 1.65).
-- `tests/` — test del modello: `pip install pytest && python -m pytest` (eseguiti anche in CI con GitHub Actions a ogni push e PR).
+| File | Contenuto |
+|---|---|
+| `app.py` | Interfaccia Streamlit: barra laterale, schede Risultato, Archi e Come funziona, geolocalizzazione |
+| `fuel_model.py` | Download e lettura dei CSV MIMIT, geometria, Brent da Yahoo Finance, calcolo degli score |
+| `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
+| `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
+| `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
+| `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent e score |
+| `.github/workflows/tests.yml` | CI con GitHub Actions |
+
+Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole, schede bianche arrotondate, palette
+`#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
+interni di Streamlit, testati con la 1.65: se dopo un aggiornamento un elemento perde lo stile, va aggiornato
+il selettore.
