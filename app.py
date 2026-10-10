@@ -381,7 +381,7 @@ with tab_res:
                 style.html(f'<p style="margin:0">{style.tag(etichetta, tipo)} {escape(spiegazione)}</p>')
                 style.html(f'<p class="x-note">Petrolio Brent del {bs["data"]:%d/%m/%Y}: {num(bs["brent_eur"], 2)} € al '
                            f'barile, {_it(f"{scarto:+.1%}")} rispetto alla media degli ultimi 30 giorni '
-                           f'({num(bs["media_30_eur"], 2)} €). Dall\'app «Prezzo del petrolio».{vecchio}</p>')
+                           f'({num(bs["media_30_eur"], 2)} €).{vecchio}</p>')
 
         with style.card("map"):
             style.title("Dove conviene andare")
