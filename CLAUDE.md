@@ -54,7 +54,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   finché l'utente non lo chiede (eccezione al flusso di lavoro qui sopra).
 - **Score del petrolio**: `fuel_model.fetch_brent_score` legge l'ultima riga della tabella `brent_score` di
   Supabase, scritta ogni giorno dal repository `scorebrent`. Usa la chiave pubblica: segreti `SUPABASE_URL` e
-  `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Il riquadro «Il petrolio nei prossimi
-  giorni» è solo informativo: non entra nel calcolo né nel verdetto. Nei test va simulato
+  `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Lo score decide il riquadro
+  «Consiglio» (Conviene / Rifornisci / Aspetta, con il cerchio), ma non entra nel calcolo del risparmio né nella
+  classifica; senza score il riquadro torna al verdetto sul risparmio. Nei test va simulato
   `fm.fetch_brent_score`.
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.

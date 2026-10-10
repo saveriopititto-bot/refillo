@@ -15,14 +15,15 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 - **Usa dati sempre aggiornati**: all'apertura scarica da sola anagrafica e prezzi dal sito del MIMIT,
   senza file da caricare.
 - **Dice se conviene**: confronta il prezzo di ogni distributore con il prezzo tipico della zona e toglie il
-  costo dei chilometri in più. Il verdetto è «Rifornisci» o «Non conviene».
+  costo dei chilometri in più. Il consiglio segue lo score del petrolio («Conviene», «Rifornisci» o
+  «Aspetta»); se lo score non è disponibile, il verdetto è «Rifornisci» o «Non conviene».
 - **Mostra dove andare**: una mappa con i distributori colorati dal più conveniente (verde-azzurro) al meno
   conveniente (arancione), e la classifica dei 5 migliori.
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
   del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nella scheda
-  Risultato: «Rifornisci», «Neutro» o «Aspetta».
+  Risultato: «Conviene», «Rifornisci» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
@@ -84,12 +85,18 @@ Il risultato è diviso in tre schede:
 
 - **Risultato**:
   - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
-  - il riquadro della decisione, compatto: verdetto, data dei prezzi MIMIT usati e variazione del Brent, in
-    poco spazio anche da telefono. A destra, grande quanto il riquadro (più piccolo da telefono), c'è un
-    cerchio con lo score del petrolio: bordo verde e freccia
-    in su se è positivo (Rifornisci), bordo arancione e pallino se è neutro, bordo rosso e freccia in giù se è
-    negativo (Aspetta). Se lo score del petrolio non è disponibile, al posto del cerchio c'è il motivo del
-    verdetto (il risparmio migliore rispetto alla soglia di convenienza);
+  - il riquadro «Consiglio», compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio
+    dello stesso colore, grande quanto il riquadro (più piccolo da telefono):
+
+    | Score | Consiglio | Frase sotto, in bianco | Cerchio |
+    |---|---|---|---|
+    | +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
+    | 0 | Rifornisci | Quando ti serve | arancione, pallino |
+    | −1 | Aspetta | A meno che non puoi farne a meno | rosso, freccia in giù (riquadro ambra) |
+
+    Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
+    conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
+    (il risparmio migliore rispetto alla soglia di convenienza);
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase (vedi «Score del
@@ -141,20 +148,20 @@ del Brent calcolato dall'app «Prezzo del petrolio» (repository
 [scorebrent](https://github.com/saveriopititto-bot/scorebrent)). Quell'app lo scrive ogni giorno di borsa,
 dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
 
-- **Rifornisci**: il Brent è sopra la sua media degli ultimi 30 giorni più del solito. I prezzi alla pompa
+- **Conviene** (+1): il Brent è sopra la sua media degli ultimi 30 giorni più del solito. I prezzi alla pompa
   tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare.
-- **Neutro**: il Brent è vicino alla sua media; il petrolio non spinge i prezzi né in su né in giù.
-- **Aspetta**: il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
+- **Rifornisci** (0, quando ti serve): il Brent è vicino alla sua media; il petrolio non spinge i prezzi né in su né in giù.
+- **Aspetta** (−1): il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
 
-Lo stesso esito compare come cerchio colorato nel riquadro della decisione: verde con freccia in su
-(Rifornisci), arancione con pallino (Neutro), rosso con freccia in giù (Aspetta). Il cerchio è bianco dentro,
-così si legge sia sul riquadro blu sia su quello ambra di «Non conviene».
+Lo stesso esito decide il riquadro «Consiglio» in cima, con il cerchio colorato: verde con freccia in su
+(Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta, su fondo ambra). Il cerchio
+è bianco dentro, così si legge sia sul riquadro blu sia su quello ambra.
 
 Nel riquadro «Il petrolio nei prossimi giorni» compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
 dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggiornato.
 
-È solo un'informazione in più: **non entra nel calcolo** del risparmio né nel verdetto, che continuano a
-usare la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance.
+Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare
+la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance: decide solo il consiglio mostrato in cima.
 
 **Configurazione**: i segreti vanno nei Secrets **di questa app su Streamlit Cloud** (non nei secret del
 repository GitHub, che servono solo all'esportazione di scorebrent). Su https://share.streamlit.io, accanto a
