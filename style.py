@@ -173,6 +173,11 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 .x-hero.wait .v {{ color: #fff; }}
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
+.x-hero.aside {{ grid-template-columns: minmax(0, 1fr) auto; padding-right: 14px; }}
+.x-hero-aside {{ align-self: stretch; display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
+.x-hero-aside .x-cerchio {{ height: 100%; }}
+.x-hero-aside svg {{ height: 100%; width: auto; min-height: 72px; max-height: 150px; }}
+@media (max-width: 640px) {{ .x-hero-aside svg {{ min-height: 56px; max-height: 84px; }} }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
@@ -240,16 +245,19 @@ def lead(text_html: str) -> None:
 
 
 def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
-         meta_html: Sequence[str] = ()) -> None:
+         meta_html: Sequence[str] = (), aside_html: str = "") -> None:
     """Scheda scura in evidenza con il verdetto (ambra se non conviene).
 
-    meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. body_html e meta_html vanno già validati.
+    meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. aside_html: al posto del testo, un elemento
+    allineato a destra e alto quanto la scheda (il cerchio dello score). Gli HTML passati vanno già validati.
     """
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
-    html(f"""<div class="x-hero{'' if ok else ' wait'}">
+    classi = "x-hero" + ("" if ok else " wait") + (" aside" if aside_html else "")
+    destra = f'<div class="x-hero-aside">{aside_html}</div>' if aside_html else f"<p>{body_html}</p>"
+    html(f"""<div class="{classi}">
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
 <span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
-<p>{body_html}</p></div>""")
+{destra}</div>""")
 
 
 def cerchio_score(esito: int, etichetta: str) -> str:
