@@ -12,7 +12,9 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Metti i CSV MIMIT in `data/` (vedi `data/README.md`) oppure caricali dalla barra laterale.
+All'avvio l'app scarica da sola i CSV aggiornati dal sito del MIMIT (con una cache di 3 ore e il pulsante
+"Riscarica ora"). In alternativa si possono caricare a mano dalla barra laterale o mettere in `data/`
+(vedi `data/README.md`): i file caricati a mano hanno la precedenza, poi quelli in `data/`, poi il download.
 
 ## Struttura
 

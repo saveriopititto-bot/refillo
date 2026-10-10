@@ -71,3 +71,37 @@ def test_compute_edges_vuoto(dati):
     c = fm.build_candidates(anag, prezzi, "Benzina", True, 7, extraction)
     edges, info = fm.compute_edges(c, (45.0, 9.0), fm.ModelParams(raggio_km=5))
     assert edges.empty and info["n"] == 0
+
+
+class _Risposta:
+    def __init__(self, data: bytes):
+        self.data = data
+
+    def read(self):
+        return self.data
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+def test_download_csv(monkeypatch):
+    chiamate = []
+
+    def finto_urlopen(req, timeout):
+        chiamate.append(req.full_url)
+        return _Risposta(ANAG.encode())
+
+    monkeypatch.setattr("urllib.request.urlopen", finto_urlopen)
+    data = fm.download_csv(fm.ANAG_FILE)
+    assert chiamate == ["https://www.mimit.gov.it/images/exportCSV/anagrafica_impianti_attivi.csv"]
+    assert len(fm.parse_anagrafica(data)[0]) == 3
+
+
+def test_download_csv_rifiuta_html(monkeypatch):
+    monkeypatch.setattr("urllib.request.urlopen",
+                        lambda req, timeout: _Risposta(b"<!DOCTYPE html><html>errore | manutenzione</html>"))
+    with pytest.raises(ValueError):
+        fm.download_csv(fm.PREZZI_FILE)

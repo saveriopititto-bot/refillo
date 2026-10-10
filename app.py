@@ -16,8 +16,8 @@ st.set_page_config(page_title="Score di rifornimento", page_icon="⛽", layout="
 style.apply_style()
 
 BASE = Path(__file__).parent
-ANAG_FILE = "anagrafica_impianti_attivi.csv"
-PREZZI_FILE = "prezzo_alle_8.csv"
+ANAG_FILE, PREZZI_FILE = fm.ANAG_FILE, fm.PREZZI_FILE
+CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
 
 
 # --------------------------------------------------------------------------
@@ -56,11 +56,25 @@ def load_data(anag_bytes: bytes, prezzi_bytes: bytes):
     return anag, prezzi, extraction
 
 
-def get_bytes(uploaded, name: str) -> bytes | None:
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico i dati aggiornati dal MIMIT…")
+def download(name: str) -> tuple[bytes, pd.Timestamp]:
+    return fm.download_csv(name), pd.Timestamp.now(tz="Europe/Rome")
+
+
+def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
+    """Contenuto del CSV e da dove arriva: caricato a mano, cartella data/ o download dal MIMIT."""
     if uploaded is not None:
-        return uploaded.getvalue()
+        return uploaded.getvalue(), "caricato"
     p = default_path(name)
-    return p.read_bytes() if p else None
+    if p:
+        return p.read_bytes(), "locale"
+    try:
+        data, quando = download(name)
+    except Exception as e:  # rete assente, sito MIMIT giù, risposta non valida
+        st.session_state.setdefault("download_err", []).append(f"{name}: {e}")
+        return None, ""
+    st.session_state["scaricato_alle"] = quando
+    return data, "scaricato"
 
 
 def stop_with(msg: str) -> None:
@@ -74,13 +88,28 @@ def stop_with(msg: str) -> None:
 sb = st.sidebar
 with sb:
     style.section("1 · Dati")
-    up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
-    up_p = st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE)
+    with st.expander("Carica i CSV a mano"):
+        up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
+        up_p = st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE)
 
-anag_b, prezzi_b = get_bytes(up_a, ANAG_FILE), get_bytes(up_p, PREZZI_FILE)
+st.session_state.pop("download_err", None)
+(anag_b, src_a), (prezzi_b, src_p) = get_bytes(up_a, ANAG_FILE), get_bytes(up_p, PREZZI_FILE)
+with sb:
+    if "scaricato" in (src_a, src_p):
+        quando = st.session_state["scaricato_alle"]
+        st.caption(f"Dati scaricati dal MIMIT alle {quando:%H:%M} del {quando:%d/%m}; "
+                   f"si aggiornano da soli ogni {CACHE_ORE} ore.")
+        if st.button("Riscarica ora", width="stretch"):
+            download.clear()
+            st.rerun()
+    elif src_a or src_p:
+        st.caption("Dati da file " + ("caricati a mano." if "caricato" in (src_a, src_p) else "nella cartella data/."))
 if anag_b is None or prezzi_b is None:
-    stop_with(f"Carica i due CSV dalla barra laterale, oppure mettili nella cartella <code>data/</code> accanto ad "
-              f"<code>app.py</code> (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>).")
+    errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
+    stop_with("Non sono riuscito a scaricare i dati dal sito del MIMIT"
+              + (f":<br><code>{errori}</code><br>" if errori else ". ")
+              + f"Riprova più tardi, oppure carica i due CSV dalla barra laterale (<code>{ANAG_FILE}</code> e "
+                f"<code>{PREZZI_FILE}</code>) o mettili nella cartella <code>data/</code> accanto ad <code>app.py</code>.")
 
 anag, prezzi, extraction = load_data(anag_b, prezzi_b)
 if anag.empty or prezzi.empty:
