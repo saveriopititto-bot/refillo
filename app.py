@@ -207,8 +207,8 @@ with sb_main:
     fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
     v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
     livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
-    consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=6.5, step=0.1)
-    raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 15)
+    consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
+    raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
 
 with adv_model:
     self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
