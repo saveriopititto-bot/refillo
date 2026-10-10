@@ -123,57 +123,64 @@ def stop_with(msg: str) -> None:
 # Barra laterale
 # --------------------------------------------------------------------------
 sb = st.sidebar
-with sb:
-    style.section("1 · Dati")
-    with st.expander("Carica i CSV a mano"):
-        up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
-        up_p = st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE)
+# I contenitori fissano l'ordine visivo: i CSV caricati a mano (in Opzioni avanzate) servono prima di tutto il resto.
+sb_main, sb_adv, sb_foot = (sb.container() for _ in range(3))
+adv = sb_adv.expander("Opzioni avanzate")
+adv_model, adv_data = adv.container(), adv.container()
+with adv_data:
+    style.section("Dati")
+    up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
+    up_p = st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE)
 
 st.session_state.pop("download_err", None)
 (anag_b, src_a), (prezzi_b, src_p) = get_bytes(up_a, ANAG_FILE), get_bytes(up_p, PREZZI_FILE)
-with sb:
-    if "scaricato" in (src_a, src_p):
-        quando = st.session_state["scaricato_alle"]
-        st.caption(f"Dati scaricati dal MIMIT alle {quando:%H:%M} del {quando:%d/%m}; "
-                   f"si aggiornano da soli ogni {CACHE_ORE} ore.")
-    elif src_a or src_p:
-        st.caption("Dati da file " + ("caricati a mano." if "caricato" in (src_a, src_p) else "nella cartella data/."))
 
-    brent, brent_err = brent_yahoo(BRENT_GIORNI)
-    if brent:
-        dB = fm.brent_delta(brent["b_t"], brent["b_tn"], brent["fx_t"], brent["fx_tn"])
-        db_txt = _it(f"{dB:+.2%}")
-        st.caption(
-            f"Brent da Yahoo Finance, {brent['data_tn']:%d/%m} → {brent['data_t']:%d/%m}: "
-            f"{num(brent['b_tn'], 2)} → {num(brent['b_t'], 2)} $/bbl, EUR/USD "
-            f"{num(brent['fx_tn'], 4)} → {num(brent['fx_t'], 4)}. "
-            f"Variazione in euro ΔB = **{db_txt}** (limitata a ±10%)."
-        )
-    else:
-        dB = 0.0
-        st.caption(f"Brent non disponibile da Yahoo Finance ({brent_err}): uso ΔB = 0.")
+brent, brent_err = brent_yahoo(BRENT_GIORNI)
+if brent:
+    dB = fm.brent_delta(brent["b_t"], brent["b_tn"], brent["fx_t"], brent["fx_tn"])
+    db_txt = _it(f"{dB:+.2%}")
+    nota_brent = (f"Brent {num(brent['b_tn'], 2)} → {num(brent['b_t'], 2)} $/bbl "
+                  f"({brent['data_tn']:%d/%m} → {brent['data_t']:%d/%m}, Yahoo Finance) · ΔB {db_txt}")
+else:
+    dB = 0.0
+    nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): ΔB = 0"
+
+with adv_data:
+    st.caption(f"Prezzi MIMIT e Brent si scaricano da soli e si aggiornano ogni {CACHE_ORE} ore. "
+               "I CSV caricati qui hanno la precedenza.")
     if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
         download.clear()
         brent_yahoo.clear()
         st.rerun()
+
 if anag_b is None or prezzi_b is None:
     errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
     stop_with("Non sono riuscito a scaricare i dati dal sito del MIMIT"
               + (f":<br><code>{errori}</code><br>" if errori else ". ")
-              + f"Riprova più tardi, oppure carica i due CSV dalla barra laterale (<code>{ANAG_FILE}</code> e "
-                f"<code>{PREZZI_FILE}</code>) o mettili nella cartella <code>data/</code> accanto ad <code>app.py</code>.")
+              + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
+                "da «Opzioni avanzate» nella barra laterale, o mettili nella cartella <code>data/</code> accanto ad "
+                "<code>app.py</code>.")
 
 anag, prezzi, extraction = load_data(anag_b, prezzi_b)
 if anag.empty or prezzi.empty:
     style.error_card("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
     st.stop()
 
-with sb:
-    if extraction is None:
-        style.html(f'<p class="x-note" style="color:{style.A700}">Data di estrazione non trovata nell\'anagrafica: '
-                   'il filtro sull\'età del prezzo è disattivato.</p>')
+# righe (HTML già sicuro) sui dati usati, mostrate nel riquadro della decisione
+del_giorno = f" del {extraction:%d/%m/%Y}" if extraction is not None else ""
+if "caricato" in (src_a, src_p):
+    nota_prezzi = f"Prezzi MIMIT{del_giorno} da file caricati a mano"
+elif "locale" in (src_a, src_p):
+    nota_prezzi = f"Prezzi MIMIT{del_giorno} dalla cartella data/"
+else:
+    quando = st.session_state["scaricato_alle"]
+    nota_prezzi = f"Prezzi MIMIT{del_giorno}, scaricati alle {quando:%H:%M} del {quando:%d/%m}"
+if extraction is None:
+    nota_prezzi += " (data di estrazione non trovata: filtro sull'età del prezzo disattivato)"
+note_dati = [escape(nota_prezzi), nota_brent]
 
-    style.section("2 · Dove sei")
+with sb_main:
+    style.section("1 · Dove sei")
     modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune", "Coordinate"], horizontal=True,
                         label_visibility="collapsed")
     origin, attesa_pos = None, ""
@@ -202,31 +209,32 @@ with sb:
         dest = (c1.number_input("Lat dest.", value=43.1100, format="%.5f"),
                 c2.number_input("Lon dest.", value=12.3900, format="%.5f"))
 
-    style.section("3 · Carburante")
+    style.section("2 · Carburante")
     fuel = st.selectbox("Prodotto", fm.FUELS)
     self_service = st.radio("Modalità", ["Self", "Servito"], horizontal=True, label_visibility="collapsed") == "Self"
 
-    style.section("4 · Veicolo")
+    style.section("3 · Veicolo")
     v_tot = st.number_input("Capacità serbatoio V_tot (l)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
     livello = st.slider("Livello attuale L", 0.0, 1.0, 0.25, 0.01, format="%.2f")
     consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=6.5, step=0.1)
     raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 15)
 
-    with st.expander("Opzioni avanzate"):
-        livello_min = st.slider("Soglia di sicurezza L_min", 0.0, 0.5, 0.10, 0.01, format="%.2f")
-        litri = None
-        if st.checkbox("Imposta i litri q a mano (altrimenti pieno)"):
-            litri = st.number_input("Litri q", min_value=1.0, max_value=float(v_tot),
-                                    value=min(30.0, float(v_tot)), step=1.0)
-        usura = st.number_input("Usura variabile (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
-                                format="%.3f")
-        max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
-        road_factor = st.slider("Fattore strada / linea d'aria", 1.0, 2.0, 1.3, 0.05)
-        ref_mode = st.radio("P_market = … dei prezzi nel raggio", ["mediana", "media"], horizontal=True)
-        theta = st.number_input("Soglia θ (€)", value=0.0, step=0.5)
-        alpha = st.slider("α (pass-through Brent)", 0.0, 0.4, 0.20, 0.01,
-                          help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.")
+with adv_model:
+    livello_min = st.slider("Soglia di sicurezza L_min", 0.0, 0.5, 0.10, 0.01, format="%.2f")
+    litri = None
+    if st.checkbox("Imposta i litri q a mano (altrimenti pieno)"):
+        litri = st.number_input("Litri q", min_value=1.0, max_value=float(v_tot),
+                                value=min(30.0, float(v_tot)), step=1.0)
+    usura = st.number_input("Usura variabile (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
+                            format="%.3f")
+    max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
+    road_factor = st.slider("Fattore strada / linea d'aria", 1.0, 2.0, 1.3, 0.05)
+    ref_mode = st.radio("P_market = … dei prezzi nel raggio", ["mediana", "media"], horizontal=True)
+    theta = st.number_input("Soglia θ (€)", value=0.0, step=0.5)
+    alpha = st.slider("α (pass-through Brent)", 0.0, 0.4, 0.20, 0.01,
+                      help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.")
 
+with sb_foot:
     style.html('<p class="x-note">Prezzi dagli open data MIMIT. Le distanze sono stimate in linea d\'aria × '
                'fattore strada.</p>')
 
@@ -235,7 +243,7 @@ with sb:
 # --------------------------------------------------------------------------
 if origin is None:
     stop_with(escape(attesa_pos) + "<br>In alternativa scegli <strong>Comune</strong> o <strong>Coordinate</strong> "
-              "in «2 · Dove sei» nella barra laterale.")
+              "in «1 · Dove sei» nella barra laterale.")
 params = fm.ModelParams(
     v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
     consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
@@ -257,6 +265,7 @@ with tab_res:
     if edges.empty:
         style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
                          "Aumenta il raggio o l'età massima del prezzo.")
+        style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
     else:
         best = info["best"]
         prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
@@ -271,7 +280,7 @@ with tab_res:
         if not info["decisione"]:
             corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
         style.hero("Decisione", "Rifornisci" if info["decisione"] else "Non conviene",
-                   f"S migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"])
+                   f"S migliore {eur(best.score, sign=True)}", corpo, ok=info["decisione"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} dei {info['n']} distributori nel raggio"),
@@ -381,9 +390,29 @@ with tab_arc:
 # Come funziona
 # --------------------------------------------------------------------------
 with tab_how, style.card("how"):
-    style.title("Formula e significato dei termini")
+    style.title("Come funziona")
     st.markdown(
-        r"""
+        """
+L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparmi facendo lì il rifornimento**.
+
+- **Il prezzo**: confronta il prezzo di ogni distributore con quello tipico della zona e calcola quanto spendi
+  in meno (o in più) per i litri che devi fare.
+- **Il viaggio**: toglie quanto ti costa arrivarci, cioè carburante e usura dell'auto per i chilometri in più.
+  Se indichi una destinazione conta solo la deviazione dal percorso, altrimenti andata e ritorno.
+- **Il petrolio**: se negli ultimi giorni il Brent è salito, i prezzi alla pompa tenderanno a salire e fare
+  rifornimento ora conviene un po' di più; se è sceso, conviene un po' meno. Questo vale per tutti i
+  distributori allo stesso modo, quindi cambia il verdetto ma non la classifica.
+
+Il risultato è un punteggio in euro: più è alto, più conviene. Il verdetto è **Rifornisci** se il distributore
+migliore fa risparmiare (oltre la soglia scelta nelle opzioni avanzate), oppure se il serbatoio è quasi vuoto.
+
+I prezzi e i distributori sono quelli ufficiali del MIMIT, aggiornati ogni giorno; il Brent arriva da Yahoo
+Finance. Le distanze sono stimate in linea d'aria, corrette per tenere conto delle strade.
+"""
+    )
+    with st.expander("La formula, per chi vuole i dettagli"):
+        st.markdown(
+            r"""
 $$S_i = q\,\big[(P_{market}-P_i)+\alpha\,P_{market}\,\Delta B\big]-D_i\,C_{km}$$
 
 - **q**: litri acquistati (`V_tot·(1−L)` se pieno).
@@ -395,5 +424,5 @@ $$S_i = q\,\big[(P_{market}-P_i)+\alpha\,P_{market}\,\Delta B\big]-D_i\,C_{km}$$
 - **E_p**: efficienza posizionale, `1 − (P_i−P_min)/(P_max−P_min)`; la versione percentile resiste agli outlier.
 - Si rifornisce se `S_max > θ`, oppure se `L < L_min`.
 """
-    )
+        )
     st.caption(fonte)
