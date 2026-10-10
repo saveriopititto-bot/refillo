@@ -73,25 +73,48 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-def segreto(nome: str) -> str:
-    """Valore dai Secrets di Streamlit, oppure dalla variabile d'ambiente; stringa vuota se manca."""
+def supabase_config() -> tuple[str, str]:
+    """(indirizzo, chiave pubblica) di Supabase dai Secrets di Streamlit o dalle variabili d'ambiente.
+
+    Accetta SUPABASE_URL e SUPABASE_ANON_KEY (o SUPABASE_KEY) in cima ai Secrets, oppure una sezione
+    [supabase] con url e anon_key (o key). Stringhe vuote se mancano."""
     try:
-        valore = st.secrets.get(nome, "")
+        segreti = dict(st.secrets)
     except Exception:  # nessun file dei segreti
-        valore = ""
-    return str(valore or os.environ.get(nome, ""))
+        segreti = {}
+    sezione = next((v for k, v in segreti.items() if k.lower() == "supabase" and hasattr(v, "get")), {})
+
+    def primo(nomi: tuple[str, ...], nomi_sezione: tuple[str, ...]) -> str:
+        for n in nomi:
+            v = segreti.get(n) or os.environ.get(n)
+            if v and isinstance(v, str):
+                return v.strip()
+        for n in nomi_sezione:
+            v = sezione.get(n)
+            if v and isinstance(v, str):
+                return v.strip()
+        return ""
+
+    return (primo(("SUPABASE_URL",), ("url", "SUPABASE_URL")),
+            primo(("SUPABASE_ANON_KEY", "SUPABASE_KEY"), ("anon_key", "key", "SUPABASE_ANON_KEY")))
 
 
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Leggo lo score del petrolio…")
-def brent_score() -> tuple[dict | None, str]:
-    """Ultimo score del Brent da Supabase; (None, motivo) se non configurato o non raggiungibile."""
-    url, chiave = segreto("SUPABASE_URL"), segreto("SUPABASE_ANON_KEY")
-    if not (url and chiave):
-        return None, "non configurato"
+def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
+    """Ultimo score del Brent da Supabase; (None, motivo) se non raggiungibile. Anche l'errore resta in cache."""
     try:
         return fm.fetch_brent_score(url, chiave), ""
     except Exception as e:  # rete assente, tabella vuota, chiave sbagliata
         return None, str(e) or type(e).__name__
+
+
+def leggi_brent_score() -> tuple[dict | None, str]:
+    """Score del petrolio, oppure (None, motivo). «Non configurato» non va in cache: appena si aggiungono i
+    Secrets, l'app li trova."""
+    url, chiave = supabase_config()
+    if not (url and chiave):
+        return None, "non configurato"
+    return brent_score(url, chiave)
 
 
 def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
@@ -293,7 +316,7 @@ with tab_res:
             f"considerando il costo del viaggio."
         )
         # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
-        bs, bs_err = brent_score()
+        bs, bs_err = leggi_brent_score()
         if bs is not None:  # al posto del motivo, il cerchio con lo score del petrolio
             corpo = style.cerchio_score(bs["esito"], "Petrolio: " + fm.BRENT_SCORE_TESTI[bs["esito"]][0])
         else:
@@ -313,7 +336,8 @@ with tab_res:
         with style.card("brent-score"):
             style.title("Il petrolio nei prossimi giorni")
             if bs is None:
-                motivo = ("collegamento a Supabase non configurato" if bs_err == "non configurato"
+                motivo = ("collegamento a Supabase non configurato (nei Secrets dell'app servono "
+                          "<code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>)" if bs_err == "non configurato"
                           else f"non raggiungibile ({escape(bs_err)})")
                 style.html(f'<p class="x-note">Indicazione del petrolio non disponibile: {motivo}.</p>')
             else:

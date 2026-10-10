@@ -164,8 +164,17 @@ SUPABASE_ANON_KEY = "<chiave anon o publishable>"
 
 Va usata la chiave **pubblica** (`anon` o `publishable`) del progetto, non quella `service_role`: permette
 solo di leggere. In locale si possono usare le variabili d'ambiente con gli stessi nomi, oppure il file
-`.streamlit/secrets.toml` (escluso da git). Senza configurazione il riquadro dice semplicemente che il
-collegamento non è configurato. Il dato è tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
+`.streamlit/secrets.toml` (escluso da git). In alternativa i due valori possono stare in una sezione:
+
+```toml
+[supabase]
+url = "https://<progetto>.supabase.co"
+anon_key = "<chiave anon o publishable>"
+```
+
+Senza configurazione il riquadro dice che il collegamento non è configurato e indica i nomi dei due segreti.
+Quel messaggio non resta in memoria: appena i segreti vengono salvati, alla prossima apertura l'app li trova.
+Lo score letto, invece, è tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
 
 Il collegamento è attivo sull'app online: i segreti sono configurati e il riquadro mostra l'esito più recente.
 Se compare «non raggiungibile», il messaggio tra parentesi dice perché: per esempio `401` se la chiave è
