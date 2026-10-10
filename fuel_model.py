@@ -217,10 +217,10 @@ class ModelParams:
     litri: float | None = None     # q; None -> v_tot * (1 - L)
     alpha: float = 0.2             # pass-through del Brent, [0, 0.4]
     delta_brent: float = 0.0       # dB relativo (già limitato)
-    consumo_l100: float = 6.5      # l/100 km
+    consumo_l100: float = 5.0      # l/100 km
     usura_eur_km: float = 0.05     # costo variabile di usura (€/km)
     road_factor: float = 1.3       # km su strada / km in linea d'aria
-    raggio_km: float = 15.0        # raggio d'azione (km su strada stimati)
+    raggio_km: float = 20.0        # raggio d'azione (km su strada stimati)
     ref_mode: str = "mediana"      # "mediana" | "media" per P_market
     theta: float = 0.0             # soglia di decisione (€)
     livello_min: float = 0.10      # L_min: sotto questa soglia si rifornisce comunque
