@@ -178,3 +178,53 @@ def medie_da_archivio(percorsi, dal: pd.Timestamp | None = None, max_age_days: f
             comuni = unisci_comuni(comuni, centri_comuni(anag))
             log(f"  {giorno:%Y-%m-%d}: {len(parti[-1])} righe")
     return (pd.concat(parti, ignore_index=True) if parti else vuoto()), comuni
+
+
+# --------------------------------------------------------------------------
+# Score 30 giorni: 1 = prezzi ottimi, 0 = neutro, -1 = prezzi alti
+# --------------------------------------------------------------------------
+GIORNI_SCORE = 30
+GIORNI_MINIMI = 7     # sotto questo numero di giorni di storico lo score non si calcola
+SOGLIA_SCORE = 0.02   # ±2% dalla media dei 30 giorni
+
+
+def media_zona(medie: pd.DataFrame, comuni: pd.DataFrame, origin: tuple[float, float], raggio_km: float,
+               road_factor: float, fuel: str, self_service: bool, oggi: pd.Timestamp,
+               giorni: int = GIORNI_SCORE) -> dict:
+    """Media dei prezzi della zona nei `giorni` precedenti a `oggi` (oggi escluso).
+
+    La zona sono i comuni il cui centro è entro il raggio (stessa distanza su strada stimata dell'app).
+    Ogni giorno vale la media delle mediane dei comuni pesata sul numero di distributori; il risultato è
+    la media dei giorni. Restituisce media (None se non ci sono dati), giorni con dati e comuni usati.
+    """
+    oggi = pd.Timestamp(oggi).normalize()
+    vuota = {"media": None, "giorni": 0, "comuni": 0, "dal": None, "al": None}
+    if medie.empty or comuni.empty:
+        return vuota
+    d = fm.haversine_km(origin[0], origin[1], comuni.lat.values, comuni.lon.values) * road_factor
+    vicini = comuni.loc[d <= raggio_km, ["comune", "provincia"]]
+    m = medie[(medie.carburante.str.lower() == fuel.lower()) & (medie["self"] == self_service)
+              & (medie.data < oggi) & (medie.data >= oggi - pd.Timedelta(days=giorni))]
+    m = m.merge(vicini, on=["comune", "provincia"], how="inner")
+    if m.empty:
+        return vuota
+    m = m.assign(peso=m.mediana * m.n)
+    per_giorno = m.groupby("data").agg(peso=("peso", "sum"), n=("n", "sum"))
+    per_giorno = per_giorno.peso / per_giorno.n
+    return {"media": float(per_giorno.mean()), "giorni": int(per_giorno.size),
+            "comuni": int(m[["comune", "provincia"]].drop_duplicates().shape[0]),
+            "dal": per_giorno.index.min(), "al": per_giorno.index.max()}
+
+
+def score_30gg(prezzo: float, media: float | None, giorni: int, soglia: float = SOGLIA_SCORE,
+               giorni_minimi: int = GIORNI_MINIMI) -> tuple[int | None, float | None]:
+    """(score, scarto): 1 se il prezzo è almeno `soglia` sotto la media, -1 se almeno `soglia` sopra,
+    0 altrimenti; (None, None) se lo storico ha meno di `giorni_minimi` giorni."""
+    if media is None or giorni < giorni_minimi or media <= 0:
+        return None, None
+    scarto = prezzo / media - 1
+    if scarto <= -soglia:
+        return 1, scarto
+    if scarto >= soglia:
+        return -1, scarto
+    return 0, scarto

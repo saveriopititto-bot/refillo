@@ -170,6 +170,16 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
+.x-s30 {{ display: flex; gap: 16px; align-items: center; }}
+.x-s30 .b {{ flex: none; width: 56px; height: 56px; border-radius: var(--radius-md); display: flex;
+  align-items: center; justify-content: center; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }}
+.x-s30 .b.p1 {{ background: {BLUE_GREEN}; color: #fff; }}
+.x-s30 .b.z0 {{ background: {N200}; color: {DEEP}; }}
+.x-s30 .b.m1 {{ background: {ORANGE}; color: {DEEP}; }}
+.x-s30 .b.na {{ background: {N100}; color: {N500}; }}
+.x-s30 .l {{ font-size: 15px; font-weight: 800; color: {DEEP}; }}
+.x-s30 p {{ margin: 2px 0 0; font-size: 13px; line-height: 1.45; color: {N700}; text-wrap: pretty; }}
+.x-s30 p strong {{ color: {DEEP}; }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
@@ -247,6 +257,17 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
 <span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
 <p>{body_html}</p></div>""")
+
+
+SCORE30 = {1: ("p1", "+1", "Rifornisci: prezzi ottimi"), 0: ("z0", "0", "Neutro: prezzi nella media"),
+           -1: ("m1", "−1", "Non rifornire: prezzi alti"), None: ("na", "–", "Score non disponibile")}
+
+
+def score30(valore: int | None, testo_html: str) -> None:
+    """Badge dello score 30 giorni (1 / 0 / -1) con etichetta e spiegazione (testo_html già validato)."""
+    cls, badge, etichetta = SCORE30[valore]
+    html(f'<div class="x-s30"><div class="b {cls}">{badge}</div>'
+         f'<div><div class="l">{escape(etichetta)}</div><p>{testo_html}</p></div></div>')
 
 
 def error_card(msg: str) -> None:

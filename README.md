@@ -74,6 +74,7 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Prezzo tipico della zona | mediana |
 | Soglia di convenienza | 0 € |
 | Peso del petrolio sui prezzi | 20% |
+| Soglia del confronto con i 30 giorni | 2% |
 
 ### Schede
 
@@ -146,7 +147,21 @@ python scripts/raccogli_storico.py --cartella storico                  # prezzi 
 python scripts/raccogli_storico.py --cartella storico --archivio X.tar.gz
 ```
 
-Lo storico servirà allo score «prezzi rispetto agli ultimi 30 giorni», in sviluppo su un branch separato.
+### Score «prezzi rispetto agli ultimi 30 giorni» (in sviluppo)
+
+Nella scheda Risultato, sotto gli indicatori, un riquadro confronta il **prezzo migliore di oggi** nel raggio
+con la **media della zona negli ultimi 30 giorni** (oggi escluso) e dà uno di tre risultati:
+
+| Score | Significato | Quando |
+|---|---|---|
+| **+1** | Rifornisci: prezzi ottimi | il prezzo migliore è almeno il 2% sotto la media |
+| **0** | Neutro: prezzi nella media | è entro ±2% dalla media |
+| **−1** | Non rifornire: prezzi alti | è almeno il 2% sopra la media |
+
+La zona sono i comuni il cui centro cade nel raggio; ogni giorno vale la media delle mediane dei comuni,
+pesata sul numero di distributori. La soglia del 2% si cambia in «Opzioni avanzate». Lo score compare solo
+con almeno 7 giorni di storico per la zona; prima il riquadro dice quanti giorni mancano. L'app legge lo
+storico dal branch `dati` (o da `data/storico/`, se presente, per le prove in locale).
 
 ## Posizione
 
@@ -189,10 +204,10 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
-| `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
+| `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, archivi trimestrali MIMIT, media della zona e score 30 giorni |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
 | `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent e score |
-| `tests/test_storico.py` | Test dello storico: mediane, finestra di 40 giorni, archivi, lettura e scrittura |
+| `tests/test_storico.py` | Test dello storico (mediane, finestra di 40 giorni, archivi, lettura e scrittura) e dello score 30 giorni |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |

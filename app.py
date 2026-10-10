@@ -11,6 +11,7 @@ import streamlit as st
 import streamlit_js_eval
 
 import fuel_model as fm
+import storico
 import style
 
 st.set_page_config(page_title="Score di rifornimento", page_icon="⛽", layout="wide")
@@ -20,6 +21,8 @@ BASE = Path(__file__).parent
 ANAG_FILE, PREZZI_FILE = fm.ANAG_FILE, fm.PREZZI_FILE
 CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
 BRENT_GIORNI = 7  # n: finestra della variazione del Brent
+# storico delle mediane per comune, aggiornato ogni mattina da GitHub Actions nel branch `dati`
+STORICO_URL = "https://raw.githubusercontent.com/saveriopititto-bot/test3/dati/storico/"
 
 
 # --------------------------------------------------------------------------
@@ -70,6 +73,21 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
         return fm.fetch_brent_yf(n_giorni), ""
     except Exception as e:  # rete assente, Yahoo non risponde, dati insufficienti
         return None, str(e) or type(e).__name__
+
+
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico lo storico dei prezzi…")
+def carica_storico() -> tuple[pd.DataFrame, pd.DataFrame, str]:
+    """(mediane per comune, centri dei comuni, errore). Prima la cartella data/storico, poi il branch `dati`."""
+    locale = BASE / "data" / "storico"
+    try:
+        if (locale / "medie_comuni.csv.gz").exists():
+            return (storico.leggi(locale / "medie_comuni.csv.gz"),
+                    storico.leggi_comuni(locale / "comuni.csv.gz"), "")
+        return storico.leggi(STORICO_URL + "medie_comuni.csv.gz"), storico.leggi_comuni(STORICO_URL + "comuni.csv.gz"), ""
+    except Exception as e:  # branch dati non ancora creato, rete assente…
+        msg = ("lo storico non è ancora stato creato: si riempie da solo ogni mattina" if "404" in str(e)
+               else f"storico non raggiungibile ({e or type(e).__name__})")
+        return storico.vuoto(), pd.DataFrame(columns=storico.COLONNE_COMUNI), msg
 
 
 def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
@@ -151,6 +169,7 @@ with adv_data:
     if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
         download.clear()
         brent_yahoo.clear()
+        carica_storico.clear()
         st.rerun()
 
 if anag_b is None or prezzi_b is None:
@@ -229,6 +248,9 @@ with adv_model:
                             help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
     alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
                       help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
+    soglia_30 = st.slider("Soglia del confronto con i 30 giorni (%)", 1.0, 10.0, storico.SOGLIA_SCORE * 100, 0.5,
+                          help="Prezzi ottimi se il migliore di oggi è almeno così sotto la media degli ultimi "
+                               "30 giorni della zona; alti se è almeno così sopra.") / 100
 
 with sb_foot:
     style.html('<p class="x-note">Prezzi dagli open data MIMIT. Le distanze sono stimate in linea d\'aria × '
@@ -284,6 +306,29 @@ with tab_res:
             ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
+
+        # score 30 giorni (in sviluppo): prezzo migliore di oggi contro la media della zona negli ultimi 30 giorni
+        medie_st, comuni_st, err_st = carica_storico()
+        oggi = extraction if extraction is not None else pd.Timestamp.today()
+        zona = storico.media_zona(medie_st, comuni_st, origin, float(raggio), road_factor, fuel, self_service, oggi)
+        s30, scarto = storico.score_30gg(float(best.prezzo), zona["media"], zona["giorni"], soglia_30)
+        with style.card("score30"):
+            style.title("Prezzi rispetto agli ultimi 30 giorni")
+            if s30 is None:
+                motivo = (escape(err_st) if err_st else
+                          f"servono almeno {storico.GIORNI_MINIMI} giorni di storico per questa zona, "
+                          f"ce ne sono {zona['giorni']}")
+                style.score30(None, f"Non ancora disponibile: {motivo}.")
+            else:
+                verso = "più basso" if scarto < 0 else "più alto"
+                media_txt = _it(format(zona["media"], ".3f"))
+                comuni_txt = "1 comune" if zona["comuni"] == 1 else f"{zona['comuni']} comuni"
+                testo = (f"Il prezzo migliore di oggi ({_it(f'{best.prezzo:.3f}')} €/l) è "
+                         f"<strong>{verso}: {'−' if scarto < 0 else '+'}{_it(f'{abs(scarto):.1%}')}</strong> "
+                         f"rispetto alla media della zona "
+                         f"negli ultimi {storico.GIORNI_SCORE} giorni ({media_txt} €/l: "
+                         f"{zona['giorni']} giorni di dati, {comuni_txt} nel raggio).")
+                style.score30(s30, testo)
 
         with style.card("map"):
             style.title("Dove conviene andare")
