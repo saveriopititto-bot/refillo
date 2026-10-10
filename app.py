@@ -273,7 +273,7 @@ with tab_res:
         if not info["consiglio"]:
             corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
         style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                   f"Risparmio migliore {eur(best.score, sign=True)}", corpo, ok=info["consiglio"], meta_html=note_dati)
+                   "", corpo, ok=info["consiglio"], meta_html=note_dati)
         style.metrics([
             ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
              f"{ref_mode} nel raggio"),
