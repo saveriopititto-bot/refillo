@@ -84,8 +84,11 @@ Il risultato è diviso in tre schede:
 
 - **Risultato**:
   - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
-  - il riquadro della decisione, compatto: verdetto, motivo, data dei prezzi MIMIT usati e variazione del
-    Brent, in poco spazio anche da telefono;
+  - il riquadro della decisione, compatto: verdetto, data dei prezzi MIMIT usati e variazione del Brent, in
+    poco spazio anche da telefono. A destra c'è un cerchio con lo score del petrolio: bordo verde e freccia
+    in su se è positivo (Rifornisci), bordo arancione e pallino se è neutro, bordo rosso e freccia in giù se è
+    negativo (Aspetta). Se lo score del petrolio non è disponibile, al posto del cerchio c'è il motivo del
+    verdetto (il risparmio migliore rispetto alla soglia di convenienza);
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Il petrolio nei prossimi giorni», con lo score del Brent letto da Supabase (vedi «Score del
@@ -142,7 +145,11 @@ dopo le 22:30 UTC, nella tabella `brent_score` di Supabase.
 - **Neutro**: il Brent è vicino alla sua media; il petrolio non spinge i prezzi né in su né in giù.
 - **Aspetta**: il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
 
-Sotto compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
+Lo stesso esito compare come cerchio colorato nel riquadro della decisione: verde con freccia in su
+(Rifornisci), arancione con pallino (Neutro), rosso con freccia in giù (Aspetta). Il cerchio è bianco dentro,
+così si legge sia sul riquadro blu sia su quello ambra di «Non conviene».
+
+Nel riquadro «Il petrolio nei prossimi giorni» compaiono anche il prezzo del Brent in euro al barile, lo scarto dalla media dei 30 giorni e la data del
 dato. Se il dato ha più di 4 giorni, l'app avverte che potrebbe non essere aggiornato.
 
 È solo un'informazione in più: **non entra nel calcolo** del risparmio né nel verdetto, che continuano a

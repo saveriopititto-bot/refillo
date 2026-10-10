@@ -16,6 +16,8 @@ ORANGE = "#fb8500"
 BG = "#eef6fa"
 N100, N200, N300, N400, N500, N700 = "#f2f8fb", "#e2eef4", "#c9dde7", "#a5c2d1", "#7c9fb2", "#3a5f74"
 A100, A600, A700 = "#fff3e6", "#e07600", "#a65600"
+# colori dell'indicatore del petrolio (verde = sale, rosso = scende; il neutro usa ORANGE)
+VERDE, ROSSO = "#1f9d55", "#d64545"
 
 BRAND = "⛽ Score di rifornimento"
 SIDEBAR_W = 290  # larghezza fissa della barra laterale (scheda + 20px di margine sinistro)
@@ -170,6 +172,7 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
+.x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
@@ -247,6 +250,23 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
 <span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
 <p>{body_html}</p></div>""")
+
+
+def cerchio_score(esito: int, etichetta: str) -> str:
+    """Indicatore dello score del petrolio (HTML): cerchio bianco con bordo e simbolo colorati.
+
+    +1 = bordo verde con freccia verde in su, -1 = bordo rosso con freccia rossa in giù, 0 = bordo arancione con
+    pallino arancione. Il fondo bianco lo rende leggibile sia sul riquadro blu sia su quello ambra."""
+    colore = {1: VERDE, 0: ORANGE, -1: ROSSO}[esito]
+    if esito == 0:
+        simbolo = f'<circle cx="32" cy="32" r="9" fill="{colore}"/>'
+    else:
+        punta, coda, ali = (18, 46, 30) if esito == 1 else (46, 18, 34)
+        simbolo = (f'<path d="M32 {coda} V{punta} M20 {ali} L32 {punta} L44 {ali}" fill="none" stroke="{colore}" '
+                   'stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>')
+    return (f'<span class="x-cerchio" role="img" aria-label="{escape(etichetta)}" title="{escape(etichetta)}">'
+            f'<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">'
+            f'<circle cx="32" cy="32" r="28" fill="#fff" stroke="{colore}" stroke-width="5"/>{simbolo}</svg></span>')
 
 
 def error_card(msg: str) -> None:

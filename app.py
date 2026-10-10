@@ -292,9 +292,14 @@ with tab_res:
             f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
             f"considerando il costo del viaggio."
         )
-        corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-        if not info["consiglio"]:
-            corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
+        # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
+        bs, bs_err = brent_score()
+        if bs is not None:  # al posto del motivo, il cerchio con lo score del petrolio
+            corpo = style.cerchio_score(bs["esito"], "Petrolio: " + fm.BRENT_SCORE_TESTI[bs["esito"]][0])
+        else:
+            corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
+            if not info["consiglio"]:
+                corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
         style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
                    "", corpo, ok=info["consiglio"], meta_html=note_dati)
         style.metrics([
@@ -305,8 +310,6 @@ with tab_res:
             ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
 
-        # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase)
-        bs, bs_err = brent_score()
         with style.card("brent-score"):
             style.title("Il petrolio nei prossimi giorni")
             if bs is None:
