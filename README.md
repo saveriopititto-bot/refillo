@@ -163,7 +163,8 @@ La scheda **Petrolio** incorpora la pagina «Score rifornimento» di scorebrent,
 verifiche sul passato, all'indirizzo `https://scorebrent.streamlit.app/?embed=true&pagina=score`. Usa le
 impostazioni predefinite (α = 1, θ = 1), le stesse dello score in Supabase. Se scorebrent è in pausa per
 inattività, nella scheda compare il pulsante di Streamlit per risvegliarla (circa un minuto). Il link «apri a
-tutto schermo» apre l'app completa. Se Supabase non è configurato o non risponde, sopra la pagina compare il
+tutto schermo» apre l'app completa. La barra «Built with Streamlit / Fullscreen» che Streamlit Cloud aggiunge in fondo
+al riquadro è coperta da una fascia del colore dello sfondo, perché non si può togliere dall'app. Se Supabase non è configurato o non risponde, sopra la pagina compare il
 motivo.
 
 Se nella scheda compare tutta l'app scorebrent (titolo, schede e barra laterale) invece della sola pagina dello
