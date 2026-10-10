@@ -174,10 +174,9 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
 .x-hero.aside {{ grid-template-columns: minmax(0, 1fr) auto; padding-right: 14px; }}
-.x-hero-aside {{ align-self: stretch; display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
-.x-hero-aside .x-cerchio {{ height: 100%; }}
-.x-hero-aside svg {{ height: 100%; width: auto; min-height: 72px; max-height: 150px; }}
-@media (max-width: 640px) {{ .x-hero-aside svg {{ min-height: 56px; max-height: 84px; }} }}
+.x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
+.x-hero-aside svg {{ width: 90px; height: 90px; }}
+@media (max-width: 640px) {{ .x-hero-aside svg {{ width: 72px; height: 72px; }} }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
