@@ -23,6 +23,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
+- **Parla italiano semplice**: niente simboli né formule nell'interfaccia; percentuali e cifre in euro, con
+  i numeri in formato italiano.
 
 Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
@@ -32,7 +34,7 @@ La barra laterale è divisa in tre sezioni:
 
 1. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate». Opzionalmente, una destinazione.
 2. **Carburante**: prodotto e self/servito.
-3. **Veicolo**: capacità del serbatoio, livello attuale, consumo e raggio di ricerca.
+3. **Veicolo**: capacità del serbatoio, carburante nel serbatoio (in %), consumo e raggio di ricerca.
 
 In «Opzioni avanzate» ci sono i parametri del modello (soglia di riserva, litri da fare, usura dell'auto, età
 massima del prezzo, strada in più rispetto alla linea d'aria, prezzo tipico della zona, soglia di convenienza e
@@ -54,11 +56,32 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Carburante nel serbatoio / Soglia di riserva | L / L_min |
 | Convenienza prezzo | E_p |
 
+### Valori predefiniti
+
+| Impostazione | Valore |
+|---|---|
+| Capacità del serbatoio | 50 l |
+| Carburante nel serbatoio | 25% |
+| Consumo | 6,5 l/100 km |
+| Raggio d'azione | 15 km su strada |
+| Soglia di riserva | 10% |
+| Litri da fare | il pieno |
+| Usura dell'auto | 0,05 €/km |
+| Età massima del prezzo | 7 giorni |
+| Strada in più rispetto alla linea d'aria | × 1,3 |
+| Prezzo tipico della zona | mediana |
+| Soglia di convenienza | 0 € |
+| Peso del petrolio sui prezzi | 20% |
+
+### Schede
+
 Il risultato è diviso in tre schede:
 
-- **Risultato**: il riepilogo, il riquadro della decisione (con la data dei prezzi MIMIT usati e la
+- **Risultato**: il riepilogo, il riquadro della decisione (verdetto, motivo, data dei prezzi MIMIT usati e
   variazione del Brent), gli indicatori, la mappa e i 5 distributori migliori.
-- **Archi**: la tabella completa ed export CSV.
+- **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
+  sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
+  negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
 - **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
@@ -75,7 +98,7 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
-sicurezza. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
+riserva L_min. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
 negativi.
 
 ## Dati
