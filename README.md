@@ -28,19 +28,23 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 ## Come si usa
 
-La barra laterale è divisa in quattro sezioni:
+La barra laterale è divisa in tre sezioni:
 
-1. **Dati**: di solito non serve toccarla. Mostra l'ora del download dei prezzi, la variazione del Brent e
-   il pulsante «Riscarica ora», che aggiorna entrambi. Da «Carica i CSV a mano» si possono usare file propri.
-2. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate». Opzionalmente, una destinazione.
-3. **Carburante**: prodotto e self/servito.
-4. **Veicolo**: capacità del serbatoio, livello attuale, consumo e raggio di ricerca.
+1. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate». Opzionalmente, una destinazione.
+2. **Carburante**: prodotto e self/servito.
+3. **Veicolo**: capacità del serbatoio, livello attuale, consumo e raggio di ricerca.
 
-In «Opzioni avanzate» ci sono i parametri del modello: soglia di sicurezza del serbatoio, litri da fare,
-usura, età massima del prezzo, fattore strada, soglia θ e α (quanto della variazione del Brent passa ai prezzi).
+In «Opzioni avanzate» ci sono i parametri del modello (soglia di sicurezza del serbatoio, litri da fare,
+usura, età massima del prezzo, fattore strada, soglia θ e α, cioè quanto della variazione del Brent passa ai
+prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che
+aggiorna prezzi e Brent.
 
-Il risultato è diviso in tre schede: **Risultato** (verdetto, indicatori, mappa, migliori 5), **Archi**
-(tabella completa ed export CSV) e **Come funziona** (la formula spiegata).
+Il risultato è diviso in tre schede:
+
+- **Risultato**: il riepilogo, il riquadro della decisione (con la data dei prezzi MIMIT usati e la
+  variazione del Brent), gli indicatori, la mappa e i 5 distributori migliori.
+- **Archi**: la tabella completa ed export CSV.
+- **Come funziona**: la spiegazione a parole; la formula è in un riquadro richiudibile.
 
 ## Il modello
 
@@ -64,11 +68,12 @@ negativi.
 L'app usa gli open data MIMIT `anagrafica_impianti_attivi.csv` e `prezzo_alle_8.csv`. Li prende da, in
 ordine:
 
-1. i file caricati a mano dalla barra laterale;
+1. i file caricati a mano da «Opzioni avanzate» → «Dati» nella barra laterale;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
 3. il download dal sito del MIMIT, tenuto in cache per 3 ore perché i prezzi cambiano una volta al giorno.
 
-Se il download non riesce, l'app lo dice e propone di caricare i file a mano.
+Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi e ora del
+download compaiono nel riquadro della decisione.
 
 Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
 Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Brent.

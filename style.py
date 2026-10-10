@@ -109,6 +109,7 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
   box-shadow: var(--shadow-soft); padding: 24px; gap: 12px !important; }}
 .x-title {{ margin: 0; font-size: 20px; line-height: 1.25; font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 [class*="st-key-card"] p {{ font-size: 14px; }}
+.st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDeckGlJsonChart"], [class*="st-key-card"] [data-testid="stDataFrame"] {{
   border-radius: var(--radius-md); overflow: hidden; }}
@@ -148,6 +149,8 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 .x-hero .k {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: {SKY}; }}
 .x-hero .v {{ font-size: 48px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
 .x-hero .s {{ font-size: 18px; font-weight: 600; }}
+.x-hero .m {{ font-size: 13px; line-height: 1.5; color: {SKY}; margin: 6px 0 4px; }}
+.x-hero.wait .m {{ color: {A100}; }}
 .x-hero.wait {{ background: linear-gradient(135deg, {A700}, {A600}); }}
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
@@ -218,11 +221,16 @@ def lead(text_html: str) -> None:
     html(f'<div class="x-lead">{text_html}</div>')
 
 
-def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True) -> None:
-    """Scheda scura in evidenza con il verdetto (ambra se non conviene). body_html va già validato."""
+def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
+         meta_html: Sequence[str] = ()) -> None:
+    """Scheda scura in evidenza con il verdetto (ambra se non conviene).
+
+    meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. body_html e meta_html vanno già validati.
+    """
+    meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
     html(f"""<div class="x-hero{'' if ok else ' wait'}">
 <div style="display:flex;flex-direction:column;gap:4px"><span class="k">{escape(kicker)}</span>
-<span class="v">{escape(value)}</span><span class="s">{escape(sub)}</span></div>
+<span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
 <p>{body_html}</p></div>""")
 
 
