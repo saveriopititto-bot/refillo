@@ -344,7 +344,7 @@ with tab_res:
             style.title("I 5 migliori")
             style.table(
                 ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
-                [[escape(r.nome), escape(r.comune),
+                [[escape(r.bandiera), escape(r.comune),
                   _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.score, sign=True)]
                  for _, r in edges.head(5).iterrows()],
             )
