@@ -271,6 +271,20 @@ def get_osrm_distances(origin: tuple[float, float], destinations: list[tuple[flo
     return [None] * len(destinations)
 
 
+def get_osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> list[list[float]]:
+    """Ottiene la geometria del percorso reale (GeoJSON: lista di [lon, lat]) dal server OSRM."""
+    url = f"http://router.project-osrm.org/route/v1/driving/{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}?geometries=geojson"
+    try:
+        resp = requests.get(url, timeout=3)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("code") == "Ok" and data.get("routes"):
+                return data["routes"][0]["geometry"]["coordinates"]
+    except Exception as e:
+        print(f"Errore OSRM route: {e}")
+    return []
+
+
 def compute_edges(
     cands: pd.DataFrame,
     origin: tuple[float, float],
@@ -344,4 +358,9 @@ def compute_edges(
         p_market=p_market, c_km=c_km, best=best, consiglio=consiglio, motivo=motivo,
         p_min=float(pmin), p_max=float(pmax),
     )
+    if getattr(p, "use_osrm", True):
+        summary["best_route"] = get_osrm_route(origin, (best.lat, best.lon))
+    else:
+        summary["best_route"] = []
+
     return df, summary
