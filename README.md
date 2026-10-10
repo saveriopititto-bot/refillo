@@ -81,7 +81,8 @@ Il risultato è diviso in tre schede:
 
 - **Risultato**:
   - il riepilogo in una frase: insegna e indirizzo del distributore migliore, prezzo, distanza e risparmio;
-  - il riquadro della decisione: verdetto, motivo, data dei prezzi MIMIT usati e variazione del Brent;
+  - il riquadro della decisione, compatto: verdetto, motivo, data dei prezzi MIMIT usati e variazione del
+    Brent, in poco spazio anche da telefono;
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - la mappa e i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
