@@ -136,7 +136,7 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
 CONSIGLIO_PETROLIO = {
     1: "I prezzi sono migliori della media degli ultimi trenta giorni",
     0: "Quando ti serve",
-    -1: "A meno che non puoi farne a meno",
+    -1: "A meno che tu non ne possa fare a meno",
 }
 
 

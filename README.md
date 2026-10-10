@@ -92,7 +92,7 @@ Il risultato è diviso in tre schede:
     |---|---|---|---|
     | +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
     | 0 | Rifornisci | Quando ti serve | arancione, pallino |
-    | −1 | Aspetta | A meno che non puoi farne a meno | rosso, freccia in giù (riquadro ambra) |
+    | −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù (riquadro ambra) |
 
     Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
     conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
