@@ -39,9 +39,11 @@ from core.types import (
 )
 from ingestion.downloader import (
     ANAG_FILE,
+    DATI_URL,
     MIMIT_URL,
     PREZZI_FILE,
     download_csv,
+    download_dati,
 )
 from ingestion.parser import (
     FUELS,
@@ -60,6 +62,7 @@ __all__ = [
     "BRENT_SCORE_TESTI",
     "BrentScoreResult",
     "BrentYfResult",
+    "DATI_URL",
     "EARTH_RADIUS_KM",
     "FUELS",
     "ITALY_BBOX",
@@ -80,6 +83,7 @@ __all__ = [
     "build_candidates",
     "compute_edges",
     "download_csv",
+    "download_dati",
     "fetch_brent_score",
     "fetch_brent_yf",
     "get_osrm_distances",

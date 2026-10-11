@@ -1,7 +1,7 @@
 # ⛽ Score di rifornimento
 
 [![Apri l'app su Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fuelmode.streamlit.app/)
-[![Test](https://github.com/saveriopititto-bot/test3/actions/workflows/tests.yml/badge.svg)](https://github.com/saveriopititto-bot/test3/actions/workflows/tests.yml)
+[![Test](https://github.com/saveriopititto-bot/refillo/actions/workflows/tests.yml/badge.svg)](https://github.com/saveriopititto-bot/refillo/actions/workflows/tests.yml)
 
 **App online: https://fuelmode.streamlit.app/**
 
@@ -146,9 +146,17 @@ negativi.
 L'app usa gli open data MIMIT `anagrafica_impianti_attivi.csv` e `prezzo_alle_8.csv`. Li prende da, in
 ordine:
 
-1. i file caricati a mano da «Opzioni avanzate» → «Dati» nella barra laterale;
+1. i file caricati a mano da «Opzioni avanzate» → «Dati»;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
-3. il download dal sito del MIMIT, tenuto in cache per 3 ore perché i prezzi cambiano una volta al giorno.
+3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
+   aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione
+   del» 10);
+4. altrimenti il download dal sito del MIMIT.
+
+I file scaricati (dal branch `dati` o dal MIMIT) restano in memoria fino al prossimo aggiornamento delle 9:00.
+La copia nel branch `dati` la prepara un'azione GitHub (`.github/workflows/aggiorna_mimit.yml`, ogni mattina
+alle 7:05 UTC, script `scripts/aggiorna_mimit.py`): scaricarla da GitHub è più veloce e affidabile del sito
+del ministero. L'azione non scrive mai su `main`.
 
 I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
 con i giorni vecchi).
@@ -267,7 +275,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 
 | File / Cartella | Contenuto |
 |---|---|
-| `app.py` | Interfaccia Streamlit: riquadro consiglio, scheda controlli, schede Risultato, Archi e Come funziona, geolocalizzazione |
+| `app.py` | Coordinatore dell'interfaccia Streamlit: controlli, calcolo, riquadro consiglio e schede (le viste sono in `ui/`) |
 | `fuel_model.py` | Facade pubblica e retrocompatibile del modello (riesporta core, ingestion, clients) |
 | `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
@@ -278,9 +286,11 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
+| `scripts/aggiorna_mimit.py` | Script che scarica i CSV MIMIT del giorno e li salva compressi (per il branch `dati`) |
 | `tests/` | Suite di test: test del modello, dello storico, dei calcoli geometrici, dei formattatori e della configurazione |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
+| `.github/workflows/aggiorna_mimit.yml` | Azione giornaliera che salva i CSV MIMIT del giorno nel branch `dati` (`mimit/`) |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
 Lo stile è lo stesso di test4 (layout «1a»: riquadro «Consiglio» in cima e sotto la navigazione a pillole, senza titolo, schede bianche arrotondate, palette
