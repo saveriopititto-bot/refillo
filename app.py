@@ -5,7 +5,7 @@ import streamlit as st
 
 import fuel_model as fm
 import style
-from ui.controls_view import ControlsView
+from ui.controls_view import HOME, ControlsView
 from ui.data_service import leggi_brent_score
 from ui.edges_view import EdgesView
 from ui.hero_view import HeroView
@@ -36,9 +36,9 @@ HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, co
 # --------------------------------------------------------------------------
 # Schede di dettaglio
 # --------------------------------------------------------------------------
-# La riga con le pillole (radio «scheda») sta in ControlsView; si disegna solo la scheda scelta.
-# La tabella degli archi sta in «Come funziona».
-if st.session_state.get("scheda", "Risultato") == "Risultato":
+# La riga con le pillole Home / F.A.Q. sta in ControlsView; si disegna solo la scheda scelta.
+# La tabella degli archi sta in «F.A.Q.».
+if st.session_state.get("scheda", HOME) == HOME:
     with controls.contenuto:
         ResultView(
             edges=edges,

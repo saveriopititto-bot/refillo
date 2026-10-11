@@ -24,7 +24,17 @@ from ui.data_service import (
 from ui.formatters import _it, num
 from ui.hero_view import render_error, render_waiting
 
-SCHEDE = ("Risultato", "Come funziona")
+HOME, FAQ = "Home", "F.A.Q."
+
+
+def _vai(scheda: str) -> None:
+    st.session_state["scheda"] = scheda
+
+
+def _pillola(col, scheda: str, key: str) -> None:
+    """Pulsante a pillola che apre una scheda; quella aperta è in blu scuro (type="primary")."""
+    aperta = st.session_state.get("scheda", HOME) == scheda
+    col.button(scheda, key=key, type="primary" if aperta else "secondary", on_click=_vai, args=(scheda,))
 
 
 @dataclass
@@ -94,19 +104,19 @@ class ControlsView:
             hero_cerchio = st.container()
             fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-        # riquadro delle schede: Aggiorna posizione · Risultato / Come funziona · Avanzate, poi il contenuto
+        # riquadro delle schede: Home · Aggiorna posizione · Avanzate · F.A.Q., tutti a sinistra, poi il contenuto
+        st.session_state.setdefault("scheda", HOME)
         with style.card("schede"):
             with st.container(key="comandi"):
-                col_pos, col_tabs, col_adv = st.columns([1, 1.5, 1], gap="small", vertical_alignment="top")
+                col_home, col_pos, col_adv, col_faq = st.columns(4, gap="small", vertical_alignment="top")
             contenuto = st.container()
 
+        _pillola(col_home, HOME, "nav_home")
+        _pillola(col_faq, FAQ, "nav_faq")
         with col_pos:
-            if st.button("Aggiorna posizione", width="stretch"):
+            if st.button("Aggiorna posizione"):
                 st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
                 st.rerun()
-
-        with col_tabs:
-            st.radio("Scheda", SCHEDE, horizontal=True, label_visibility="collapsed", key="scheda")
 
         with col_adv:
             adv = st.expander("Avanzate")
