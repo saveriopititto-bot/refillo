@@ -158,9 +158,13 @@ def stop_with(msg: str) -> None:
 c_hero = st.container()
 c_controls = style.card("controls")
 with c_controls:
-    c_main = st.container()
-    adv = st.expander("Opzioni avanzate")
-    adv_model, adv_data = adv.container(), adv.container()
+    col_pos, col_fuel = st.columns([1, 1], gap="large")
+    with col_pos:
+        c_pos = st.container()
+    with col_fuel:
+        c_fuel = st.container()
+        adv = st.expander("Opzioni avanzate")
+        adv_model, adv_data = adv.container(), adv.container()
 
 with adv_data:
     style.section("Dati")
@@ -220,31 +224,29 @@ if extraction is None:
     nota_prezzi += " (data di estrazione non trovata: filtro sull'età del prezzo disattivato)"
 note_dati = [escape(nota_prezzi), nota_brent]
 
-with c_main:
-    col_pos, col_fuel = st.columns([1, 1], gap="large")
-    with col_pos:
-        style.section("1 · Dove sei")
-        modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
-                            label_visibility="collapsed")
-        origin, attesa_pos = None, ""
-        if modo_pos == "La mia posizione":
-            origin, nota = posizione_browser()
-            attesa_pos = nota if origin is None else ""
-            st.caption(nota)
-            if st.button("Aggiorna posizione", width="stretch"):
-                st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-                st.rerun()
-        else:
-            comuni = sorted(anag.comune.unique())
-            idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
-            comune = st.selectbox("Comune", comuni, index=idx)
-            sel = anag[anag.comune == comune]
-            origin = (float(sel.lat.median()), float(sel.lon.median()))
-            st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
+with c_pos:
+    style.section("1 · Dove sei")
+    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
+                        label_visibility="collapsed")
+    origin, attesa_pos = None, ""
+    if modo_pos == "La mia posizione":
+        origin, nota = posizione_browser()
+        attesa_pos = nota if origin is None else ""
+        st.caption(nota)
+        if st.button("Aggiorna posizione", width="stretch"):
+            st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+            st.rerun()
+    else:
+        comuni = sorted(anag.comune.unique())
+        idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
+        comune = st.selectbox("Comune", comuni, index=idx)
+        sel = anag[anag.comune == comune]
+        origin = (float(sel.lat.median()), float(sel.lon.median()))
+        st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
 
-    with col_fuel:
-        style.section("2 · Carburante")
-        fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+with c_fuel:
+    style.section("2 · Carburante")
+    fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
 with adv_model:
     col_v1, col_v2 = st.columns(2)
