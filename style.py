@@ -100,15 +100,12 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [class*="st-key-card"] p {{ font-size: 14px; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
-[class*="st-key-card"] [data-testid="stDeckGlJsonChart"], [class*="st-key-card"] [data-testid="stDataFrame"] {{
-  border-radius: var(--radius-md); overflow: hidden; }}
-/* mappa sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello schermo; da computer al massimo
-   500 px di larghezza, centrata */
-[data-testid="stDeckGlJsonChart"] {{ height: auto !important; aspect-ratio: 2 / 3; width: 100% !important;
-  max-width: 500px; margin: 0 auto; }}
-[data-testid="stElementContainer"]:has([data-testid="stDeckGlJsonChart"]),
-[data-testid="stFullScreenFrame"]:has(> [data-testid="stDeckGlJsonChart"]) {{ flex: 0 0 auto !important;
-  height: auto !important; }}
+[class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
+/* mappa Leaflet (cornice di components.html): sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello
+   schermo; da computer al massimo 500 px di larghezza, centrata */
+.st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 2 / 3; width: 100% !important;
+  max-width: 500px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
+.st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; }}
 
 /* bottoni: compatti a pillola allineati alla barra dei risultati */
 .stButton button, .stDownloadButton button {{ border-radius: 999px; border: 0; padding: 8px 14px;

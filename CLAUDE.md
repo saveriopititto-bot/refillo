@@ -57,8 +57,14 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
   rimetterla.
-- **Mappa**: sempre in verticale, proporzione 2:3 (`aspect-ratio` in `style.py`), al massimo 500 px di
-  larghezza da computer, centrata; da telefono a tutta larghezza.
+- **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
+  `st.components.v1.html` dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
+  ricaricare la pagina. Sempre in verticale, proporzione 2:3 (`aspect-ratio` sull'iframe in `style.py`), al massimo
+  500 px di larghezza da computer, centrata; da telefono a tutta larghezza. Tile CARTO chiari dall'URL diretto
+  (`TILES`: il nome `cartodbpositron` di folium ora chiede una chiave). Script caricati: solo Leaflet e jQuery (i
+  popup di folium lo usano). Toccando un distributore si apre il popup con il link «Portami qui» (Google Maps).
+  Nell'ambiente cloud i CDN e i tile sono bloccati: per provarla con Chromium servi `leaflet.js` e jQuery da npm con
+  `context.route`.
 - **Dati**: prezzi e anagrafica MIMIT da `ui/data_service.get_mimit_dataset`, con precedenza: CSV caricati a
   mano → cartella `data/` → copia nel branch `dati` (`fm.download_dati`, `mimit/*.csv.gz`, solo se la data di
   estrazione + 1 giorno è quella dell'ultimo aggiornamento delle 9:00: il MIMIT data i file con il giorno prima) → sito MIMIT (`fm.download_csv`); i file scaricati
