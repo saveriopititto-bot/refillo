@@ -45,7 +45,6 @@ class ControlsView:
         c_controls = style.card("controls")
         with c_controls:
             c_row = st.container()
-            c_caption = st.empty()
             adv = st.expander("Opzioni avanzate")
             adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
@@ -126,8 +125,6 @@ class ControlsView:
                     st.rerun()
             with col_fuel:
                 fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
-
-        c_caption.caption(nota)
 
         if origin is None:
             render_waiting(c_hero, nota)

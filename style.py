@@ -100,10 +100,10 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stFullScreenFrame"]:has(> [data-testid="stDeckGlJsonChart"]) {{ flex: 0 0 auto !important;
   height: auto !important; }}
 
-/* bottoni */
-.stButton button, .stDownloadButton button {{ border-radius: 999px; border: 0; padding: 10px 18px;
-  font-weight: 800; min-height: 40px; }}
-.stButton button p, .stDownloadButton button p {{ font-weight: 800; font-size: 14px; }}
+/* bottoni: compatti a pillola allineati alla barra dei risultati */
+.stButton button, .stDownloadButton button {{ border-radius: 999px; border: 0; padding: 8px 14px;
+  font-weight: 700; min-height: 36px; line-height: 1.2; }}
+.stButton button p, .stDownloadButton button p {{ font-weight: 700; font-size: 13.5px; margin: 0; }}
 .stButton button[kind="primary"] {{ background: {ORANGE}; color: {DEEP}; }}
 .stButton button[kind="primary"]:hover {{ background: {A600}; color: {DEEP}; }}
 .stButton button[kind="secondary"], .stDownloadButton button {{ background: {N200}; color: {DEEP}; }}
@@ -131,6 +131,11 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   white-space: nowrap; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
+  .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
+  .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
+  .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ padding: 8px 12px; gap: 4px; }}
+  .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
+  .stTabs [role="tab"] p {{ font-size: 12.5px; }}
   .x-metrics {{ gap: 6px; }}
   .x-metric {{ padding: 8px 8px; }}
   .x-metric {{ justify-content: space-between; }}
