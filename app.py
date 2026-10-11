@@ -48,12 +48,13 @@ if st.session_state.get("scheda", HOME) == HOME:
             ref_mode=controls.ref_mode,
             show_all_lines=controls.show_all_lines,
             fonte=controls.fonte,
+            unita=controls.unita,
         ).render()
 
 else:
     with controls.contenuto:
         HowView(fonte=controls.fonte).render()
-        EdgesView(edges=edges, origin=controls.origin).render()
+        EdgesView(edges=edges, origin=controls.origin, unita=controls.unita).render()
 
 # --------------------------------------------------------------------------
 # Colofon

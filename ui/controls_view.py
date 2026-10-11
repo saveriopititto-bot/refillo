@@ -25,6 +25,8 @@ from ui.formatters import _it, num
 from ui.hero_view import render_error, render_waiting
 
 HOME, FAQ = "Home", "F.A.Q."
+# capacità del serbatoio e consumo ogni 100 km predefiniti, nell'unità del carburante (kg per il Metano)
+PREDEFINITI = {"Benzina": (50.0, 5.0), "Gasolio": (50.0, 5.0), "GPL": (40.0, 7.0), "Metano": (14.0, 4.0)}
 
 
 def _vai(scheda: str) -> None:
@@ -47,6 +49,7 @@ class ControlsResult:
     note_dati: Sequence[str]
     raggio: int | float
     litri: float | None
+    unita: str  # «l» o «kg» (Metano): unità del prezzo e del serbatoio
     ref_mode: str
     show_all_lines: bool
     hero_testo: any  # colonna del testo nel riquadro «Consiglio»
@@ -167,21 +170,31 @@ class ControlsView:
             style.colophon()
             st.stop()
 
+        u = fm.unita(fuel)
+        unita_lunga = "kg" if u == "kg" else "litri"
+        v_tot_0, consumo_0 = PREDEFINITI.get(fuel, (50.0, 5.0))
         with adv_model:
             col_v1, col_v2 = st.columns(2)
             with col_v1:
-                v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
+                # una chiave per carburante: cambiando carburante tornano i suoi valori predefiniti
+                v_tot = st.number_input(f"Capacità del serbatoio ({unita_lunga})", min_value=5.0, max_value=200.0,
+                                        value=v_tot_0, step=1.0, key=f"v_tot_{fuel}")
                 livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
-                consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
+                consumo = st.number_input(f"Consumo ({u}/100 km)", min_value=1.0, max_value=40.0, value=consumo_0,
+                                          step=0.1, key=f"consumo_{fuel}")
                 raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
                 livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
                                         help="Sotto questo livello conviene sempre fare rifornimento.") / 100
                 litri = None
-                if st.checkbox("Scegli quanti litri fare (altrimenti il pieno)"):
-                    litri = st.number_input("Litri da fare", min_value=1.0, max_value=float(v_tot),
-                                            value=min(30.0, float(v_tot)), step=1.0)
+                if st.checkbox(f"Scegli quanti {unita_lunga} fare (altrimenti il pieno)"):
+                    litri = st.number_input(f"{unita_lunga.capitalize()} da fare", min_value=1.0, max_value=float(v_tot),
+                                            value=min(30.0, float(v_tot)), step=1.0, key=f"litri_{fuel}")
             with col_v2:
-                self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
+                senza_self = fuel in fm.SENZA_SELF
+                self_service = st.radio(
+                    "Self o servito", ["Self", "Servito"], horizontal=True, disabled=senza_self,
+                    help="Per GPL e Metano non conta: quasi tutti li vendono solo serviti, quindi si usa il prezzo "
+                         "che c'è (se ci sono entrambi, il più basso).") == "Self"
                 use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
                 show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
                 usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
@@ -205,7 +218,8 @@ class ControlsView:
 
         data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
         fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
-                 f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
+                 f"{fuel} {'self o servito' if senza_self else 'self' if self_service else 'servito'} valido in "
+                 "tutta Italia").replace(",", ".")
 
         return ControlsResult(
             origin=origin,
@@ -216,6 +230,7 @@ class ControlsView:
             note_dati=note_dati,
             raggio=raggio,
             litri=litri,
+            unita=u,
             ref_mode=ref_mode,
             show_all_lines=show_all_lines,
             hero_testo=hero_testo,

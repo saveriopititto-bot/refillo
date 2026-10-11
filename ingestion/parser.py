@@ -13,6 +13,18 @@ from core.geo import ITALY_BBOX
 # hanno prezzi diversi e falserebbero il confronto.
 FUELS = ("Benzina", "Gasolio", "GPL", "Metano")
 
+# GPL e Metano si vendono quasi sempre solo serviti: per loro la scelta Self/Servito non vale e si usa il prezzo
+# che c'è (se un distributore ha entrambi, il più basso).
+SENZA_SELF = ("GPL", "Metano")
+# Unità di misura del prezzo (€ per unità); il Metano si vende a kg, gli altri a litri.
+UNITA = {"Metano": "kg"}
+
+
+def unita(fuel: str) -> str:
+    """«kg» per il Metano, «l» per gli altri carburanti."""
+    return UNITA.get(fuel, "l")
+
+
 # Intervalli plausibili (€/l, Metano €/kg) per scartare errori di inserimento.
 PRICE_BOUNDS = {
     "Benzina": (0.8, 3.5),
@@ -111,14 +123,20 @@ def build_candidates(
     max_age_days: float | None,
     extraction_date: pd.Timestamp | None,
 ) -> pd.DataFrame:
-    """Un record per distributore: anagrafica + prezzo del carburante scelto."""
-    p = prezzi[(prezzi.carburante.str.lower() == fuel.lower()) & (prezzi.is_self == self_service)]
+    """Un record per distributore: anagrafica + prezzo del carburante scelto.
+
+    Per GPL e Metano (SENZA_SELF) self_service non conta: si tengono self e servito e, se un distributore li ha
+    entrambi, il prezzo più basso."""
+    p = prezzi[prezzi.carburante.str.lower() == fuel.lower()]
+    if fuel not in SENZA_SELF:
+        p = p[p.is_self == self_service]
     lo, hi = PRICE_BOUNDS.get(fuel, (0.0, 10.0))
     p = p[p.prezzo.between(lo, hi)]
     if max_age_days is not None and extraction_date is not None:
         limite = extraction_date + pd.Timedelta(days=1) - pd.Timedelta(days=max_age_days)
         p = p[p.dt_comu >= limite]
-    p = p.sort_values("dt_comu").drop_duplicates("id", keep="last")
+    p = p.sort_values("dt_comu").drop_duplicates(["id", "is_self"], keep="last")  # l'ultimo prezzo comunicato
+    p = p.sort_values("prezzo", kind="stable").drop_duplicates("id")  # tra self e servito (GPL, Metano) il più basso
     out = anag.merge(p[["id", "prezzo", "dt_comu"]], on="id", how="inner")
     if extraction_date is not None:
         out["eta_giorni"] = (extraction_date + pd.Timedelta(days=1) - out["dt_comu"]).dt.total_seconds() / 86400

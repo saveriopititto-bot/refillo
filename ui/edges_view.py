@@ -13,22 +13,24 @@ import style
 class EdgesView:
     edges: pd.DataFrame
     origin: tuple[float, float]
+    unita: str = "l"  # «kg» per il Metano
 
     def render(self) -> None:
         if self.edges.empty:
             style.error_card("Nessun arco da mostrare: nessun distributore nel raggio scelto.")
             return
 
+        prezzo_col = f"Prezzo (€/{self.unita})"
         tab = self.edges.rename(
             columns={
                 "rank": "#", "bandiera": "Bandiera", "nome": "Impianto", "indirizzo": "Indirizzo", "comune": "Comune",
-                "prezzo": "Prezzo (€/l)", "dist_km": "Distanza (km)", "dev_km": "Km in più",
+                "prezzo": prezzo_col, "dist_km": "Distanza (km)", "dev_km": "Km in più",
                 "guadagno": "Risparmio sul prezzo (€)", "brent": "Effetto Brent (€)", "costo_log": "Costo del viaggio (€)",
                 "score": "Risparmio netto (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
                 "ep_pct": "Convenienza prezzo (posizione)", "eta_giorni": "Età prezzo (gg)",
             }
         )
-        cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", "Prezzo (€/l)", "Distanza (km)", "Km in più",
+        cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", prezzo_col, "Distanza (km)", "Km in più",
                 "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
                 "Convenienza prezzo", "Convenienza prezzo (posizione)", "Età prezzo (gg)", "id", "lat", "lon"]
         cols = [c for c in cols if c in tab.columns]
@@ -46,7 +48,7 @@ class EdgesView:
             st.dataframe(
                 tab[cols], hide_index=True, height=480, width="stretch",
                 column_config={
-                    "Prezzo (€/l)": st.column_config.NumberColumn(format="%.3f"),
+                    prezzo_col: st.column_config.NumberColumn(format="%.3f"),
                     "Distanza (km)": st.column_config.NumberColumn(format="%.1f"),
                     "Km in più": st.column_config.NumberColumn(format="%.1f"),
                     "Risparmio sul prezzo (€)": st.column_config.NumberColumn(format="%+.2f"),

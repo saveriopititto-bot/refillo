@@ -88,6 +88,11 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   classifica; senza score il riquadro torna al verdetto sul risparmio, con una riga che dice perché manca
   (segreto mancante o Supabase non raggiungibile). Con lo score, `PERCHE_PETROLIO` in `ui/data_service.py` spiega il
   consiglio con le frasi scelte dall'utente (non cambiarle senza chiedere). Nei test va simulato `fm.fetch_brent_score`.
+- **Carburanti**: Benzina, Gasolio, GPL, Metano (`FUELS`). Per GPL e Metano (`SENZA_SELF`) la scelta Self/Servito
+  non conta (quasi tutti li vendono solo serviti): `build_candidates` tiene self e servito e, per distributore, il
+  prezzo più basso; il radio è disattivato. Il Metano è in kg (`fm.unita`: «kg» / «l»), e l'unità passa a
+  `ResultView`, `EdgesView` e alla mappa. Serbatoio e consumo predefiniti per carburante: `PREDEFINITI` in
+  `ui/controls_view.py` (widget con chiave per carburante). L-GNC e GNL non sono inclusi.
 - **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
   `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
   `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nei 5 migliori
