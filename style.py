@@ -123,48 +123,35 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   color: {DEEP}; cursor: pointer; }}
 [data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
-/* riga dei comandi (Home, Posizione, Avanzate, F.A.Q.): sempre orizzontale, tutta a sinistra */
-/* (le colonne dentro «Opzioni avanzate» restano libere di andare a capo da telefono) */
-.st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{
+/* riga dei comandi (Home, Posizione, Avanzate, Top 5, F.A.Q.): sempre orizzontale, cinque pillole della stessa
+   larghezza che riempiono tutta la riga, a qualunque larghezza dello schermo. Avanzate e Top 5 sono popover:
+   si aprono sopra la pagina, la riga non va mai a capo */
+.st-key-comandi [data-testid="stHorizontalBlock"] {{
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
-  justify-content: flex-start !important; gap: 8px !important; align-items: flex-start !important;
+  gap: 8px !important; align-items: stretch !important;
 }}
-.st-key-comandi [data-testid="stColumn"]:not([data-testid="stExpanderDetails"] *) {{
-  flex: 0 0 auto !important; min-width: 0 !important; width: auto !important;
+.st-key-comandi [data-testid="stColumn"] {{
+  flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
 }}
-/* «Avanzate» aperte: vanno in fondo, a capo, e prendono tutta la riga sotto gli altri comandi */
-.st-key-comandi [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > * [data-testid="stExpander"] details[open]) {{
-  flex-wrap: wrap !important; row-gap: 10px !important; }}
-.st-key-comandi [data-testid="stColumn"]:has([data-testid="stExpander"] details[open]) {{
-  flex: 1 1 100% !important; order: 99; }}
-/* le quattro pillole hanno lo sfondo tenue di «Avanzate»; tra Home e F.A.Q. quella aperta (type="primary") è in
-   blu scuro */
-.st-key-comandi .stButton button[kind="secondary"],
-.st-key-comandi .stButton button[kind="secondary"]:hover {{ background: {N100}; }}
-.st-key-comandi .stButton button[kind="secondary"]:hover p {{ color: {ORANGE}; }}
-.st-key-comandi [class*="st-key-nav_"] button p {{ font-weight: 600 !important; font-size: 14px !important; color: {DEEP}; }}
-.st-key-comandi [class*="st-key-nav_"] button:hover p {{ color: {ORANGE}; }}
-.st-key-comandi [class*="st-key-nav_"] button[kind="primary"] {{ background: {DEEP}; }}
-.st-key-comandi [class*="st-key-nav_"] button[kind="primary"] p {{ color: #fff; }}
-.st-key-comandi [class*="st-key-nav_"] button[kind="primary"]:hover {{ background: {DEEP}; }}
-.st-key-comandi .stButton button {{
-  width: auto !important; padding: 6px 8px !important; min-height: 36px !important;
-}}
-.st-key-comandi .stButton button p {{
-  font-weight: 400; font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
-}}
+/* tutte le pillole con lo sfondo tenue e il testo normale (niente grassetto); tra Home e F.A.Q. quella aperta
+   (type="primary") è in blu scuro */
+.st-key-comandi button {{ width: 100% !important; min-height: 36px !important; padding: 6px 8px !important;
+  border: 0 !important; border-radius: 999px !important; background: {N100} !important; color: {DEEP} !important;
+  justify-content: center !important; gap: 2px !important; }}
+.st-key-comandi button p {{ font-weight: 400 !important; font-size: 13px !important; color: {DEEP}; margin: 0;
+  white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }}
+.st-key-comandi button:hover p {{ color: {ORANGE}; }}
+.st-key-comandi button[kind="primary"] {{ background: {DEEP} !important; }}
+.st-key-comandi button[kind="primary"] p, .st-key-comandi button[kind="primary"]:hover p {{ color: #fff; }}
+/* freccia del popover attaccata al testo */
+.st-key-comandi button > div {{ gap: 2px !important; justify-content: center !important; }}
+.st-key-comandi button [data-testid="stIconMaterial"] {{ margin: 0 !important; font-size: 16px !important; }}
 .st-key-hero [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
 }}
 .st-key-hero [data-baseweb="select"] *,
 .st-key-hero [data-testid="stSelectbox"] input {{
   font-size: 12.5px !important; font-weight: 700 !important; white-space: nowrap !important;
-}}
-.st-key-comandi [data-testid="stExpander"] summary {{
-  min-height: 36px !important; padding: 6px 8px !important;
-}}
-.st-key-comandi [data-testid="stExpander"] summary p {{
-  font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }}
 
 /* blocchi HTML: Streamlit dà margin-bottom -16px al contenitore markdown */
@@ -187,15 +174,14 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
-  .st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{ gap: 4px !important; }}
-  .st-key-comandi .stButton button {{ min-height: 32px !important; padding: 4px 4px !important; }}
-  .st-key-comandi [class*="st-key-nav_"] button p {{ font-size: 12px !important; }}
-  .st-key-comandi .stButton button p,
-  .st-key-comandi [data-testid="stExpander"] summary p {{ font-size: 11.5px !important; }}
+  .st-key-comandi [data-testid="stHorizontalBlock"] {{ gap: 4px !important; }}
+  .st-key-comandi button {{ min-height: 32px !important; padding: 4px 2px !important; }}
+  .st-key-comandi button p {{ font-size: 11.5px !important; }}
+  .st-key-comandi button div[aria-hidden="true"]:has([data-testid="stIconMaterial"]) {{ display: none !important; }}
+  /* niente freccia da telefono: c'è poco spazio */
   .st-key-hero [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
   .st-key-hero [data-baseweb="select"] *,
   .st-key-hero [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
-  .st-key-comandi [data-testid="stExpander"] summary {{ min-height: 32px !important; padding: 4px 4px !important; }}
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
@@ -258,13 +244,14 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-table tbody tr:nth-child(odd) td {{ background: {N100}; }}
 .x-table tbody tr td:first-child {{ border-radius: 10px 0 0 10px; font-weight: 600; }}
 .x-table tbody tr td:last-child {{ border-radius: 0 10px 10px 0; }}
-/* «Top 5» da telefono: senza la colonna Comune (nel raggio è quasi sempre la stessa) e con il testo più piccolo,
-   così distanza e risparmio restano visibili */
+/* «Top 5» (popover, fuori dalla riga dei comandi) da telefono: senza la colonna Comune (nel raggio è quasi sempre
+   la stessa) e con il testo più piccolo, così distanza e risparmio restano visibili */
 @media (max-width: 640px) {{
-  .st-key-comandi .x-table {{ font-size: 12px; }}
-  .st-key-comandi .x-table th, .st-key-comandi .x-table td {{ padding: 6px 5px; }}
-  .st-key-comandi .x-table th {{ font-size: 9.5px; letter-spacing: .02em; }}
-  .st-key-comandi .x-table th:nth-child(2), .st-key-comandi .x-table td:nth-child(2) {{ display: none; }}
+  [data-testid="stPopoverBody"] .x-table {{ font-size: 12px; }}
+  [data-testid="stPopoverBody"] .x-table th, [data-testid="stPopoverBody"] .x-table td {{ padding: 6px 5px; }}
+  [data-testid="stPopoverBody"] .x-table th {{ font-size: 9.5px; letter-spacing: .02em; }}
+  [data-testid="stPopoverBody"] .x-table th:nth-child(2),
+  [data-testid="stPopoverBody"] .x-table td:nth-child(2) {{ display: none; }}
 }}
 .stApp .x-note {{ font-size: 12px; line-height: 1.45; color: {N700}; margin: 0; }}
 [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}

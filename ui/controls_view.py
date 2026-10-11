@@ -36,7 +36,8 @@ def _vai(scheda: str) -> None:
 def _pillola(col, scheda: str, key: str) -> None:
     """Pulsante a pillola che apre una scheda; quella aperta è in blu scuro (type="primary")."""
     aperta = st.session_state.get("scheda", HOME) == scheda
-    col.button(scheda, key=key, type="primary" if aperta else "secondary", on_click=_vai, args=(scheda,))
+    col.button(scheda, key=key, type="primary" if aperta else "secondary", on_click=_vai, args=(scheda,),
+               width="stretch")
 
 
 @dataclass
@@ -118,14 +119,15 @@ class ControlsView:
         _pillola(col_home, HOME, "nav_home")
         _pillola(col_faq, FAQ, "nav_faq")
         with col_pos:
-            if st.button("Posizione", help="Rileva di nuovo la posizione dal browser"):
+            if st.button("Posizione", help="Rileva di nuovo la posizione dal browser", width="stretch"):
                 st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
                 st.rerun()
 
+        # «Avanzate» e «Top 5» si aprono come popover sopra la pagina (restano aperti mentre si cambiano i valori)
         with col_adv:
-            adv = st.expander("Avanzate")
+            adv = st.popover("Avanzate", width="stretch")
             adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
-        top5 = col_top.expander("Top 5")  # si riempie in app.py, dopo il calcolo
+        top5 = col_top.popover("Top 5", width="stretch")  # si riempie in app.py, dopo il calcolo
 
         with adv_data:
             style.section("Dati")

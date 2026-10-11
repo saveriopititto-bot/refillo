@@ -49,10 +49,11 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
   cerchio dello score.
 - **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
   un comune in «Avanzate».
-- La riga in cima al riquadro delle schede, tutta a sinistra e in linea anche da telefono: «Home», «Posizione»,
-  «Avanzate», «Top 5» e «F.A.Q.», tutte con lo stesso sfondo tenue. «Avanzate» e «Top 5» sono riquadri apribili:
-  quando si aprono vanno in fondo e prendono tutta la riga. «Top 5» mostra i 5 distributori che convengono di più
-  (insegna, comune, prezzo, distanza, risparmio; da telefono senza il comune).
+- La riga in cima al riquadro delle schede, sempre su una riga anche da telefono: «Home», «Posizione»,
+  «Avanzate», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
+  sfondo tenue e il testo normale. «Avanzate» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina
+  che si chiude toccando fuori; «Avanzate» resta aperto mentre si cambiano i valori. «Top 5» mostra i 5
+  distributori che convengono di più (insegna, comune, prezzo, distanza, risparmio; da telefono senza il comune).
 
 In «Avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
