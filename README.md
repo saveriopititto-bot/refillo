@@ -81,22 +81,24 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 ### Schede
 
-Il risultato è diviso in tre schede. L'app calcola e disegna solo quella aperta: la mappa e la tabella degli
+In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in tutte le schede: blu petrolio in tutti
+i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato, grande
+quanto il riquadro (più piccolo da telefono):
+
+| Score | Consiglio | Frase sotto, in bianco | Cerchio |
+|---|---|---|---|
+| +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
+| 0 | Rifornisci | Quando ti serve | arancione, pallino |
+| −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù |
+
+Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
+conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
+(il risparmio migliore rispetto alla soglia di convenienza), più una riga che dice perché lo score manca.
+
+Sotto il riquadro, le pillole delle tre schede. L'app disegna solo quella aperta: la mappa e la tabella degli
 archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Risultato**:
-  - il riquadro «Consiglio», blu petrolio in tutti i casi e compatto anche da telefono. Segue lo score del
-    petrolio, con a destra un cerchio colorato, grande quanto il riquadro (più piccolo da telefono):
-
-    | Score | Consiglio | Frase sotto, in bianco | Cerchio |
-    |---|---|---|---|
-    | +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
-    | 0 | Rifornisci | Quando ti serve | arancione, pallino |
-    | −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù |
-
-    Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
-    conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
-    (il risparmio migliore rispetto alla soglia di convenienza), più una riga che dice perché lo score manca;
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
@@ -114,6 +116,9 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 
 - **q**: litri da fare (di default il pieno, `V_tot·(1−L)`).
 - **P_market**: mediana (o media) dei prezzi dei distributori nel raggio.
+- **Filtro sui prezzi troppo bassi** (non visibile nell'app): i distributori che costano più di 10 centesimi
+  meno di P_market vengono scartati (`SCONTO_MAX` in `fuel_model.py`; esattamente 10 centesimi sotto restano).
+  P_market resta quello calcolato su tutti i distributori nel raggio, prima del filtro.
 - **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
   Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
   distributori: sposta il verdetto ma non la classifica.
@@ -268,7 +273,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
-Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole sotto il titolo, schede bianche arrotondate, palette
+Lo stile è lo stesso di test4 (layout «1a»: riquadro «Consiglio» in cima e sotto la navigazione a pillole, senza titolo, schede bianche arrotondate, palette
 `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
 interni di Streamlit, testati con la 1.65: se dopo un aggiornamento un elemento perde lo stile, va aggiornato
 il selettore.
