@@ -77,6 +77,4 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
-- **`SCONTO_MAX`** in `fuel_model.py`: deciso dall'utente, non va descritto né nel README né nei commenti né
-  nell'interfaccia.
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.
