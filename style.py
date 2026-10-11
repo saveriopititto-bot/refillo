@@ -149,9 +149,18 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* freccia del popover attaccata al testo */
 .st-key-comandi button > div {{ gap: 2px !important; justify-content: center !important; }}
 .st-key-comandi button [data-testid="stIconMaterial"] {{ margin: 0 !important; font-size: 16px !important; }}
+/* menu del carburante: pillola come i comandi, alta 36 px (30 da telefono), testo centrato in verticale */
 .st-key-hero [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
 }}
+.st-key-hero [data-testid="stSelectbox"] > div > div {{ height: 36px !important; min-height: 0 !important;
+  border-radius: 999px !important; display: flex !important; align-items: center !important; overflow: hidden; }}
+.st-key-hero [data-testid="stSelectbox"] input,
+.st-key-hero [data-testid="stSelectbox"] button {{ height: 100% !important; min-height: 0 !important;
+  padding-top: 0 !important; padding-bottom: 0 !important; }}
+/* voci dell'elenco aperto della stessa misura del menu */
+[role="listbox"] [role="option"] {{ font-size: 13px !important; min-height: 32px !important;
+  padding-top: 4px !important; padding-bottom: 4px !important; }}
 .st-key-hero [data-baseweb="select"] *,
 .st-key-hero [data-testid="stSelectbox"] input {{
   font-size: 12.5px !important; font-weight: 700 !important; white-space: nowrap !important;
@@ -242,11 +251,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 10.5px; line-height: 1.25; }}
   .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
   /* menu del carburante più basso: è lui a decidere l'altezza del riquadro «Consiglio» */
-  .st-key-hero [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-  .st-key-hero [data-testid="stSelectbox"] > div > div {{ min-height: 30px !important; }}
-  .st-key-hero [data-testid="stSelectbox"] input,
-  .st-key-hero [data-testid="stSelectbox"] button {{ height: 28px !important; min-height: 0 !important;
-    padding-top: 0 !important; padding-bottom: 0 !important; }}
+  .st-key-hero [data-testid="stSelectbox"] > div > div {{ height: 30px !important; }}
   .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 104px !important; }}
 }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
