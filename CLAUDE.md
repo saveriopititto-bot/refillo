@@ -16,7 +16,7 @@ Per ogni modifica richiesta:
 Se un test fallisce, correggilo prima del merge. Se la richiesta è ambigua o la modifica è rischiosa
 (cambia i calcoli, rimuove funzioni, tocca i dati), chiedi prima di procedere.
 
-L'app pubblicata è https://fuelmode.streamlit.app/ (Streamlit Community Cloud, branch `main`, `app.py`,
+L'app pubblicata è https://refillo.streamlit.app/ (Streamlit Community Cloud, branch `main`, `app.py`,
 Python 3.12): ogni merge su `main` la aggiorna da solo.
 
 ## Controlli

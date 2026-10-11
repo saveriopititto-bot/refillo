@@ -1,9 +1,9 @@
 # ⛽ Score di rifornimento
 
-[![Apri l'app su Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fuelmode.streamlit.app/)
+[![Apri l'app su Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://refillo.streamlit.app/)
 [![Test](https://github.com/saveriopititto-bot/refillo/actions/workflows/tests.yml/badge.svg)](https://github.com/saveriopititto-bot/refillo/actions/workflows/tests.yml)
 
-**App online: https://fuelmode.streamlit.app/**
+**App online: https://refillo.streamlit.app/**
 
 App Streamlit che, partendo dalla tua posizione, assegna un punteggio ai distributori vicini usando i prezzi
 ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
@@ -161,8 +161,8 @@ del ministero. L'azione non scrive mai su `main`.
 I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
 con i giorni vecchi).
 
-Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi e ora del
-download compaiono nel riquadro della decisione.
+Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi, ora del
+download e provenienza (copia GitHub del branch `dati` o sito del MIMIT) compaiono nel riquadro della decisione.
 
 Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
 Yahoo non risponde, l'app lo segnala e usa ΔB = 0, cioè ignora il termine Brent.
