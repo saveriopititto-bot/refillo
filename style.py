@@ -117,6 +117,11 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDeckGlJsonChart"], [class*="st-key-card"] [data-testid="stDataFrame"] {{
   border-radius: var(--radius-md); overflow: hidden; }}
+/* mappa sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello schermo */
+[data-testid="stDeckGlJsonChart"] {{ height: auto !important; aspect-ratio: 2 / 3; }}
+[data-testid="stElementContainer"]:has([data-testid="stDeckGlJsonChart"]),
+[data-testid="stFullScreenFrame"]:has(> [data-testid="stDeckGlJsonChart"]) {{ flex: 0 0 auto !important;
+  height: auto !important; }}
 
 /* bottoni */
 .stButton button, .stDownloadButton button {{ border-radius: 999px; border: 0; padding: 10px 18px;
