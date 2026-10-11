@@ -15,7 +15,6 @@ verso i distributori vicini, a partire dai CSV open data MIMIT
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -223,15 +222,8 @@ def fetch_brent_yf(n_days: int) -> dict:
 # Score del Brent (app «Prezzo del petrolio», tabella brent_score in Supabase)
 # --------------------------------------------------------------------------
 BRENT_SCORE_TABELLA = "brent_score"
-# esito -> (etichetta, spiegazione); +1 = il Brent è sopra la media dei 30 giorni più del normale
-BRENT_SCORE_TESTI = {
-    1: ("Conviene", "Il petrolio è sopra la sua media degli ultimi 30 giorni più del solito: i prezzi alla "
-                    "pompa tendono a seguirlo con qualche giorno di ritardo, quindi conviene non aspettare."),
-    0: ("Rifornisci", "Il petrolio è vicino alla sua media degli ultimi 30 giorni: per ora non spinge i prezzi "
-                      "alla pompa né in su né in giù."),
-    -1: ("Aspetta", "Il petrolio è sotto la sua media degli ultimi 30 giorni più del solito: i prezzi alla pompa "
-                    "tendono a scendere nei prossimi giorni, quindi se puoi conviene aspettare."),
-}
+# esito -> etichetta; +1 = il Brent è sopra la media dei 30 giorni più del normale
+BRENT_SCORE_TESTI = {1: "Conviene", 0: "Rifornisci", -1: "Aspetta"}
 
 
 def fetch_brent_score(url: str, chiave: str, timeout: float = 15) -> dict:
@@ -384,7 +376,7 @@ def compute_edges(
     df["dist_km"] = haversine_km(olat, olon, df.lat.values, df.lon.values) * p.road_factor
     df = df[df.dist_km <= p.raggio_km].copy()
     
-    if getattr(p, "use_osrm", True) and not df.empty:
+    if p.use_osrm and not df.empty:
         # Prendi i 99 più vicini per rispettare i limiti di OSRM (1 origin + 99 dest = 100)
         cands_idx = df.nsmallest(99, "dist_km").index
         dests = list(zip(df.loc[cands_idx, "lat"], df.loc[cands_idx, "lon"]))
@@ -443,9 +435,6 @@ def compute_edges(
         p_market=p_market, c_km=c_km, best=best, consiglio=consiglio, motivo=motivo,
         p_min=float(pmin), p_max=float(pmax),
     )
-    if getattr(p, "use_osrm", True):
-        summary["best_route"] = get_osrm_route(origin, (best.lat, best.lon))
-    else:
-        summary["best_route"] = []
+    summary["best_route"] = get_osrm_route(origin, (best.lat, best.lon)) if p.use_osrm else []
 
     return df, summary

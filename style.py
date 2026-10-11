@@ -14,7 +14,7 @@ AMBER = "#ffb703"
 ORANGE = "#fb8500"
 # sfumature ricavate dalla palette
 BG = "#eef6fa"
-N100, N200, N300, N400, N500, N700 = "#f2f8fb", "#e2eef4", "#c9dde7", "#a5c2d1", "#7c9fb2", "#3a5f74"
+N100, N200, N300, N500, N700 = "#f2f8fb", "#e2eef4", "#c9dde7", "#7c9fb2", "#3a5f74"
 A100, A600, A700 = "#fff3e6", "#e07600", "#a65600"
 # colori dell'indicatore del petrolio (verde = sale, rosso = scende; il neutro usa ORANGE)
 VERDE, ROSSO = "#1f9d55", "#d64545"
@@ -127,11 +127,7 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 .stButton button[kind="secondary"], .stDownloadButton button {{ background: {N200}; color: {DEEP}; }}
 .stButton button[kind="secondary"]:hover, .stDownloadButton button:hover {{ background: {N300}; color: {DEEP}; }}
 
-/* metriche di st.metric: riquadri tenui */
-div[data-testid="stMetric"] {{ background: {N100}; border-radius: var(--radius-md); padding: 16px 20px; }}
-[data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * {{ text-transform: uppercase !important; letter-spacing: .08em; font-size: 11px; color: {N700}; }}
-div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-weight: 800; font-size: 26px; font-variant-numeric: tabular-nums; }}
-[data-testid="stAlert"] {{ border-radius: var(--radius-md); border: 0; }}
+/* opzioni avanzate: riquadro tenue */
 [data-testid="stExpander"] details {{ border: 0; background: {N100}; border-radius: var(--radius-md); }}
 
 /* blocchi HTML: Streamlit dà margin-bottom -16px al contenitore markdown */
@@ -177,11 +173,6 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 @media (max-width: 640px) {{ .x-hero-aside svg {{ width: 72px; height: 72px; }} }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
-.x-tag {{ display: inline-flex; align-items: center; font-size: 11px; letter-spacing: .02em; padding: 3px 10px;
-  border-radius: 999px; }}
-.x-tag.accent {{ background: {A100}; color: #7a3f00; }}
-.x-tag.neutral {{ background: {N100}; color: #1f4559; }}
-.x-tag.outline {{ border: 1px solid {ORANGE}; color: {ORANGE}; }}
 .x-scroll {{ overflow-x: auto; }}
 .x-table, .x-table tr {{ border: 0; }}
 .x-table {{ width: 100%; margin: 0; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }}
@@ -217,10 +208,6 @@ def card(key: str):
 
 def title(text: str) -> None:
     html(f'<div class="x-title">{escape(text)}</div>')
-
-
-def tag(text: str, kind: str = "accent") -> str:
-    return f'<span class="x-tag {kind}">{escape(text)}</span>'
 
 
 def metrics(items: Sequence[tuple[str, str, str]]) -> None:
