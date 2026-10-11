@@ -123,8 +123,7 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
   strada, chieste al server pubblico OSRM per i 99 distributori più vicini (opzione «Calcola percorsi reali»,
   attiva di default; le risposte restano in memoria finché il server è acceso, così cambiare litri, consumo o
   soglie non rifà la richiesta). Senza OSRM, o se non risponde, sono in linea d'aria per un fattore strada
-  (1,3 di default). Il modello in `fuel_model.compute_edges` gestisce anche
-  una destinazione (conta solo la deviazione dal percorso), ma l'app non la usa.
+  (1,3 di default).
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di

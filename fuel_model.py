@@ -8,8 +8,7 @@ verso i distributori vicini, a partire dai CSV open data MIMIT
 
     q   = litri acquistati (default V_tot * (1 - L))
     dB  = (B_t - B_{t-n}) / B_{t-n}, in euro, limitato a +-10%
-    D_i = deviazione chilometrica (andata/ritorno, oppure detour rispetto
-          alla rotta origine -> destinazione)
+    D_i = chilometri in più (andata e ritorno)
     C_km = consumo/100 * P_market + usura
 """
 from __future__ import annotations
@@ -363,7 +362,6 @@ def compute_edges(
     cands: pd.DataFrame,
     origin: tuple[float, float],
     p: ModelParams,
-    dest: tuple[float, float] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Pesi degli archi origine -> distributore.
 
@@ -400,13 +398,7 @@ def compute_edges(
     c_km = p.consumo_l100 / 100 * p_market + p.usura_eur_km
     q = p.litri_effettivi
 
-    if dest is None:
-        df["dev_km"] = 2 * df.dist_km
-    else:
-        dlat, dlon = dest
-        d_dest = haversine_km(df.lat.values, df.lon.values, dlat, dlon) * p.road_factor
-        d_dir = float(haversine_km(olat, olon, dlat, dlon)) * p.road_factor
-        df["dev_km"] = np.clip(df.dist_km + d_dest - d_dir, 0, None)
+    df["dev_km"] = 2 * df.dist_km
 
     df["guadagno"] = q * (p_market - df.prezzo)
     df["brent"] = q * p.alpha * p_market * p.delta_brent
