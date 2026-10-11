@@ -1,11 +1,12 @@
-"""Scarica i CSV giornalieri dal sito MIMIT e li salva nella cartella data/.
+"""Scarica i CSV giornalieri dal sito MIMIT e li salva compressi (.csv.gz) in una cartella.
 
-Utilizzato da GitHub Actions ogni mattina per mantenere i file pronti e aggiornati
-sul repository, così l'app Streamlit li legge direttamente in locale.
+Lanciato ogni mattina da .github/workflows/aggiorna_mimit.yml, che salva i file nel branch `dati`
+(cartella mimit/): l'app li scarica da lì, più veloce del sito del ministero.
 """
 from __future__ import annotations
 
 import argparse
+import gzip
 import sys
 from pathlib import Path
 
@@ -18,8 +19,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--dest",
-        default="data",
-        help="Cartella di destinazione per i CSV (default: data/)",
+        default="mimit",
+        help="Cartella di destinazione per i CSV compressi (default: mimit/)",
     )
     args = parser.parse_args(argv)
 
@@ -42,14 +43,15 @@ def main(argv=None) -> int:
         return 1
     print(f"Prezzi validi: {len(prezzi_df)} rilevazioni di prezzo trovate.")
 
-    f_anag = dest_dir / fm.ANAG_FILE
-    f_prezzi = dest_dir / fm.PREZZI_FILE
+    f_anag = dest_dir / f"{fm.ANAG_FILE}.gz"
+    f_prezzi = dest_dir / f"{fm.PREZZI_FILE}.gz"
 
-    f_anag.write_bytes(anag_b)
-    f_prezzi.write_bytes(prezzi_b)
+    # mtime=0: stessi dati, stesso file, così git non vede modifiche se il MIMIT non ha aggiornato nulla
+    f_anag.write_bytes(gzip.compress(anag_b, mtime=0))
+    f_prezzi.write_bytes(gzip.compress(prezzi_b, mtime=0))
 
-    mb_a = len(anag_b) / (1024 * 1024)
-    mb_p = len(prezzi_b) / (1024 * 1024)
+    mb_a = f_anag.stat().st_size / (1024 * 1024)
+    mb_p = f_prezzi.stat().st_size / (1024 * 1024)
     print(f"Salvati con successo in {dest_dir}:")
     print(f" - {f_anag.name}: {mb_a:.2f} MB")
     print(f" - {f_prezzi.name}: {mb_p:.2f} MB")

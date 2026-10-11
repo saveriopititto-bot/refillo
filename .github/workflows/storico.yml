@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: storico
+  group: dati  # lo stesso di aggiorna_mimit.yml: un solo workflow alla volta scrive nel branch dati
   cancel-in-progress: false
 
 jobs:
