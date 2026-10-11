@@ -38,8 +38,8 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
   cerchio dello score.
 - **Dove sei**: la posizione arriva dal browser; «Aggiorna posizione» la rileva di nuovo. In alternativa si sceglie
   un comune in «Avanzate».
-- La riga in cima al riquadro delle schede, in linea anche da telefono: «Aggiorna posizione», le pillole
-  Risultato / Come funziona e «Avanzate» (che, quando si apre, va a capo e prende tutta la riga).
+- La riga in cima al riquadro delle schede, tutta a sinistra e in linea anche da telefono: «Home», «Aggiorna
+  posizione», «Avanzate» e «F.A.Q.» («Avanzate», quando si apre, va in fondo e prende tutta la riga).
 
 In «Avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
@@ -105,11 +105,11 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, un unico riquadro: in cima la riga «Aggiorna posizione» · Risultato / Come funziona · «Avanzate»,
+Sotto, un unico riquadro: in cima la riga Home · «Aggiorna posizione» · «Avanzate» · F.A.Q., tutta a sinistra e
 sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
 degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
-- **Risultato**:
+- **Home**:
   - tre indicatori compatti su una riga (prezzo medio, distributori nel raggio, costo al km), che restano su
     una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
@@ -117,7 +117,7 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
     Brent), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
-- **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
+- **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
   la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.

@@ -126,35 +126,33 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   color: {DEEP}; cursor: pointer; }}
 [data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
-/* riga a tre controlli (Aggiorna posizione, Carburante, Opzioni avanzate) sempre orizzontale */
+/* riga dei comandi (Home, Aggiorna posizione, Avanzate, F.A.Q.): sempre orizzontale, tutta a sinistra */
 /* (le colonne dentro «Opzioni avanzate» restano libere di andare a capo da telefono) */
 .st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
-  gap: 8px !important; align-items: flex-start !important;
+  justify-content: flex-start !important; gap: 8px !important; align-items: flex-start !important;
 }}
 .st-key-comandi [data-testid="stColumn"]:not([data-testid="stExpanderDetails"] *) {{
-  flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
+  flex: 0 0 auto !important; min-width: 0 !important; width: auto !important;
 }}
-/* «Opzioni avanzate» aperte: vanno a capo e prendono tutta la riga, sotto gli altri due controlli */
+/* «Avanzate» aperte: vanno in fondo, a capo, e prendono tutta la riga sotto gli altri comandi */
 .st-key-comandi [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > * [data-testid="stExpander"] details[open]) {{
   flex-wrap: wrap !important; row-gap: 10px !important; }}
 .st-key-comandi [data-testid="stColumn"]:has([data-testid="stExpander"] details[open]) {{
-  flex: 1 1 100% !important; }}
-/* scelta della scheda (st.radio) disegnata come le pillole: senza pallino, quella scelta in blu scuro */
-.st-key-comandi [data-testid="stRadioGroup"] {{ display: flex; flex-wrap: nowrap; gap: 4px; justify-content: center; }}
-.st-key-comandi [data-testid="stRadioOption"] {{ margin: 0; padding: 8px 12px; min-height: 36px; border-radius: 999px;
-  display: flex; align-items: center; cursor: pointer; }}
-.st-key-comandi [data-testid="stRadioOption"] > div > div:not([data-testid="stMarkdownContainer"]) {{ display: none; }}
-.st-key-comandi [data-testid="stRadioOption"] p {{ font-size: 14px; font-weight: 600; color: {DEEP}; margin: 0;
-  white-space: nowrap; }}
-.st-key-comandi [data-testid="stRadioOption"]:hover p {{ color: {ORANGE}; }}
-.st-key-comandi [data-testid="stRadioOption"][data-selected="true"] {{ background: {DEEP}; }}
-.st-key-comandi [data-testid="stRadioOption"][data-selected="true"] p {{ color: #fff; }}
+  flex: 1 1 100% !important; order: 99; }}
+/* Home e F.A.Q.: pillole senza sfondo, quella aperta (type="primary") in blu scuro */
+.st-key-comandi [class*="st-key-nav_"] button {{ background: transparent; }}
+.st-key-comandi [class*="st-key-nav_"] button p {{ font-weight: 600 !important; font-size: 14px !important; color: {DEEP}; }}
+.st-key-comandi [class*="st-key-nav_"] button:hover p {{ color: {ORANGE}; }}
+.st-key-comandi [class*="st-key-nav_"] button[kind="primary"] {{ background: {DEEP}; }}
+.st-key-comandi [class*="st-key-nav_"] button[kind="primary"] p {{ color: #fff; }}
+.st-key-comandi [class*="st-key-nav_"] button[kind="secondary"]:hover {{ background: transparent; }}
+.st-key-comandi [class*="st-key-nav_"] button[kind="primary"]:hover {{ background: {DEEP}; }}
 .st-key-comandi .stButton button {{
-  width: 100% !important; padding: 6px 8px !important; min-height: 36px !important;
+  width: auto !important; padding: 6px 8px !important; min-height: 36px !important;
 }}
 .st-key-comandi .stButton button p {{
-  font-weight: 400 !important; font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  font-weight: 400; font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }}
 .st-key-hero [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
@@ -192,13 +190,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
   .st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{ gap: 4px !important; }}
   .st-key-comandi .stButton button {{ min-height: 32px !important; padding: 4px 4px !important; }}
-  .st-key-comandi [data-testid="stRadioGroup"] {{ gap: 2px; }}
-  .st-key-comandi [data-testid="stRadioOption"] {{ min-height: 32px; padding: 4px 8px; }}
-  .st-key-comandi [data-testid="stRadioOption"] p {{ font-size: 11px; white-space: normal; line-height: 1.15;
-    text-align: center; word-break: normal; overflow-wrap: normal; }}
+  .st-key-comandi [class*="st-key-nav_"] button p {{ font-size: 12px !important; }}
   .st-key-comandi .stButton button p,
-  .st-key-comandi [data-testid="stExpander"] summary p {{ font-size: 11px !important;
-    white-space: normal !important; line-height: 1.15 !important; overflow: visible !important; }}
+  .st-key-comandi [data-testid="stExpander"] summary p {{ font-size: 11.5px !important; }}
   .st-key-hero [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
   .st-key-hero [data-baseweb="select"] *,
   .st-key-hero [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
