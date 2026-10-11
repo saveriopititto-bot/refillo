@@ -56,9 +56,9 @@ class ResultView:
             )
             with st.container(key="mappa"):
                 components.html(map_html(mappa), height=400)
-            st.caption(self.fonte)
-            st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
-                       "il percorso con il navigatore.")
+            # un solo blocco, su due righe: fonte dei dati e legenda della mappa
+            st.caption(self.fonte + "  \nPiù un distributore è verde, più conviene. Tocca un distributore per i "
+                       "dettagli e il percorso con il navigatore.")
 
 
 def render_top5(edges: pd.DataFrame, unita: str = "l") -> None:
