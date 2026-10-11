@@ -104,7 +104,7 @@ class ControlsView:
             hero_cerchio = st.container()
             fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-        # riquadro delle schede: Home · Aggiorna posizione · Avanzate · F.A.Q., tutti a sinistra, poi il contenuto
+        # riquadro delle schede: Home · Posizione · Avanzate · F.A.Q., tutti a sinistra, poi il contenuto
         st.session_state.setdefault("scheda", HOME)
         with style.card("schede"):
             with st.container(key="comandi"):
@@ -114,7 +114,7 @@ class ControlsView:
         _pillola(col_home, HOME, "nav_home")
         _pillola(col_faq, FAQ, "nav_faq")
         with col_pos:
-            if st.button("Aggiorna posizione"):
+            if st.button("Posizione", help="Rileva di nuovo la posizione dal browser"):
                 st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
                 st.rerun()
 

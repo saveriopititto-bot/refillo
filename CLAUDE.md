@@ -49,7 +49,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, tutta a sinistra e in linea anche da
-  telefono: Home · Aggiorna posizione · Avanzate · F.A.Q.; poi il contenuto della scheda scelta. Home e F.A.Q. sono
+  telefono: Home · Posizione · Avanzate · F.A.Q. (tutte con lo sfondo tenue `N100`); poi il contenuto della scheda scelta. Home e F.A.Q. sono
   pulsanti a pillola (`nav_home`, `nav_faq`, quello aperto è `type="primary"`) che scrivono `st.session_state["scheda"]`
   (`HOME`, `FAQ` in `ui/controls_view.py`): `st.tabs` e `st.radio` non permettono altri comandi tra le pillole. Si
   disegna solo la scheda scelta. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
