@@ -44,7 +44,7 @@ In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura
 dell'auto, età massima del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del
 petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora»,
-che aggiorna prezzi e Brent. In fondo alla barra laterale e a piè di pagina in tutte le schede è presente il
+che aggiorna prezzi e Brent. A piè di pagina in tutte le schede è presente il
 colofon con versione e diritti riservati.
 
 L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:

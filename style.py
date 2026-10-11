@@ -206,9 +206,6 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
   padding: 1px 7px; border-radius: 999px; background: {N200}; color: {BLUE_GREEN}; letter-spacing: .02em; }}
 .x-colophon-dot {{ color: {N500}; }}
 .x-colophon-text {{ color: {N700}; font-size: 12px; }}
-[data-testid="stSidebar"] .x-colophon {{ padding: 14px 6px 6px; font-size: 11px; gap: 6px;
-  border-top: 1px solid {N200}; margin-top: 12px; }}
-[data-testid="stSidebar"] .x-colophon-text {{ font-size: 11px; }}
 </style>
 """
 
@@ -298,7 +295,7 @@ def table(headers: Sequence[str], rows: Sequence[Sequence[str]], widths: dict[in
 
 
 def colophon() -> None:
-    """Colofon a piè di pagina e nella barra laterale."""
+    """Colofon a piè di pagina."""
     html('<div class="x-colophon" role="contentinfo">'
          '<span class="x-colophon-brand">sCore lab</span>'
          '<span class="x-colophon-ver">v1.0</span>'

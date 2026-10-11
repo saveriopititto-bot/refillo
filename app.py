@@ -70,7 +70,7 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
 
 
 PERCHE_PETROLIO = {
-    1: "Il petrolio costa più del solito. Tra pochi giorni anche la benzina costerà di più. Fai benzina oggi.",
+    1: "Il petrolio costa più del solito. Tra pochi giorni anche il carburante costerà di più. Fai il pieno oggi.",
     0: "Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.",
     -1: "Il petrolio costa meno del solito. Tra pochi giorni anche la benzina costerà di meno. Se puoi, aspetta.",
 }
@@ -160,7 +160,9 @@ def stop_with(msg: str) -> None:
 # --------------------------------------------------------------------------
 sb = st.sidebar
 # I contenitori fissano l'ordine visivo: i CSV caricati a mano (in Opzioni avanzate) servono prima di tutto il resto.
-sb_main, sb_adv, sb_colophon = sb.container(), sb.container(), sb.container()
+sb_main, sb_adv = sb.container(), sb.container()
+adv = sb_adv.expander("Opzioni avanzate")
+adv_model, adv_data = adv.container(), adv.container()
 with adv_data:
     style.section("Dati")
     up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
