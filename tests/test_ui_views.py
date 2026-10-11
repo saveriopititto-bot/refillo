@@ -114,7 +114,7 @@ def test_get_mimit_dataset_usa_copia_dati_di_oggi(monkeypatch):
     ds.clear_all_caches()
     oggi = pd.Timestamp.now(tz="Europe/Rome")
     giorno = ds.ultimo_rilascio_mimit(oggi)
-    copia = f"Estrazione del {giorno:%Y-%m-%d}\nid|x\n".encode()
+    copia = f"Estrazione del {giorno - pd.Timedelta(days=1):%Y-%m-%d}\nid|x\n".encode()
 
     def mimit_non_serve(*a, **k):
         raise AssertionError("con la copia di oggi non si scarica dal MIMIT")
@@ -131,7 +131,9 @@ def test_dati_freschi():
 
     alle_10 = pd.Timestamp("2026-10-11 10:00", tz="Europe/Rome")
     alle_8 = pd.Timestamp("2026-10-11 08:00", tz="Europe/Rome")
-    assert dati_freschi(b"Estrazione del 2026-10-11\nid|x", alle_10)
-    assert not dati_freschi(b"Estrazione del 2026-10-10\nid|x", alle_10)
-    assert dati_freschi(b"Estrazione del 2026-10-10\nid|x", alle_8)  # prima delle 9 vale quella di ieri
+    # il MIMIT data i file con il giorno prima: quelli pubblicati l'11 dicono «Estrazione del 2026-10-10»
+    assert dati_freschi(b"Estrazione del 2026-10-10\nid|x", alle_10)
+    assert not dati_freschi(b"Estrazione del 2026-10-09\nid|x", alle_10)
+    assert dati_freschi(b"Estrazione del 2026-10-09\nid|x", alle_8)  # prima delle 9 vale quella di ieri
+    assert not dati_freschi(b"Estrazione del 2026-10-08\nid|x", alle_8)
     assert not dati_freschi(b"senza data\nid|x", alle_10)

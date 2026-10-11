@@ -53,7 +53,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   larghezza da computer, centrata; da telefono a tutta larghezza.
 - **Dati**: prezzi e anagrafica MIMIT da `ui/data_service.get_mimit_dataset`, con precedenza: CSV caricati a
   mano → cartella `data/` → copia nel branch `dati` (`fm.download_dati`, `mimit/*.csv.gz`, solo se la data di
-  estrazione è quella dell'ultimo aggiornamento delle 9:00) → sito MIMIT (`fm.download_csv`); i file scaricati
+  estrazione + 1 giorno è quella dell'ultimo aggiornamento delle 9:00: il MIMIT data i file con il giorno prima) → sito MIMIT (`fm.download_csv`); i file scaricati
   restano in memoria fino alle 9:00 successive. La copia la salva ogni mattina `.github/workflows/aggiorna_mimit.yml`
   (`scripts/aggiorna_mimit.py`) nel branch `dati`: i CSV MIMIT non vanno mai su `main` e non si versionano.
   Brent da Yahoo Finance (`fetch_brent_yf`, cache 3 ore). `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`).
