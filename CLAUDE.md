@@ -29,10 +29,13 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - La CI (GitHub Actions) gira su Python **3.10** e 3.12. Niente sintassi solo 3.12+, come le f-string con
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
 - I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
-  (simulando `fm.download_csv`, `fm.fetch_brent_yf` e `streamlit_js_eval.get_geolocation`) e, per i
-  cambi visivi, con Chromium/Playwright.
+  (simulando `fm.download_csv`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
+  `fm.get_osrm_route` e `streamlit_js_eval.get_geolocation`) e, per i cambi visivi, con Chromium/Playwright
+  (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
+- Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "Archi"`; `st.cache_data` resta in
+  memoria tra un AppTest e l'altro nello stesso processo, quindi per casi diversi usa argomenti diversi.
 - Nell'ambiente di sviluppo cloud `www.mimit.gov.it` e Yahoo Finance sono bloccati dal proxy: il download
-  reale va verificato sull'app online.
+  reale va verificato sull'app online. Anche `router.project-osrm.org` (OSRM) è bloccato.
 
 ## Convenzioni
 
@@ -42,10 +45,19 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Stile**: `style.py` + `.streamlit/config.toml`, lo stesso di test4 (palette `#8ecae6` `#219ebc`
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
-  1.65).
+  1.65; `requirements.txt` chiede `streamlit>=1.65`).
+- **Pagina**: niente titolo. In cima il riquadro «Consiglio», visibile in tutte le schede; sotto, le pillole
+  Risultato / Archi / Come funziona (`st.tabs(..., key="scheda", on_change="rerun")`): si disegna solo la
+  scheda aperta (`tab.open`). La scheda Petrolio (pagina di scorebrent) è stata tolta: non rimetterla.
+- **Mappa**: sempre in verticale, proporzione 2:3 (`aspect-ratio` in `style.py`), al massimo 500 px di
+  larghezza da computer, centrata; da telefono a tutta larghezza.
 - **Dati**: prezzi e anagrafica MIMIT scaricati da `fuel_model.download_csv` (cache 3 ore), Brent da Yahoo
   Finance (`fetch_brent_yf`, cache 3 ore). Precedenza: CSV caricati a mano → cartella `data/` → download.
-  I CSV in `data/` non si versionano.
+  I CSV in `data/` non si versionano. `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`).
+  `parse_anagrafica` resta con il ciclo Python: la versione con `read_csv` è stata misurata ed è più lenta.
+- **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
+  OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
+  (`lru_cache`), gli errori no; se OSRM non risponde si usa la linea d'aria × fattore strada.
 - **Storico**: `storico.py` + `scripts/raccogli_storico.py`, lanciati ogni mattina da
   `.github/workflows/storico.yml`, che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
   giorni) e `storico/comuni.csv.gz` nel branch `dati`. Non fare mai merge del branch `dati` in `main` e non
@@ -58,4 +70,13 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   «Consiglio» (Conviene / Rifornisci / Aspetta, con il cerchio), ma non entra nel calcolo del risparmio né nella
   classifica; senza score il riquadro torna al verdetto sul risparmio, con una riga che dice perché manca
   (segreto mancante o Supabase non raggiungibile). Nei test va simulato `fm.fetch_brent_score`.
+- **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
+  `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
+  `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nei 5 migliori
+  (l'effetto Brent è uguale per tutti e non è un risparmio vero). Costo al km = consumo × prezzo di mercato +
+  usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
+- **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
+  petrolio dice altro (`info["riserva"]`).
+- **`SCONTO_MAX`** in `fuel_model.py`: deciso dall'utente, non va descritto né nel README né nei commenti né
+  nell'interfaccia.
 - La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.
