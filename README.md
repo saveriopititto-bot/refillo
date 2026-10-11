@@ -126,7 +126,7 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
 - **Home**:
   - tre indicatori compatti su una riga (prezzo medio, distributori nel raggio, costo al km), che restano su
     una riga anche da telefono;
-  - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
+  - il riquadro della mappa, senza titolo: in cima il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
     Brent), poi la mappa Leaflet, sempre in verticale (larga 2, alta 3) e al massimo larga 400 px (400 × 600), centrata:
     sfondo OpenStreetMap schiarito, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di

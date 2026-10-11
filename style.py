@@ -91,6 +91,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   border-radius: 0; }}
 .st-key-card-schede [class*="st-key-card"] + [class*="st-key-card"],
 .st-key-card-schede [data-testid="stElementContainer"] + [class*="st-key-card"] {{ margin-top: 12px; }}
+/* la mappa (con la frase) subito sotto gli indicatori, alla stessa distanza che c'è tra pillole e indicatori */
+.st-key-card-schede .st-key-card-map {{ margin-top: -8px; }}
 .st-key-card-schede .x-metric {{ background: {N100}; box-shadow: none; }}
 
 /* schede */
