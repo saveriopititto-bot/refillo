@@ -154,7 +154,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   width: 100% !important; padding: 6px 8px !important; min-height: 36px !important;
 }}
 .st-key-comandi .stButton button p {{
-  font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  font-weight: 400 !important; font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }}
 .st-key-hero [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
