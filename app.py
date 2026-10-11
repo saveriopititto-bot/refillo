@@ -335,8 +335,7 @@ if tab_res.open:
                     f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
                     f"considerando il costo del viaggio."
                 )
-                st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
-                           "arancione = conviene poco.")
+                st.caption("Più un distributore è verde, più conviene")
                 deck = build_fuel_deck(
                     origin, edges,
                     best_route=info.get("best_route"),
