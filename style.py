@@ -102,9 +102,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
 /* mappa Leaflet (cornice di components.html): sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello
-   schermo; da computer al massimo 500 px di larghezza, centrata */
+   schermo; al massimo 400 px di larghezza (400 × 600), centrata */
 .st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 2 / 3; width: 100% !important;
-  max-width: 500px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
+  max-width: 400px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
 .st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; }}
 
 /* bottoni: compatti a pillola allineati alla barra dei risultati */

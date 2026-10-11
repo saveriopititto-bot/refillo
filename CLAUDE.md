@@ -60,7 +60,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
   `st.components.v1.html` dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
   ricaricare la pagina. Sempre in verticale, proporzione 2:3 (`aspect-ratio` sull'iframe in `style.py`), al massimo
-  500 px di larghezza da computer, centrata; da telefono a tutta larghezza. Sfondo OpenStreetMap standard (`TILES`),
+  400 px di larghezza (400 × 600) da computer, centrata; da telefono a tutta larghezza. Sfondo OpenStreetMap standard (`TILES`),
   schiarito via CSS (`SFONDO_CSS`): niente CARTO, che ora chiede una chiave e mostra «API key required». Script caricati: solo Leaflet e jQuery (i
   popup di folium lo usano). Toccando un distributore si apre il popup con il link «Portami qui» (Google Maps).
   Nell'ambiente cloud i CDN e i tile sono bloccati: per provarla con Chromium servi `leaflet.js` e jQuery da npm con
