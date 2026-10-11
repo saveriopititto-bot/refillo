@@ -150,7 +150,7 @@ def posizione_browser() -> tuple[tuple[float, float] | None, str]:
 
 
 def stop_with(msg: str) -> None:
-    style.html(f'<div class="x-lead"><strong>⛽ Score di rifornimento</strong><br>{msg}</div>')
+    style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>{msg}</div>')
     style.colophon()
     st.stop()
 

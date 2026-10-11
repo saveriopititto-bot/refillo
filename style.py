@@ -141,9 +141,11 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 [data-testid="stMarkdownContainer"]:has(> [class^="x-"]) {{ margin-bottom: 0; }}
 .x-sec {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: {N700};
   margin-top: 4px; }}
-.x-lead {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 22px 26px;
-  font-size: 19px; line-height: 1.5; text-wrap: pretty; }}
+.x-lead {{ font-size: 16px; line-height: 1.55; text-align: justify; text-justify: inter-word; color: {DEEP}; }}
 .x-lead strong {{ color: {A700}; }}
+.x-lead-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 22px 26px;
+  font-size: 19px; line-height: 1.5; text-wrap: pretty; }}
+.x-lead-box strong {{ color: {A700}; }}
 .x-label {{ font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: {N700}; }}
 /* indicatori: riquadri compatti, sempre tutti su una riga */
 .x-metrics {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }}
