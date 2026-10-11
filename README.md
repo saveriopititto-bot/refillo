@@ -44,7 +44,8 @@ In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura
 dell'auto, età massima del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del
 petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora»,
-che aggiorna prezzi e Brent.
+che aggiorna prezzi e Brent. In fondo alla barra laterale e a piè di pagina in tutte le schede è presente il
+colofon con versione e diritti riservati.
 
 L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:
 
@@ -274,7 +275,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
 | `clients/` | Client per API esterne: OSRM (`osrm.py`), Yahoo Finance (`yahoo.py`), Supabase (`supabase.py`) |
 | `ui/` | Moduli interfaccia: formattatori italiani (`formatters.py`), configurazione (`config.py`), mappe (`map_deck.py`) |
-| `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
+| `style.py` | Stile dell'interfaccia: CSS, schede arrotondate, colofon e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |

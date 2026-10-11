@@ -151,6 +151,7 @@ def posizione_browser() -> tuple[tuple[float, float] | None, str]:
 
 def stop_with(msg: str) -> None:
     style.html(f'<div class="x-lead"><strong>⛽ Score di rifornimento</strong><br>{msg}</div>')
+    style.colophon()
     st.stop()
 
 
@@ -159,7 +160,9 @@ def stop_with(msg: str) -> None:
 # --------------------------------------------------------------------------
 sb = st.sidebar
 # I contenitori fissano l'ordine visivo: i CSV caricati a mano (in Opzioni avanzate) servono prima di tutto il resto.
-sb_main, sb_adv = sb.container(), sb.container()
+sb_main, sb_adv, sb_colophon = sb.container(), sb.container(), sb.container()
+with sb_colophon:
+    style.colophon()
 adv = sb_adv.expander("Opzioni avanzate")
 adv_model, adv_data = adv.container(), adv.container()
 with adv_data:
@@ -200,6 +203,7 @@ if anag_b is None or prezzi_b is None:
 anag, prezzi, extraction = load_data(anag_b, prezzi_b)
 if anag.empty or prezzi.empty:
     style.error_card("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
+    style.colophon()
     st.stop()
 
 # righe (HTML già sicuro) sui dati usati, mostrate nel riquadro del consiglio
@@ -435,3 +439,8 @@ d'aria, corrette per tenere conto delle strade.
 """
     )
     st.caption(fonte)
+
+# --------------------------------------------------------------------------
+# Colofon
+# --------------------------------------------------------------------------
+style.colophon()

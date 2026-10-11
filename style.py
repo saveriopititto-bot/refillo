@@ -197,6 +197,18 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 /* componente invisibile che chiede la posizione al browser: niente spazio vuoto */
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
+
+/* colofon */
+.x-colophon {{ display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+  padding: 24px 16px 12px; font-size: 13px; color: {N700}; text-align: center; }}
+.x-colophon-brand {{ font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
+.x-colophon-ver {{ display: inline-flex; align-items: center; font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 999px; background: {N200}; color: {BLUE_GREEN}; letter-spacing: .02em; }}
+.x-colophon-dot {{ color: {N500}; }}
+.x-colophon-text {{ color: {N700}; font-size: 12px; }}
+[data-testid="stSidebar"] .x-colophon {{ padding: 14px 6px 6px; font-size: 11px; gap: 6px;
+  border-top: 1px solid {N200}; margin-top: 12px; }}
+[data-testid="stSidebar"] .x-colophon-text {{ font-size: 11px; }}
 </style>
 """
 
@@ -283,3 +295,13 @@ def table(headers: Sequence[str], rows: Sequence[Sequence[str]], widths: dict[in
                  for i, h in enumerate(headers))
     tb = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows)
     html(f'<div class="x-scroll"><table class="x-table"><thead><tr>{th}</tr></thead><tbody>{tb}</tbody></table></div>')
+
+
+def colophon() -> None:
+    """Colofon a piè di pagina e nella barra laterale."""
+    html('<div class="x-colophon" role="contentinfo">'
+         '<span class="x-colophon-brand">sCore lab</span>'
+         '<span class="x-colophon-ver">v1.0</span>'
+         '<span class="x-colophon-dot">·</span>'
+         '<span class="x-colophon-text">Tutti i diritti riservati</span>'
+         '</div>')
