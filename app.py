@@ -14,7 +14,7 @@ from ui.config import supabase_config
 from ui.formatters import _it, eur, num
 from ui.map_deck import build_fuel_deck
 
-st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide")
+st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide", initial_sidebar_state="collapsed")
 style.apply_style()
 
 BASE = Path(__file__).parent
@@ -153,16 +153,15 @@ def stop_with(msg: str) -> None:
     style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>{msg}</div>')
     style.colophon()
     st.stop()
-
-
+# Controlli e dati
 # --------------------------------------------------------------------------
-# Barra laterale
-# --------------------------------------------------------------------------
-sb = st.sidebar
-# I contenitori fissano l'ordine visivo: i CSV caricati a mano (in Opzioni avanzate) servono prima di tutto il resto.
-sb_main, sb_adv = sb.container(), sb.container()
-adv = sb_adv.expander("Opzioni avanzate")
-adv_model, adv_data = adv.container(), adv.container()
+c_hero = st.container()
+c_controls = style.card("controls")
+with c_controls:
+    c_main = st.container()
+    adv = st.expander("Opzioni avanzate")
+    adv_model, adv_data = adv.container(), adv.container()
+
 with adv_data:
     style.section("Dati")
     up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
@@ -192,15 +191,20 @@ with adv_data:
 
 if anag_b is None or prezzi_b is None:
     errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
-    stop_with("Non sono riuscito a scaricare i dati dal sito del MIMIT"
-              + (f":<br><code>{errori}</code><br>" if errori else ". ")
-              + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
-                "da «Opzioni avanzate» nella barra laterale, o mettili nella cartella <code>data/</code> accanto ad "
-                "<code>app.py</code>.")
+    with c_hero:
+        style.error_card("Non sono riuscito a scaricare i dati dal sito del MIMIT"
+                         + (f":<br><code>{errori}</code><br>" if errori else ". ")
+                         + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
+                           "da «Opzioni avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
+                           "<code>app.py</code>.")
+    style.colophon()
+    st.stop()
 
 anag, prezzi, extraction = load_data(anag_b, prezzi_b)
 if anag.empty or prezzi.empty:
-    style.error_card("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
+    with c_hero:
+        style.error_card("Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
+    style.colophon()
     st.stop()
 
 # righe (HTML già sicuro) sui dati usati, mostrate nel riquadro del consiglio
@@ -216,61 +220,71 @@ if extraction is None:
     nota_prezzi += " (data di estrazione non trovata: filtro sull'età del prezzo disattivato)"
 note_dati = [escape(nota_prezzi), nota_brent]
 
-with sb_main:
-    style.section("1 · Dove sei")
-    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
-                        label_visibility="collapsed")
-    origin, attesa_pos = None, ""
-    if modo_pos == "La mia posizione":
-        origin, nota = posizione_browser()
-        attesa_pos = nota if origin is None else ""
-        st.caption(nota)
-        if st.button("Aggiorna posizione", width="stretch"):
-            st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-            st.rerun()
-    else:
-        comuni = sorted(anag.comune.unique())
-        idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
-        comune = st.selectbox("Comune", comuni, index=idx)
-        sel = anag[anag.comune == comune]
-        origin = (float(sel.lat.median()), float(sel.lon.median()))
-        st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
+with c_main:
+    col_pos, col_fuel = st.columns([1, 1], gap="large")
+    with col_pos:
+        style.section("1 · Dove sei")
+        modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
+                            label_visibility="collapsed")
+        origin, attesa_pos = None, ""
+        if modo_pos == "La mia posizione":
+            origin, nota = posizione_browser()
+            attesa_pos = nota if origin is None else ""
+            st.caption(nota)
+            if st.button("Aggiorna posizione", width="stretch"):
+                st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+                st.rerun()
+        else:
+            comuni = sorted(anag.comune.unique())
+            idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
+            comune = st.selectbox("Comune", comuni, index=idx)
+            sel = anag[anag.comune == comune]
+            origin = (float(sel.lat.median()), float(sel.lon.median()))
+            st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
 
-    style.section("2 · Carburante")
-    fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+    with col_fuel:
+        style.section("2 · Carburante")
+        fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+        self_service = st.radio("Modalità", ["Self", "Servito"], horizontal=True) == "Self"
 
 with adv_model:
-    v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
-    livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
-    consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
-    raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
-    use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
-    show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
-    self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
-    livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
-                            help="Sotto questo livello conviene sempre fare rifornimento.") / 100
-    litri = None
-    if st.checkbox("Scegli quanti litri fare (altrimenti il pieno)"):
-        litri = st.number_input("Litri da fare", min_value=1.0, max_value=float(v_tot),
-                                value=min(30.0, float(v_tot)), step=1.0)
-    usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
-                            format="%.3f")
-    max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
-    road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, 1.3, 0.05,
-                            help="1,3 = la strada è in media il 30% più lunga della distanza in linea d'aria.")
-    ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True,
-                        help="Mediana: il prezzo di mezzo, non risente dei prezzi anomali. Media: la media semplice.")
-    theta = st.number_input("Soglia di convenienza (€)", value=0.0, step=0.5,
-                            help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
-    alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
-                      help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
+    col_v1, col_v2 = st.columns(2)
+    with col_v1:
+        v_tot = st.number_input("Capacità del serbatoio (litri)", min_value=5.0, max_value=200.0, value=50.0, step=1.0)
+        livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
+        consumo = st.number_input("Consumo (l/100 km)", min_value=1.0, max_value=40.0, value=5.0, step=0.1)
+        raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
+        livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
+                                help="Sotto questo livello conviene sempre fare rifornimento.") / 100
+        litri = None
+        if st.checkbox("Scegli quanti litri fare (altrimenti il pieno)"):
+            litri = st.number_input("Litri da fare", min_value=1.0, max_value=float(v_tot),
+                                    value=min(30.0, float(v_tot)), step=1.0)
+    with col_v2:
+        use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
+        show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
+        usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
+                                format="%.3f")
+        max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
+        road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, 1.3, 0.05,
+                                help="1,3 = la strada è in media il 30% più lunga della distanza in linea d'aria.")
+        ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True,
+                            help="Mediana: il prezzo di mezzo, non risente dei prezzi anomali. Media: la media semplice.")
+        theta = st.number_input("Soglia di convenienza (€)", value=0.0, step=0.5,
+                                help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
+        alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
+                          help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
 # --------------------------------------------------------------------------
 # Calcolo
 # --------------------------------------------------------------------------
 if origin is None:
-    stop_with(escape(attesa_pos) + "<br>In alternativa scegli <strong>Comune</strong> "
-              "in «1 · Dove sei» nella barra laterale.")
+    with c_hero:
+        style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>'
+                   f'{escape(attesa_pos)}<br>In alternativa scegli <strong>Comune</strong> '
+                   f'in «1 · Dove sei» qui sotto.</div>')
+    style.colophon()
+    st.stop()
 params = fm.ModelParams(
     v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
     consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
@@ -287,22 +301,23 @@ edges, info = fm.compute_edges(cands, origin, params)
 bs, bs_err = leggi_brent_score()
 
 # --------------------------------------------------------------------------
-# Consiglio: in cima, sopra le schede, visibile in tutte
+# Consiglio: in cima, sopra i controlli e le schede
 # --------------------------------------------------------------------------
-if edges.empty:
-    style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
-                     "Aumenta il raggio o l'età massima del prezzo.")
-    style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
-elif bs is not None and not info["riserva"]:  # il consiglio segue lo score del petrolio (sotto riserva no)
-    titolo = fm.BRENT_SCORE_TESTI[bs["esito"]]
-    style.hero("Consiglio", titolo, "", "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo),
-               nota_html=perche_petrolio(bs))
-else:
-    corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-    if not info["consiglio"]:
-        corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
-    style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-               "", corpo, meta_html=note_dati + ([nota_score(bs_err)] if bs is None else []))
+with c_hero:
+    if edges.empty:
+        style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
+                         "Aumenta il raggio o l'età massima del prezzo.")
+        style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
+    elif bs is not None and not info["riserva"]:  # il consiglio segue lo score del petrolio (sotto riserva no)
+        titolo = fm.BRENT_SCORE_TESTI[bs["esito"]]
+        style.hero("Consiglio", titolo, "", "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo),
+                   nota_html=perche_petrolio(bs))
+    else:
+        corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
+        if not info["consiglio"]:
+            corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
+        style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
+                   "", corpo, meta_html=note_dati + ([nota_score(bs_err)] if bs is None else []))
 
 # Si disegna solo la scheda aperta: la mappa e la tabella degli archi non partono finché non servono.
 tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"], key="scheda", on_change="rerun")

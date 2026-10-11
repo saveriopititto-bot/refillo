@@ -26,8 +26,7 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   «Consiglio» in cima: «Conviene», «Rifornisci» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
-- **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
-  alla larghezza dello schermo.
+- **Funziona anche da telefono**: l'interfaccia si sviluppa in modo lineare su una sola colonna senza menu a comparsa e gli indicatori si adattano alla larghezza dello schermo.
 - **Parla italiano semplice**: niente simboli né formule nell'interfaccia; percentuali e cifre in euro, con
   i numeri in formato italiano.
 
@@ -35,17 +34,16 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 ## Come si usa
 
-La barra laterale è compatta e divisa in due sezioni:
+La scheda dei controlli si trova subito sotto il riquadro «Consiglio» ed è divisa in due sezioni:
 
 1. **Dove sei**: «La mia posizione» (predefinita) o «Comune».
-2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano).
+2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano) e modalità (Self o Servito).
 
 In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
-consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura
-dell'auto, età massima del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del
-petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora»,
-che aggiorna prezzi e Brent. A piè di pagina in tutte le schede è presente il
-colofon con versione e diritti riservati.
+consumo, raggio d'azione, OSRM per percorsi reali, soglia di riserva, litri da fare, usura dell'auto, età massima
+del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,
+in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che aggiorna prezzi e Brent.
+A piè di pagina in tutte le schede è presente il colofon con versione e diritti riservati.
 
 L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:
 
@@ -269,7 +267,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 
 | File / Cartella | Contenuto |
 |---|---|
-| `app.py` | Interfaccia Streamlit: barra laterale, schede Risultato, Archi e Come funziona, geolocalizzazione |
+| `app.py` | Interfaccia Streamlit: riquadro consiglio, scheda controlli, schede Risultato, Archi e Come funziona, geolocalizzazione |
 | `fuel_model.py` | Facade pubblica e retrocompatibile del modello (riesporta core, ingestion, clients) |
 | `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |

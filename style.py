@@ -19,8 +19,6 @@ A100, A600, A700 = "#fff3e6", "#e07600", "#a65600"
 # colori dell'indicatore del petrolio (verde = sale, rosso = scende; il neutro usa ORANGE)
 VERDE, ROSSO = "#1f9d55", "#d64545"
 
-SIDEBAR_W = 290  # larghezza fissa della barra laterale (scheda + 20px di margine sinistro)
-
 CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap');
@@ -35,47 +33,24 @@ hr {{ display: none; }}
 
 /* pagina */
 header[data-testid="stHeader"] {{ background: transparent; }}
-[data-testid="stMainBlockContainer"] {{ padding: 20px 20px 40px; max-width: none; }}
+[data-testid="stMainBlockContainer"] {{ padding: 20px 20px 40px; max-width: 1040px; margin: 0 auto; }}
 [data-testid="stMain"] [data-testid="stVerticalBlock"] {{ gap: 20px; }}
 
-/* barra laterale: scheda bianca a larghezza fissa, alta quanto la finestra, senza scroll interno;
-   20px di margine esterno = stesso spazio che separa le schede della pagina centrale */
-section[data-testid="stSidebar"] {{ background: transparent; border: 0; }}
-section[data-testid="stSidebar"][aria-expanded="true"] {{ width: {SIDEBAR_W}px !important;
-  min-width: {SIDEBAR_W}px !important; max-width: {SIDEBAR_W}px !important; }}
-section[data-testid="stSidebar"] > div {{ background: transparent; }}
-section[data-testid="stSidebar"] div:has(> [data-testid="stSidebarResizeHandle"]) {{ display: none; }}
-/* su schermi stretti la barra laterale si apre sopra la pagina: sfondo pieno attorno alla scheda */
-@media (max-width: 767.98px) {{
-  section[data-testid="stSidebar"][aria-expanded="true"] {{ background: {BG}; box-shadow: 0 0 40px rgba(2,48,71,.18); }}
-}}
-section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ background: #fff; border-radius: var(--radius-lg); margin: 20px 0 20px 20px;
-  box-shadow: var(--shadow-soft); width: calc(100% - 20px) !important; height: calc(100vh - 40px);
-  padding: 0; overflow-x: hidden; overflow-y: auto; position: relative; }}
-[data-testid="stSidebarUserContent"] {{ padding: 12px 14px 10px; }}
-[data-testid="stSidebarHeader"] {{ position: absolute; top: 12px; right: 12px; z-index: 2; padding: 0;
-  height: auto; min-height: 0; width: auto; }}
-[data-testid="stSidebarHeader"] [data-testid="stLogoSpacer"] {{ display: none; }}
-/* barra laterale compatta: poco spazio tra i campi, campi e pulsanti bassi */
-[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 6px; }}
-[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {{ gap: 8px; }}
-[data-testid="stSidebar"] [data-baseweb="input"], [data-testid="stSidebar"] [data-testid="stNumberInputContainer"] {{
-  height: 32px; }}
-[data-testid="stSidebar"] [data-baseweb="select"] > div {{ min-height: 32px; }}
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {{ min-height: 0; margin-bottom: 0; }}
-[data-testid="stSidebar"] .stRadio [role="radiogroup"] {{ gap: 0 12px; }}
-[data-testid="stSidebar"] .stSlider {{ margin-top: -6px; margin-bottom: -8px; }}
-[data-testid="stSidebar"] .stButton button, [data-testid="stSidebar"] .stDownloadButton button {{
-  min-height: 32px; padding: 4px 14px; }}
-[data-testid="stSidebar"] .stButton button p {{ font-size: 13px; }}
-[data-testid="stSidebar"] [data-testid="stExpander"] summary {{ padding: 8px 12px; }}
-[data-testid="stSidebar"] [data-testid="stExpanderDetails"] {{ padding: 4px 12px 12px; }}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {{ padding: 6px 8px; }}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"] {{ display: none; }}
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {{ font-size: 12px; color: {N700}; }}
-[data-testid="stSidebar"] .stRadio [data-testid="stWidgetLabel"] p {{ font-size: 12px; font-weight: 800;
+/* barra laterale disattivata: tutti i controlli sono integrati nella pagina centrale */
+section[data-testid="stSidebar"],
+[data-testid="stSidebarCollapsedControl"],
+button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
+
+/* scheda controlli sotto il riquadro del consiglio */
+[class*="st-key-card-controls"] {{ padding: 20px 24px; gap: 14px !important; }}
+[class*="st-key-card-controls"] [data-testid="stHorizontalBlock"] {{ gap: 20px; }}
+[class*="st-key-card-controls"] [data-testid="stExpander"] {{ margin-top: 4px; }}
+[class*="st-key-card-controls"] [data-testid="stExpander"] summary {{ padding: 8px 14px; font-weight: 600; font-size: 14px; }}
+[class*="st-key-card-controls"] [data-testid="stExpanderDetails"] {{ padding: 12px 14px 16px; }}
+.stRadio [role="radiogroup"] {{ gap: 0 16px; }}
+.stRadio [data-testid="stWidgetLabel"] p {{ font-size: 12px; font-weight: 800;
   letter-spacing: .08em; text-transform: uppercase; color: {N700}; }}
-[data-testid="stSidebar"] .stRadio label p {{ font-size: 13px; color: {DEEP}; }}
+.stRadio label p {{ font-size: 13px; color: {DEEP}; }}
 [data-testid="stRadioOption"]:not([data-selected="true"]) > div > div:first-child {{
   background: #fff; border: 1.5px solid {N500}; }}
 [data-testid="stRadioOption"]:not([data-selected="true"]):hover > div > div:first-child {{ border-color: {ORANGE}; }}
@@ -193,9 +168,7 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 .x-table tbody tr td:first-child {{ border-radius: 10px 0 0 10px; font-weight: 600; }}
 .x-table tbody tr td:last-child {{ border-radius: 0 10px 10px 0; }}
 .stApp .x-note {{ font-size: 12px; line-height: 1.45; color: {N700}; margin: 0; }}
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}
-[data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ margin-top: -6px; }}
-[data-testid="stSidebar"] .x-note {{ font-size: 11px; }}
+[data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}
 /* componente invisibile che chiede la posizione al browser: niente spazio vuoto */
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
