@@ -41,7 +41,6 @@ class ResultView:
         ])
 
         with style.card("map"):
-            style.title("Dove conviene andare")
             style.lead(
                 f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
                 f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "

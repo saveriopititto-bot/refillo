@@ -1,4 +1,4 @@
-"""Componente per la gestione e il rendering dei controlli utente e delle opzioni avanzate."""
+"""Componente per la gestione e il rendering dei controlli utente e delle opzioni."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -36,7 +36,8 @@ def _vai(scheda: str) -> None:
 def _pillola(col, scheda: str, key: str) -> None:
     """Pulsante a pillola che apre una scheda; quella aperta è in blu scuro (type="primary")."""
     aperta = st.session_state.get("scheda", HOME) == scheda
-    col.button(scheda, key=key, type="primary" if aperta else "secondary", on_click=_vai, args=(scheda,))
+    col.button(scheda, key=key, type="primary" if aperta else "secondary", on_click=_vai, args=(scheda,),
+               width="stretch")
 
 
 @dataclass
@@ -74,11 +75,11 @@ class ControlsView:
             render_error(c_hero, "Non sono riuscito a scaricare i dati dal sito del MIMIT"
                          + (f":<br><code>{errori}</code><br>" if errori else ". ")
                          + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
-                           "da «Avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
+                           "da «Opzioni» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
                            "<code>app.py</code>.")
             c_controls = style.card("controls")
             with c_controls:
-                adv = st.expander("Avanzate", expanded=True)
+                adv = st.expander("Opzioni", expanded=True)
                 with adv:
                     style.section("Dati")
                     st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE, key="up_anag")
@@ -108,7 +109,7 @@ class ControlsView:
             hero_cerchio = st.container()
             fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-        # riquadro delle schede: Home · Posizione · Avanzate · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
+        # riquadro delle schede: Home · Posizione · Opzioni · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
         st.session_state.setdefault("scheda", HOME)
         with style.card("schede"):
             with st.container(key="comandi"):
@@ -118,14 +119,15 @@ class ControlsView:
         _pillola(col_home, HOME, "nav_home")
         _pillola(col_faq, FAQ, "nav_faq")
         with col_pos:
-            if st.button("Posizione", help="Rileva di nuovo la posizione dal browser"):
+            if st.button("Posizione", help="Rileva di nuovo la posizione dal browser", width="stretch"):
                 st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
                 st.rerun()
 
+        # «Opzioni» e «Top 5» si aprono come popover sopra la pagina (restano aperti mentre si cambiano i valori)
         with col_adv:
-            adv = st.expander("Avanzate")
+            adv = st.popover("Opzioni", width="stretch")
             adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
-        top5 = col_top.expander("Top 5")  # si riempie in app.py, dopo il calcolo
+        top5 = col_top.popover("Top 5", width="stretch")  # si riempie in app.py, dopo il calcolo
 
         with adv_data:
             style.section("Dati")
@@ -165,7 +167,7 @@ class ControlsView:
         if comune_override:
             sel = anag[anag.comune == comune_override]
             origin = (float(sel.lat.median()), float(sel.lon.median()))
-            nota = f"Posizione impostata su {comune_override} (da Avanzate)"
+            nota = f"Posizione impostata su {comune_override} (da Opzioni)"
 
         if origin is None:
             top5.caption("Serve la posizione per trovare i distributori migliori.")
