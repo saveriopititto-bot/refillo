@@ -116,9 +116,6 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 
 - **q**: litri da fare (di default il pieno, `V_tot·(1−L)`).
 - **P_market**: mediana (o media) dei prezzi dei distributori nel raggio.
-- **Filtro sui prezzi troppo bassi** (non visibile nell'app): i distributori che costano più di 10 centesimi
-  meno di P_market vengono scartati (`SCONTO_MAX` in `fuel_model.py`; esattamente 10 centesimi sotto restano).
-  P_market resta quello calcolato su tutti i distributori nel raggio, prima del filtro.
 - **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
   Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
   distributori: sposta il verdetto ma non la classifica.
