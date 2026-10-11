@@ -345,7 +345,7 @@ if edges.empty:
     style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
                      "Aumenta il raggio o l'età massima del prezzo.")
     style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
-elif bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
+elif bs is not None and not info["riserva"]:  # il consiglio segue lo score del petrolio (sotto riserva no)
     titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]], CONSIGLIO_PETROLIO[bs["esito"]]
     style.hero("Consiglio", titolo, frase, "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
 else:
@@ -353,7 +353,7 @@ else:
     if not info["consiglio"]:
         corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
     style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-               "", corpo, meta_html=note_dati + [nota_score(bs_err)])
+               "", corpo, meta_html=note_dati + ([nota_score(bs_err)] if bs is None else []))
 
 # Si disegna solo la scheda aperta: la mappa e la tabella degli archi non partono finché non servono.
 tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"], key="scheda", on_change="rerun")
@@ -383,7 +383,7 @@ if tab_res.open:
                     f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
                     f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
                     f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
-                    f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
+                    f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
                     f"considerando il costo del viaggio."
                 )
                 st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
@@ -399,7 +399,7 @@ if tab_res.open:
                 mappa["colore"] = mappa.score.map(colore)
                 mappa["etichetta"] = (
                     mappa.bandiera + " · " + mappa.nome + "\n" + mappa.prezzo.map(lambda x: _it(f"{x:.3f}") + " €/l")
-                    + " · risparmio " + mappa.score.map(lambda x: eur(x, sign=True))
+                    + " · risparmio " + mappa.risparmio.map(lambda x: eur(x, sign=True))
                     + " · " + mappa.dist_km.map(lambda x: num(x) + " km")
                 )
                 mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
@@ -447,7 +447,7 @@ if tab_res.open:
                 style.table(
                     ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
                     [[escape(r.bandiera), escape(r.comune),
-                      _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.score, sign=True)]
+                      _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
                      for _, r in edges.head(5).iterrows()],
                 )
 

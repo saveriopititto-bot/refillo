@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -74,6 +75,34 @@ def test_compute_edges_scarta_prezzi_troppo_bassi():
     assert info["p_market"] == pytest.approx(1.80)
     edges, info = fm.compute_edges(c, (43.23, 12.78), fm.ModelParams(use_osrm=False, sconto_max=None))
     assert info["n"] == 5
+
+
+def test_compute_edges_conti_a_mano():
+    # tre distributori a 0, 5 e 3 km in linea d'aria (× 1,3 di strada), Brent +5%
+    c = pd.DataFrame({"id": ["A", "B", "C"], "lat": [43.0, 43.0 + 5 / 111.195, 43.0],
+                      "lon": [12.0, 12.0, 12.0 + 3 / (111.195 * np.cos(np.radians(43)))],
+                      "prezzo": [1.80, 1.75, 1.90]})
+    p = fm.ModelParams(v_tot=50, livello=0.25, alpha=0.2, delta_brent=0.05, consumo_l100=6,
+                       usura_eur_km=0.05, road_factor=1.3, use_osrm=False)
+    edges, info = fm.compute_edges(c, (43.0, 12.0), p)
+    q, pm = 37.5, 1.80
+    c_km = 6 / 100 * pm + 0.05
+    assert info["c_km"] == pytest.approx(c_km)
+    for r in edges.itertuples():
+        d = {"A": 0.0, "B": 5 * 1.3, "C": 3 * 1.3}[r.id]
+        assert r.dist_km == pytest.approx(d, abs=0.01)
+        assert r.risparmio == pytest.approx(q * (pm - r.prezzo) - 2 * d * c_km, abs=0.01)
+        assert r.score == pytest.approx(r.risparmio + q * 0.2 * pm * 0.05)
+    assert edges.id.iloc[0] == "A" and edges.risparmio.iloc[0] == pytest.approx(0)  # al prezzo medio, sotto casa
+    assert not info["riserva"]
+
+
+def test_compute_edges_riserva(dati):
+    anag, prezzi, extraction = dati
+    c = fm.build_candidates(anag, prezzi, "Benzina", True, 7, extraction)
+    p = fm.ModelParams(livello=0.05, livello_min=0.10, theta=1000, raggio_km=10, use_osrm=False)
+    edges, info = fm.compute_edges(c, (43.23, 12.78), p)
+    assert info["riserva"] and info["consiglio"]  # sotto riserva si rifornisce anche se non conviene
 
 
 def test_compute_edges_vuoto(dati):

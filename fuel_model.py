@@ -404,6 +404,7 @@ def compute_edges(
     df["brent"] = q * p.alpha * p_market * p.delta_brent
     df["costo_log"] = df.dev_km * c_km
     df["score"] = df.guadagno + df.brent - df.costo_log
+    df["risparmio"] = df.guadagno - df.costo_log  # quello che si risparmia davvero, senza l'effetto Brent
     df["peso"] = -df.score
     df["peso_pos"] = df.score.max() - df.score
 
@@ -425,7 +426,7 @@ def compute_edges(
         consiglio, motivo = False, f"il risparmio migliore ({best.score:+.2f} €) non supera la soglia di convenienza ({p.theta:.2f} €)"
     summary.update(
         p_market=p_market, c_km=c_km, best=best, consiglio=consiglio, motivo=motivo,
-        p_min=float(pmin), p_max=float(pmax),
+        p_min=float(pmin), p_max=float(pmax), riserva=sicurezza,
     )
     summary["best_route"] = get_osrm_route(origin, (best.lat, best.lon)) if p.use_osrm else []
 
