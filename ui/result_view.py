@@ -55,7 +55,7 @@ class ResultView:
                 unita=self.unita,
             )
             with st.container(key="mappa"):
-                components.html(map_html(mappa), height=600)
+                components.html(map_html(mappa), height=400)
             st.caption(self.fonte)
             st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
                        "il percorso con il navigatore.")

@@ -103,9 +103,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
-/* mappa Leaflet (cornice di components.html): sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello
-   schermo; al massimo 400 px di larghezza (400 × 600), centrata */
-.st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 2 / 3; width: 100% !important;
+/* mappa Leaflet (cornice di components.html): quadrata, a qualunque larghezza dello schermo; al massimo 400 px di
+   larghezza (400 × 400), centrata */
+.st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 1 / 1; width: 100% !important;
   max-width: 400px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
 .st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; }}
 

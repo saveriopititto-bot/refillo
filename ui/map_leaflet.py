@@ -77,12 +77,16 @@ def build_fuel_map(
     folium.CircleMarker(location=origin, radius=9, color="#ffffff", weight=3, fill=True, fill_color=style.DEEP,
                         fill_opacity=1, popup=folium.Popup("Sei qui")).add_to(m)
 
-    lats = [origin[0], *edges.lat]
-    lons = [origin[1], *edges.lon]
+    # inquadratura sul percorso verso il migliore (posizione, distributore migliore e strada): gli altri distributori
+    # restano sulla mappa, basta allontanarsi; zoom massimo 16 se il migliore è a due passi
+    best = edges.loc[edges["rank"] == 1].iloc[0] if (edges["rank"] == 1).any() else edges.iloc[0]
+    lats, lons = [origin[0], best.lat], [origin[1], best.lon]
     if best_route:
         lats += [lat for _, lat in best_route]
         lons += [lon for lon, _ in best_route]
-    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding=(16, 16))
+    # margine più largo in alto a sinistra (pulsanti + e −) e in basso (scritta OpenStreetMap)
+    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding_top_left=(52, 40),
+                 padding_bottom_right=(32, 36), max_zoom=16)
     return m
 
 
