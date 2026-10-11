@@ -197,11 +197,6 @@ div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] * {{ font-wei
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}
 [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ margin-top: -6px; }}
 [data-testid="stSidebar"] .x-note {{ font-size: 11px; }}
-/* pagina di scorebrent incorporata: Streamlit Cloud aggiunge in fondo al riquadro una barra «Built with Streamlit /
-   Fullscreen» che non si può togliere dall'app; la copre una fascia del colore dello sfondo */
-[data-testid="stElementContainer"]:has(iframe[src*="scorebrent"]) {{ position: relative; }}
-[data-testid="stElementContainer"]:has(iframe[src*="scorebrent"])::after {{ content: ""; position: absolute; left: 0;
-  right: 0; bottom: 0; height: 56px; background: {BG}; }}
 /* componente invisibile che chiede la posizione al browser: niente spazio vuoto */
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
