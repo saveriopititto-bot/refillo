@@ -56,7 +56,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   dei popover è nascosta; poi il contenuto della scheda scelta. Home e F.A.Q. sono
   pulsanti a pillola (`nav_home`, `nav_faq`, quello aperto è `type="primary"`) che scrivono `st.session_state["scheda"]`
   (`HOME`, `FAQ` in `ui/controls_view.py`): `st.tabs` e `st.radio` non permettono altri comandi tra le pillole. Si
-  disegna solo la scheda scelta. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
+  disegna solo la scheda scelta. Obiettivo: la Home sta in una schermata senza scorrere (telefono 390 × 740,
+  computer 1280 × 800, con lo score del petrolio): margini, distacchi (6 px), riquadro «Consiglio» e didascalie sono
+  compattati per questo; controlla con Playwright prima di aggiungere spazio o elementi. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
   `stSelectbox`. La tabella degli archi sta in fondo a
   «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
@@ -64,7 +66,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
   `st.components.v1.html` dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
   ricaricare la pagina. Quadrata (`aspect-ratio: 1 / 1` sull'iframe in `style.py`), al massimo
-  400 px di larghezza (400 × 400) da computer, centrata; da telefono a tutta larghezza. Inquadratura (`fit_bounds`)
+  360 px di larghezza (360 × 360) da computer, centrata; da telefono il 90% della larghezza. Inquadratura (`fit_bounds`)
   sul percorso verso il migliore: posizione, distributore migliore e strada OSRM, zoom massimo 16. Sfondo OpenStreetMap standard (`TILES`),
   schiarito via CSS (`SFONDO_CSS`): niente CARTO, che ora chiede una chiave e mostra «API key required». Script caricati: solo Leaflet e jQuery (i
   popup di folium lo usano). Toccando un distributore si apre il popup con il link «Portami qui» (Google Maps).

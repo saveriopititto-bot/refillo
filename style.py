@@ -34,7 +34,7 @@ hr {{ display: none; }}
 /* pagina */
 header[data-testid="stHeader"] {{ background: transparent; }}
 [data-testid="stMainBlockContainer"] {{ padding: 8px 12px 8px; max-width: 1040px; margin: 0 auto; }}
-[data-testid="stMain"] [data-testid="stVerticalBlock"] {{ gap: 10px; }}
+[data-testid="stMain"] [data-testid="stVerticalBlock"] {{ gap: 6px; }}
 
 /* barra laterale disattivata: tutti i controlli sono integrati nella pagina centrale */
 section[data-testid="stSidebar"],
@@ -95,16 +95,17 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 
 /* schede */
 [class*="st-key-card"] {{ position: relative; background: #fff; border: 1px solid transparent; border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft); padding: 16px; gap: 10px !important; }}
+  box-shadow: var(--shadow-soft); padding: 14px; gap: 6px !important; }}
 .x-title {{ margin: 0; font-size: 20px; line-height: 1.25; font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 [class*="st-key-card"] p {{ font-size: 14px; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
-[class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
+[class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.35; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
 /* mappa Leaflet (cornice di components.html): quadrata, a qualunque larghezza dello schermo; al massimo 400 px di
    larghezza (400 × 400), centrata */
 .st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 1 / 1; width: 100% !important;
-  max-width: 400px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
+  max-width: 360px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
+@media (max-width: 640px) {{ .st-key-mappa iframe {{ width: 90% !important; }} }}
 /* Streamlit fissa il contenitore a 400 px (flex: 0 0 400px): senza questa regola, da telefono restano ~80 px vuoti
    sotto la mappa */
 .st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; flex: 0 0 auto !important; }}
@@ -160,7 +161,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stMarkdownContainer"]:has(> [class^="x-"]) {{ margin-bottom: 0; }}
 .x-sec {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: {N700};
   margin-top: 4px; }}
-.x-lead {{ font-size: 16px; line-height: 1.55; text-align: justify; text-justify: inter-word; color: {DEEP}; }}
+.x-lead {{ font-size: 15px; line-height: 1.45; text-align: justify; text-justify: inter-word; color: {DEEP}; }}
 .x-lead strong {{ color: {A700}; }}
 .x-lead-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 22px 26px;
   font-size: 19px; line-height: 1.5; text-wrap: pretty; }}
@@ -177,7 +178,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 @media (max-width: 640px) {{
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
   /* da telefono margini minimi: pagina quasi a tutta larghezza e riquadri con poco bordo interno */
-  [data-testid="stMainBlockContainer"] {{ padding: 6px 6px 6px !important; }}
+  [data-testid="stMainBlockContainer"] {{ padding: 4px 6px 4px !important; }}
   [class*="st-key-card"] {{ padding: 10px; }}
   .st-key-comandi [data-testid="stHorizontalBlock"] {{ gap: 4px !important; }}
   .st-key-comandi button {{ min-height: 32px !important; padding: 4px 2px !important; }}
@@ -191,7 +192,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
   .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ padding: 8px 12px; gap: 4px; }}
-  .st-key-card-schede {{ padding: 10px !important; }}
+  .st-key-card-schede {{ padding: 8px !important; }}
   .st-key-card-schede .stTabs [data-baseweb="tab-list"], .st-key-card-schede .stTabs [role="tablist"] {{ padding: 0; }}
   .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
   .stTabs [role="tab"] p {{ font-size: 12.5px; }}
@@ -206,36 +207,46 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   box-shadow: var(--shadow-soft); padding: 16px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 8px 28px; align-items: center; }}
 .x-hero .k {{ font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: {SKY}; }}
-.x-hero .v {{ font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
+.x-hero .v {{ font-size: 26px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
 .x-hero .s {{ font-size: 15px; font-weight: 600; }}
 .x-hero .m {{ font-size: 12px; line-height: 1.4; color: {SKY}; margin: 2px 0; }}
 .x-hero.wait .m {{ color: {A100}; }}
 .x-hero.wait {{ background: linear-gradient(135deg, {A700}, {A600}); }}
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
-.x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
-.x-hero p.x-hero-nota {{ margin-top: 6px; color: {N200}; max-width: 62ch; }}
+.x-hero p {{ margin: 0; font-size: 14px; line-height: 1.35; text-wrap: pretty; color: #fff; }}
+.x-hero p.x-hero-nota {{ margin-top: 2px; color: {N200}; max-width: 62ch; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
 .x-hero.aside {{ grid-template-columns: minmax(0, 1fr) auto; padding-right: 14px; }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
-.x-hero-aside svg {{ width: 90px; height: 90px; }}
-@media (max-width: 640px) {{ .x-hero-aside svg {{ width: 72px; height: 72px; }} }}
+.x-hero-aside svg {{ width: 72px; height: 72px; }}
+@media (max-width: 640px) {{ .x-hero-aside svg {{ width: 54px; height: 54px; }} }}
 /* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score sopra il menu del carburante:
    le due colonne restano affiancate anche da telefono */
 .st-key-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 12px 14px 12px 16px; }}
 .st-key-hero [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; gap: 16px !important; }}
 .st-key-hero [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; }}
-.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 140px !important; min-width: 0 !important; width: auto !important; }}
+.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 130px !important; min-width: 0 !important; width: auto !important; }}
 .st-key-hero .x-hero {{ background: none; box-shadow: none; padding: 0; border-radius: 0; display: flex;
-  flex-direction: column; align-items: stretch; gap: 8px; }}
+  flex-direction: column; align-items: stretch; gap: 4px; }}
 .st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
 .st-key-hero .x-lead-box {{ background: none; box-shadow: none; padding: 0; color: #fff; font-size: 16px; }}
 .st-key-hero .x-lead-box strong {{ color: {AMBER}; }}
 .st-key-hero .x-note {{ color: {SKY}; }}
 @media (max-width: 640px) {{
-  .st-key-hero {{ padding: 10px 10px 10px 12px; }}
+  .st-key-hero {{ padding: 8px 10px 8px 12px; }}
+  .x-hero .v {{ font-size: 23px; }}
+  .x-hero p {{ font-size: 13px; }}
+  .x-lead {{ font-size: 14px; line-height: 1.4; }}
+  [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 10.5px; line-height: 1.25; }}
   .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
+  /* menu del carburante più basso: è lui a decidere l'altezza del riquadro «Consiglio» */
+  .st-key-hero [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+  .st-key-hero [data-testid="stSelectbox"] > div > div {{ min-height: 30px !important; }}
+  .st-key-hero [data-testid="stSelectbox"] input,
+  .st-key-hero [data-testid="stSelectbox"] button {{ height: 28px !important; min-height: 0 !important;
+    padding-top: 0 !important; padding-bottom: 0 !important; }}
   .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 104px !important; }}
 }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
@@ -278,7 +289,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 
 /* colofon */
 .x-colophon {{ display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
-  padding: 6px 8px 2px; font-size: 13px; color: {N700}; text-align: center; }}
+  padding: 2px 8px 0; font-size: 12px; color: {N700}; text-align: center; }}
 .x-colophon-brand {{ font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 .x-colophon-ver {{ display: inline-flex; align-items: center; font-size: 11px; font-weight: 700;
   padding: 1px 7px; border-radius: 999px; background: {N200}; color: {BLUE_GREEN}; letter-spacing: .02em; }}
