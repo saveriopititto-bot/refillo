@@ -15,12 +15,13 @@ verso i distributori vicini, a partire dai CSV open data MIMIT
 from __future__ import annotations
 
 import re
-import requests
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 
 EARTH_RADIUS_KM = 6371.0088
 
@@ -293,43 +294,62 @@ class ModelParams:
         return cap if self.litri is None else float(min(self.litri, cap))
 
 
+OSRM_URL = "https://router.project-osrm.org"
+
+
+@lru_cache(maxsize=512)
+def _osrm_table(origin: tuple[float, float], destinations: tuple[tuple[float, float], ...]) -> tuple:
+    """Distanze stradali (km) dall'origine; solleva un'eccezione se OSRM non risponde, così l'errore non va in cache."""
+    coords = ";".join(f"{lon:.5f},{lat:.5f}" for lat, lon in (origin, *destinations))  # OSRM vuole lon,lat
+    resp = requests.get(f"{OSRM_URL}/table/v1/driving/{coords}",
+                        params={"sources": "0", "annotations": "distance"}, timeout=5)
+    if resp.status_code != 200:
+        raise ValueError(f"OSRM ha risposto {resp.status_code}")
+    data = resp.json()
+    if data.get("code") != "Ok" or not data.get("distances"):
+        raise ValueError(f"OSRM: {data.get('code')}")
+    # la prima riga contiene le distanze dall'origine a tutti i punti
+    return tuple(d / 1000.0 if d is not None else None for d in data["distances"][0][1:])
+
+
+@lru_cache(maxsize=256)
+def _osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> tuple:
+    coords = f"{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}"
+    resp = requests.get(f"{OSRM_URL}/route/v1/driving/{coords}",
+                        params={"geometries": "geojson", "overview": "full"}, timeout=3)
+    if resp.status_code != 200:
+        raise ValueError(f"OSRM ha risposto {resp.status_code}")
+    data = resp.json()
+    if data.get("code") != "Ok" or not data.get("routes"):
+        raise ValueError(f"OSRM: {data.get('code')}")
+    return tuple(tuple(c) for c in data["routes"][0]["geometry"]["coordinates"])
+
+
+def _arrotonda(punto) -> tuple[float, float]:
+    # 5 decimali (circa 1 m): gli stessi dell'URL, così le richieste uguali riusano la cache
+    return round(float(punto[0]), 5), round(float(punto[1]), 5)
+
+
 def get_osrm_distances(origin: tuple[float, float], destinations: list[tuple[float, float]]) -> list[float | None]:
-    """Ottiene le distanze stradali in km usando l'API pubblica di OSRM (max 99 destinazioni)."""
+    """Distanze stradali in km dall'API pubblica di OSRM (max 99 destinazioni); None dove non disponibili.
+
+    Le risposte riuscite restano in memoria: cambiare litri, consumo o soglie non rifà la richiesta."""
     if not destinations:
         return []
-    
-    # OSRM si aspetta lon,lat
-    coords = [f"{origin[1]:.5f},{origin[0]:.5f}"]
-    for lat, lon in destinations:
-        coords.append(f"{lon:.5f},{lat:.5f}")
-    
-    url = f"http://router.project-osrm.org/table/v1/driving/{';'.join(coords)}?sources=0"
     try:
-        resp = requests.get(url, timeout=5)
-        if resp.status_code == 200:
-            data = resp.json()
-            if data.get("code") == "Ok" and "distances" in data and data["distances"]:
-                # La prima riga contiene le distanze dall'origine a tutti i punti
-                return [d / 1000.0 if d is not None else None for d in data["distances"][0][1:]]
+        return list(_osrm_table(_arrotonda(origin), tuple(_arrotonda(d) for d in destinations)))
     except Exception as e:
         print(f"Errore OSRM: {e}")
-        pass
-    
-    return [None] * len(destinations)
+        return [None] * len(destinations)
 
 
 def get_osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> list[list[float]]:
-    """Ottiene la geometria del percorso reale (GeoJSON: lista di [lon, lat]) dal server OSRM."""
-    url = f"http://router.project-osrm.org/route/v1/driving/{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}?geometries=geojson&overview=full"
+    """Geometria del percorso reale (GeoJSON: lista di [lon, lat]) dal server OSRM; [] se non disponibile."""
     try:
-        resp = requests.get(url, timeout=3)
-        if resp.status_code == 200:
-            data = resp.json()
-            if data.get("code") == "Ok" and data.get("routes"):
-                return data["routes"][0]["geometry"]["coordinates"]
+        return [list(c) for c in _osrm_route(_arrotonda(origin), _arrotonda(dest))]
     except Exception as e:
         print(f"Errore OSRM route: {e}")
-    return []
+        return []
 
 
 def compute_edges(

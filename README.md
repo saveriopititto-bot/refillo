@@ -120,8 +120,11 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 - **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
   Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
   distributori: sposta il verdetto ma non la classifica.
-- **D_i**: chilometri in più, cioè andata e ritorno dalla tua posizione al distributore. Le distanze sono in
-  linea d'aria per un fattore strada (1,3 di default). Il modello in `fuel_model.compute_edges` gestisce anche
+- **D_i**: chilometri in più, cioè andata e ritorno dalla tua posizione al distributore. Le distanze sono su
+  strada, chieste al server pubblico OSRM per i 99 distributori più vicini (opzione «Calcola percorsi reali»,
+  attiva di default; le risposte restano in memoria finché il server è acceso, così cambiare litri, consumo o
+  soglie non rifà la richiesta). Senza OSRM, o se non risponde, sono in linea d'aria per un fattore strada
+  (1,3 di default). Il modello in `fuel_model.compute_edges` gestisce anche
   una destinazione (conta solo la deviazione dal percorso), ma l'app non la usa.
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
