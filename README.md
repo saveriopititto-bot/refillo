@@ -36,10 +36,11 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 - **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
   cerchio dello score.
-- **Dove sei**: la posizione arriva dal browser; «Aggiorna posizione» la rileva di nuovo. In alternativa si sceglie
+- **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
   un comune in «Avanzate».
-- La riga in cima al riquadro delle schede, tutta a sinistra e in linea anche da telefono: «Home», «Aggiorna
-  posizione», «Avanzate» e «F.A.Q.» («Avanzate», quando si apre, va in fondo e prende tutta la riga).
+- La riga in cima al riquadro delle schede, tutta a sinistra e in linea anche da telefono: «Home», «Posizione»,
+  «Avanzate» e «F.A.Q.», tutte con lo stesso sfondo tenue («Avanzate», quando si apre, va in fondo e prende tutta
+  la riga).
 
 In «Avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
@@ -105,7 +106,7 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, un unico riquadro: in cima la riga Home · «Aggiorna posizione» · «Avanzate» · F.A.Q., tutta a sinistra e
+Sotto, un unico riquadro: in cima la riga Home · «Posizione» · «Avanzate» · F.A.Q., tutta a sinistra e
 sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
 degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
@@ -247,7 +248,7 @@ Lo storico servirà allo score «prezzi rispetto agli ultimi 30 giorni», in svi
 La posizione arriva dall'API Geolocation del browser, tramite `streamlit-js-eval`. Funziona solo su HTTPS
 (come su Streamlit Cloud) o su `localhost`. Su telefono usa il GPS; su computer di solito è più approssimativa,
 perché il browser la stima dalla rete. Nella barra laterale compaiono coordinate e precisione, e
-«Aggiorna posizione» la rileva di nuovo.
+«Posizione» la rileva di nuovo.
 
 Se il permesso viene negato, l'app spiega come riattivarlo dalle impostazioni del sito nel browser e propone
 Comune.

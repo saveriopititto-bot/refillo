@@ -126,7 +126,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   color: {DEEP}; cursor: pointer; }}
 [data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
-/* riga dei comandi (Home, Aggiorna posizione, Avanzate, F.A.Q.): sempre orizzontale, tutta a sinistra */
+/* riga dei comandi (Home, Posizione, Avanzate, F.A.Q.): sempre orizzontale, tutta a sinistra */
 /* (le colonne dentro «Opzioni avanzate» restano libere di andare a capo da telefono) */
 .st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
@@ -140,13 +140,15 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   flex-wrap: wrap !important; row-gap: 10px !important; }}
 .st-key-comandi [data-testid="stColumn"]:has([data-testid="stExpander"] details[open]) {{
   flex: 1 1 100% !important; order: 99; }}
-/* Home e F.A.Q.: pillole senza sfondo, quella aperta (type="primary") in blu scuro */
-.st-key-comandi [class*="st-key-nav_"] button {{ background: transparent; }}
+/* le quattro pillole hanno lo sfondo tenue di «Avanzate»; tra Home e F.A.Q. quella aperta (type="primary") è in
+   blu scuro */
+.st-key-comandi .stButton button[kind="secondary"],
+.st-key-comandi .stButton button[kind="secondary"]:hover {{ background: {N100}; }}
+.st-key-comandi .stButton button[kind="secondary"]:hover p {{ color: {ORANGE}; }}
 .st-key-comandi [class*="st-key-nav_"] button p {{ font-weight: 600 !important; font-size: 14px !important; color: {DEEP}; }}
 .st-key-comandi [class*="st-key-nav_"] button:hover p {{ color: {ORANGE}; }}
 .st-key-comandi [class*="st-key-nav_"] button[kind="primary"] {{ background: {DEEP}; }}
 .st-key-comandi [class*="st-key-nav_"] button[kind="primary"] p {{ color: #fff; }}
-.st-key-comandi [class*="st-key-nav_"] button[kind="secondary"]:hover {{ background: transparent; }}
 .st-key-comandi [class*="st-key-nav_"] button[kind="primary"]:hover {{ background: {DEEP}; }}
 .st-key-comandi .stButton button {{
   width: auto !important; padding: 6px 8px !important; min-height: 36px !important;
