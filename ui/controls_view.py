@@ -55,6 +55,7 @@ class ControlsResult:
     hero_testo: any  # colonna del testo nel riquadro «Consiglio»
     hero_cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
     contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
+    top5: any  # riquadro apribile «Top 5» nella riga dei comandi
 
 
 class ControlsView:
@@ -107,11 +108,11 @@ class ControlsView:
             hero_cerchio = st.container()
             fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-        # riquadro delle schede: Home · Posizione · Avanzate · F.A.Q., tutti a sinistra, poi il contenuto
+        # riquadro delle schede: Home · Posizione · Avanzate · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
         st.session_state.setdefault("scheda", HOME)
         with style.card("schede"):
             with st.container(key="comandi"):
-                col_home, col_pos, col_adv, col_faq = st.columns(4, gap="small", vertical_alignment="top")
+                col_home, col_pos, col_adv, col_top, col_faq = st.columns(5, gap="small", vertical_alignment="top")
             contenuto = st.container()
 
         _pillola(col_home, HOME, "nav_home")
@@ -124,6 +125,7 @@ class ControlsView:
         with col_adv:
             adv = st.expander("Avanzate")
             adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+        top5 = col_top.expander("Top 5")  # si riempie in app.py, dopo il calcolo
 
         with adv_data:
             style.section("Dati")
@@ -166,6 +168,7 @@ class ControlsView:
             nota = f"Posizione impostata su {comune_override} (da Avanzate)"
 
         if origin is None:
+            top5.caption("Serve la posizione per trovare i distributori migliori.")
             render_waiting(hero_testo, nota)
             style.colophon()
             st.stop()
@@ -236,4 +239,5 @@ class ControlsView:
             hero_testo=hero_testo,
             hero_cerchio=hero_cerchio,
             contenuto=contenuto,
+            top5=top5,
         )

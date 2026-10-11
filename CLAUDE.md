@@ -49,7 +49,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, tutta a sinistra e in linea anche da
-  telefono: Home · Posizione · Avanzate · F.A.Q. (tutte con lo sfondo tenue `N100`); poi il contenuto della scheda scelta. Home e F.A.Q. sono
+  telefono: Home · Posizione · Avanzate · Top 5 · F.A.Q. (tutte con lo sfondo tenue `N100`; Avanzate e Top 5 sono
+  `st.expander`, il Top 5 si riempie in `app.py` con `render_top5`); poi il contenuto della scheda scelta. Home e F.A.Q. sono
   pulsanti a pillola (`nav_home`, `nav_faq`, quello aperto è `type="primary"`) che scrivono `st.session_state["scheda"]`
   (`HOME`, `FAQ` in `ui/controls_view.py`): `st.tabs` e `st.radio` non permettono altri comandi tra le pillole. Si
   disegna solo la scheda scelta. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
@@ -95,7 +96,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `ui/controls_view.py` (widget con chiave per carburante). L-GNC e GNL non sono inclusi.
 - **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
   `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
-  `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nei 5 migliori
+  `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nel Top 5
   (l'effetto Brent è uguale per tutti e non è un risparmio vero). Costo al km = consumo × prezzo di mercato +
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del

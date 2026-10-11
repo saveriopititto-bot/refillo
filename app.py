@@ -10,7 +10,7 @@ from ui.data_service import leggi_brent_score
 from ui.edges_view import EdgesView
 from ui.hero_view import HeroView
 from ui.how_view import HowView
-from ui.result_view import ResultView
+from ui.result_view import ResultView, render_top5
 
 st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide", initial_sidebar_state="collapsed")
 style.apply_style()
@@ -36,6 +36,9 @@ HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, co
 # --------------------------------------------------------------------------
 # Schede di dettaglio
 # --------------------------------------------------------------------------
+with controls.top5:
+    render_top5(edges, controls.unita)
+
 # La riga con le pillole Home / F.A.Q. sta in ControlsView; si disegna solo la scheda scelta.
 # La tabella degli archi sta in «F.A.Q.».
 if st.session_state.get("scheda", HOME) == HOME:

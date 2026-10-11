@@ -1,4 +1,4 @@
-"""Vista della scheda «Risultato»: metriche, mappa e tabella dei 5 distributori migliori."""
+"""Vista della scheda «Home» (metriche e mappa) e contenuto del riquadro «Top 5»."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -61,11 +61,15 @@ class ResultView:
             st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
                        "il percorso con il navigatore.")
 
-        with style.card("top"):
-            style.title("I 5 migliori")
-            style.table(
-                ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
-                [[escape(r.bandiera or r.nome or "Distributore"), escape(r.comune),
-                  _it(f"{r.prezzo:.3f}") + eu, num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
-                 for _, r in self.edges.head(5).iterrows()],
-            )
+
+def render_top5(edges: pd.DataFrame, unita: str = "l") -> None:
+    """Contenuto del riquadro apribile «Top 5»: i 5 distributori che convengono di più."""
+    if edges.empty:
+        st.caption("Nessun distributore nel raggio scelto.")
+        return
+    style.table(
+        ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
+        [[escape(r.bandiera or r.nome or "Distributore"), escape(r.comune),
+          _it(f"{r.prezzo:.3f}") + f" €/{unita}", num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
+         for _, r in edges.head(5).iterrows()],
+    )
