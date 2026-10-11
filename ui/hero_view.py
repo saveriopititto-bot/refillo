@@ -45,8 +45,8 @@ class HeroView:
 def render_waiting(container: any, nota: str) -> None:
     with container:
         style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>'
-                   f'{escape(nota)}<br>In alternativa scegli un <strong>Comune</strong> '
-                   f'in «1 · Dove sei» qui sotto.</div>')
+                   f'{escape(nota)}<br>In alternativa puoi impostare un <strong>Comune</strong> '
+                   f'da «Opzioni avanzate» qui sotto.</div>')
 
 
 def render_error(container: any, msg: str) -> None:

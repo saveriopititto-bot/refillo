@@ -50,7 +50,7 @@ class ControlsView:
             with col_fuel:
                 c_fuel = st.container()
                 adv = st.expander("Opzioni avanzate")
-                adv_model, adv_data = adv.container(), adv.container()
+                adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
         with adv_data:
             style.section("Dati")
@@ -105,20 +105,28 @@ class ControlsView:
             nota_prezzi += " (data di estrazione non trovata: filtro sull'età del prezzo disattivato)"
         note_dati = [escape(nota_prezzi), nota_brent]
 
+        with adv_pos:
+            comuni = sorted(anag.comune.unique())
+            comune_override = st.selectbox(
+                "Comune (in alternativa al GPS)",
+                comuni,
+                index=None,
+                placeholder="Scegli un comune se il GPS è disattivato…",
+                key="comune_fallback",
+            )
+
+        origin, nota = posizione_browser()
+        if comune_override:
+            sel = anag[anag.comune == comune_override]
+            origin = (float(sel.lat.median()), float(sel.lon.median()))
+            nota = f"Posizione impostata su {comune_override} (da Opzioni avanzate)"
+
         with c_pos:
             style.section("1 · Dove sei")
-            origin, nota = posizione_browser()
             if st.button("Aggiorna posizione", width="stretch"):
                 st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
                 st.rerun()
             st.caption(nota)
-            if origin is None:
-                comuni = sorted(anag.comune.unique())
-                comune = st.selectbox("Comune", comuni, index=None, placeholder="Scegli il tuo comune…")
-                if comune:
-                    sel = anag[anag.comune == comune]
-                    origin = (float(sel.lat.median()), float(sel.lon.median()))
-                    st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
 
         if origin is None:
             render_waiting(c_hero, nota)
