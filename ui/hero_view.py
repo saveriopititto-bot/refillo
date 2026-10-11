@@ -15,7 +15,8 @@ from ui.formatters import _it
 
 @dataclass
 class HeroView:
-    container: any
+    container: any  # colonna del testo nel riquadro «Consiglio»
+    cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
     edges: pd.DataFrame
     info: dict
     bs: dict | None
@@ -30,9 +31,10 @@ class HeroView:
                 style.html(f'<p class="x-note">{"<br>".join(self.note_dati)}</p>')
             elif self.bs is not None and not self.info["riserva"]:
                 titolo = fm.BRENT_SCORE_TESTI[self.bs["esito"]]
-                style.hero("Consiglio", titolo, "", "",
-                           aside_html=style.cerchio_score(self.bs["esito"], "Petrolio: " + titolo),
-                           nota_html=perche_petrolio(self.bs))
+                style.hero("Consiglio", titolo, "", "", nota_html=perche_petrolio(self.bs))
+                with self.cerchio:
+                    style.html('<div class="x-hero-aside">'
+                               + style.cerchio_score(self.bs["esito"], "Petrolio: " + titolo) + "</div>")
             else:
                 corpo = escape(_it(self.info["motivo"][0].upper() + self.info["motivo"][1:])) + "."
                 if not self.info["consiglio"]:

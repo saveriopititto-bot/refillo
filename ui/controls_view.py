@@ -24,6 +24,8 @@ from ui.data_service import (
 from ui.formatters import _it, num
 from ui.hero_view import render_error, render_waiting
 
+SCHEDE = ("Risultato", "Come funziona")
+
 
 @dataclass
 class ControlsResult:
@@ -37,6 +39,9 @@ class ControlsResult:
     litri: float | None
     ref_mode: str
     show_all_lines: bool
+    hero_testo: any  # colonna del testo nel riquadro «Consiglio»
+    hero_cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
+    contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
 
 
 class ControlsView:
@@ -83,21 +88,29 @@ class ControlsView:
             dB = 0.0
             nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): non considerato"
 
-        c_controls = style.card("controls")
-        with c_controls:
-            col_pos, col_fuel, col_adv = st.columns(3, gap="small", vertical_alignment="top")
+        # riquadro «Consiglio»: testo a sinistra; a destra il cerchio dello score e, sotto, il carburante
+        hero_testo, hero_lato = style.hero_box(c_hero)
+        with hero_lato:
+            hero_cerchio = st.container()
+            fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-            with col_pos:
-                if st.button("Aggiorna posizione", width="stretch"):
-                    st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-                    st.rerun()
+        # riquadro delle schede: Aggiorna posizione · Risultato / Come funziona · Opzioni avanzate, poi il contenuto
+        with style.card("schede"):
+            with st.container(key="comandi"):
+                col_pos, col_tabs, col_adv = st.columns([1, 1.5, 1], gap="small", vertical_alignment="top")
+            contenuto = st.container()
 
-            with col_fuel:
-                fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+        with col_pos:
+            if st.button("Aggiorna posizione", width="stretch"):
+                st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+                st.rerun()
 
-            with col_adv:
-                adv = st.expander("Opzioni avanzate")
-                adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+        with col_tabs:
+            st.radio("Scheda", SCHEDE, horizontal=True, label_visibility="collapsed", key="scheda")
+
+        with col_adv:
+            adv = st.expander("Opzioni avanzate")
+            adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
         with adv_data:
             style.section("Dati")
@@ -140,7 +153,7 @@ class ControlsView:
             nota = f"Posizione impostata su {comune_override} (da Opzioni avanzate)"
 
         if origin is None:
-            render_waiting(c_hero, nota)
+            render_waiting(hero_testo, nota)
             style.colophon()
             st.stop()
 
@@ -195,4 +208,7 @@ class ControlsView:
             litri=litri,
             ref_mode=ref_mode,
             show_all_lines=show_all_lines,
+            hero_testo=hero_testo,
+            hero_cerchio=hero_cerchio,
+            contenuto=contenuto,
         )

@@ -128,35 +128,45 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 
 /* riga a tre controlli (Aggiorna posizione, Carburante, Opzioni avanzate) sempre orizzontale */
 /* (le colonne dentro «Opzioni avanzate» restano libere di andare a capo da telefono) */
-[class*="st-key-card-controls"] [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{
+.st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
   gap: 8px !important; align-items: flex-start !important;
 }}
-[class*="st-key-card-controls"] [data-testid="stColumn"]:not([data-testid="stExpanderDetails"] *) {{
+.st-key-comandi [data-testid="stColumn"]:not([data-testid="stExpanderDetails"] *) {{
   flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
 }}
 /* «Opzioni avanzate» aperte: vanno a capo e prendono tutta la riga, sotto gli altri due controlli */
-[class*="st-key-card-controls"] [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > * [data-testid="stExpander"] details[open]) {{
+.st-key-comandi [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > * [data-testid="stExpander"] details[open]) {{
   flex-wrap: wrap !important; row-gap: 10px !important; }}
-[class*="st-key-card-controls"] [data-testid="stColumn"]:has([data-testid="stExpander"] details[open]) {{
+.st-key-comandi [data-testid="stColumn"]:has([data-testid="stExpander"] details[open]) {{
   flex: 1 1 100% !important; }}
-[class*="st-key-card-controls"] .stButton button {{
+/* scelta della scheda (st.radio) disegnata come le pillole: senza pallino, quella scelta in blu scuro */
+.st-key-comandi [data-testid="stRadioGroup"] {{ display: flex; flex-wrap: nowrap; gap: 4px; justify-content: center; }}
+.st-key-comandi [data-testid="stRadioOption"] {{ margin: 0; padding: 8px 12px; min-height: 36px; border-radius: 999px;
+  display: flex; align-items: center; cursor: pointer; }}
+.st-key-comandi [data-testid="stRadioOption"] > div > div:not([data-testid="stMarkdownContainer"]) {{ display: none; }}
+.st-key-comandi [data-testid="stRadioOption"] p {{ font-size: 14px; font-weight: 600; color: {DEEP}; margin: 0;
+  white-space: nowrap; }}
+.st-key-comandi [data-testid="stRadioOption"]:hover p {{ color: {ORANGE}; }}
+.st-key-comandi [data-testid="stRadioOption"][data-selected="true"] {{ background: {DEEP}; }}
+.st-key-comandi [data-testid="stRadioOption"][data-selected="true"] p {{ color: #fff; }}
+.st-key-comandi .stButton button {{
   width: 100% !important; padding: 6px 8px !important; min-height: 36px !important;
 }}
-[class*="st-key-card-controls"] .stButton button p {{
+.st-key-comandi .stButton button p {{
   font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }}
-[class*="st-key-card-controls"] [data-baseweb="select"] > div {{
+.st-key-hero [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
 }}
-[class*="st-key-card-controls"] [data-baseweb="select"] *,
-[class*="st-key-card-controls"] [data-testid="stSelectbox"] input {{
+.st-key-hero [data-baseweb="select"] *,
+.st-key-hero [data-testid="stSelectbox"] input {{
   font-size: 12.5px !important; font-weight: 700 !important; white-space: nowrap !important;
 }}
-[class*="st-key-card-controls"] [data-testid="stExpander"] summary {{
+.st-key-comandi [data-testid="stExpander"] summary {{
   min-height: 36px !important; padding: 6px 8px !important;
 }}
-[class*="st-key-card-controls"] [data-testid="stExpander"] summary p {{
+.st-key-comandi [data-testid="stExpander"] summary p {{
   font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }}
 
@@ -180,15 +190,19 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
-  [class*="st-key-card-controls"] [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{ gap: 4px !important; }}
-  [class*="st-key-card-controls"] .stButton button {{ min-height: 32px !important; padding: 4px 4px !important; }}
-  [class*="st-key-card-controls"] .stButton button p,
-  [class*="st-key-card-controls"] [data-testid="stExpander"] summary p {{ font-size: 11px !important;
+  .st-key-comandi [data-testid="stHorizontalBlock"]:not([data-testid="stExpanderDetails"] *) {{ gap: 4px !important; }}
+  .st-key-comandi .stButton button {{ min-height: 32px !important; padding: 4px 4px !important; }}
+  .st-key-comandi [data-testid="stRadioGroup"] {{ gap: 2px; }}
+  .st-key-comandi [data-testid="stRadioOption"] {{ min-height: 32px; padding: 4px 8px; }}
+  .st-key-comandi [data-testid="stRadioOption"] p {{ font-size: 11px; white-space: normal; line-height: 1.15;
+    text-align: center; word-break: normal; overflow-wrap: normal; }}
+  .st-key-comandi .stButton button p,
+  .st-key-comandi [data-testid="stExpander"] summary p {{ font-size: 11px !important;
     white-space: normal !important; line-height: 1.15 !important; overflow: visible !important; }}
-  [class*="st-key-card-controls"] [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
-  [class*="st-key-card-controls"] [data-baseweb="select"] *,
-  [class*="st-key-card-controls"] [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
-  [class*="st-key-card-controls"] [data-testid="stExpander"] summary {{ min-height: 32px !important; padding: 4px 4px !important; }}
+  .st-key-hero [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
+  .st-key-hero [data-baseweb="select"] *,
+  .st-key-hero [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
+  .st-key-comandi [data-testid="stExpander"] summary {{ min-height: 32px !important; padding: 4px 4px !important; }}
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
@@ -222,6 +236,24 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
 .x-hero-aside svg {{ width: 90px; height: 90px; }}
 @media (max-width: 640px) {{ .x-hero-aside svg {{ width: 72px; height: 72px; }} }}
+/* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score sopra il menu del carburante:
+   le due colonne restano affiancate anche da telefono */
+.st-key-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft); padding: 16px 18px 16px 22px; }}
+.st-key-hero [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; gap: 16px !important; }}
+.st-key-hero [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; }}
+.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 140px !important; min-width: 0 !important; width: auto !important; }}
+.st-key-hero .x-hero {{ background: none; box-shadow: none; padding: 0; border-radius: 0; display: flex;
+  flex-direction: column; align-items: stretch; gap: 8px; }}
+.st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
+.st-key-hero .x-lead-box {{ background: none; box-shadow: none; padding: 0; color: #fff; font-size: 16px; }}
+.st-key-hero .x-lead-box strong {{ color: {AMBER}; }}
+.st-key-hero .x-note {{ color: {SKY}; }}
+@media (max-width: 640px) {{
+  .st-key-hero {{ padding: 14px 12px 14px 16px; }}
+  .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
+  .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 104px !important; }}
+}}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
 .x-scroll {{ overflow-x: auto; }}
@@ -315,6 +347,17 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
 <span class="v">{escape(value)}</span>{meta}{sottotitolo}{nota}</div>
 {destra}</div>""")
+
+
+def hero_box(container):
+    """Riquadro scuro «Consiglio» dentro `container`.
+
+    Restituisce (colonna del testo, colonna a destra): a destra vanno il cerchio dello score e, sotto, il menu del
+    carburante. Il testo si scrive con hero(), che dentro il riquadro perde sfondo e ombra."""
+    with container:
+        with st.container(key="hero"):
+            testo, lato = st.columns([1, 0.3], gap="medium", vertical_alignment="center")
+    return testo, lato
 
 
 def cerchio_score(esito: int, etichetta: str) -> str:

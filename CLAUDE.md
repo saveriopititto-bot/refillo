@@ -46,11 +46,13 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
   1.65; `requirements.txt` chiede `streamlit>=1.65`).
-- **Pagina**: niente titolo. In cima il riquadro «Consiglio», visibile in tutte le schede; sotto, la riga dei
-  tre controlli (Aggiorna posizione, carburante, Opzioni avanzate), in linea anche da telefono (in Streamlit 1.65
-  le colonne sono `stColumn` e il menu a tendina è un `input` dentro `stSelectbox`); poi un unico riquadro
-  `style.card("schede")` con le pillole Risultato / Come funziona (`st.tabs(..., key="scheda", on_change="rerun")`)
-  e tutto il loro contenuto: si disegna solo la scheda aperta (`tab.open`). La tabella degli archi sta in fondo a
+- **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
+  tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
+  unico riquadro `style.card("schede")`: in cima la riga `comandi` (Aggiorna posizione · pillole Risultato / Come
+  funziona · Opzioni avanzate), in linea anche da telefono, poi il contenuto della scheda scelta. Le pillole sono un
+  `st.radio(key="scheda")` disegnato a pillole (`st.tabs` non accetta altri elementi nella sua barra): si disegna
+  solo la scheda scelta. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
+  `stSelectbox`. La tabella degli archi sta in fondo a
   «Come funziona» (la scheda Archi è stata tolta). Indicatori del Risultato: prezzo medio, distributori, costo al km
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
   rimetterla.
