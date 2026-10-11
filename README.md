@@ -82,7 +82,8 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 ### Schede
 
-Il risultato è diviso in quattro schede:
+Il risultato è diviso in quattro schede. L'app calcola e disegna solo quella aperta: la mappa, la tabella
+degli archi e la pagina di scorebrent partono quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Risultato**:
   - il riquadro «Consiglio», blu petrolio in tutti i casi e compatto anche da telefono. Segue lo score del
@@ -140,6 +141,9 @@ ordine:
 1. i file caricati a mano da «Opzioni avanzate» → «Dati» nella barra laterale;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
 3. il download dal sito del MIMIT, tenuto in cache per 3 ore perché i prezzi cambiano una volta al giorno.
+
+I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
+con i giorni vecchi).
 
 Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi e ora del
 download compaiono nel riquadro della decisione.
