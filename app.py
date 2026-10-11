@@ -132,10 +132,6 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-# app «Prezzo del petrolio» (repository scorebrent): la scheda Petrolio ne incorpora la pagina «Score rifornimento»
-SCOREBRENT_URL = "https://scorebrent.streamlit.app/"
-SCOREBRENT_ALTEZZA = 2100  # px; la pagina scorre dentro il riquadro se serve
-
 # frase sotto il consiglio quando lo score del petrolio è disponibile (stesso colore del cerchio)
 CONSIGLIO_PETROLIO = {
     1: "I prezzi sono migliori della media degli ultimi trenta giorni",
@@ -153,6 +149,15 @@ def leggi_brent_score() -> tuple[dict | None, str]:
         trovati = ", ".join(nomi) if nomi else "nessuno"
         return None, f"non configurato|{', '.join(mancano)}|{trovati}"
     return brent_score(url, chiave)
+
+
+def nota_score(motivo: str) -> str:
+    """Riga (HTML sicuro) che spiega perché manca lo score del petrolio e il «Consiglio» usa il verdetto sul risparmio."""
+    if motivo.startswith("non configurato|"):
+        _, mancano, trovati = motivo.split("|", 2)
+        return (f"Score del petrolio non configurato: nei Secrets di questa app su Streamlit manca "
+                f"<code>{escape(mancano)}</code> (segreti trovati: <code>{escape(trovati)}</code>)")
+    return f"Score del petrolio da Supabase non raggiungibile ({escape(motivo)})"
 
 
 def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
@@ -332,18 +337,16 @@ data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data 
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
          f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
 
-# Si calcola e si disegna solo la scheda aperta: la mappa, la tabella degli archi e la pagina di scorebrent
-# (un'altra app intera) non partono finché non servono.
-tab_res, tab_arc, tab_petrolio, tab_how = st.tabs(["Risultato", "Archi", "Petrolio", "Come funziona"],
-                                                  key="scheda", on_change="rerun")
+# Si calcola e si disegna solo la scheda aperta: la mappa e la tabella degli archi non partono finché non servono.
+tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"], key="scheda", on_change="rerun")
 if tab_res.open or tab_arc.open:
     edges, info = fm.compute_edges(cands, origin, params)
 
 # --------------------------------------------------------------------------
 # Risultato
 # --------------------------------------------------------------------------
-# score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per Risultato e Petrolio
-bs, bs_err = leggi_brent_score() if tab_res.open or tab_petrolio.open else (None, "")
+# score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per il riquadro «Consiglio»
+bs, bs_err = leggi_brent_score() if tab_res.open else (None, "")
 
 if tab_res.open:
     with tab_res:
@@ -363,7 +366,7 @@ if tab_res.open:
                 if not info["consiglio"]:
                     corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
                 style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                           "", corpo, meta_html=note_dati)
+                           "", corpo, meta_html=note_dati + [nota_score(bs_err)])
             style.metrics([
                 ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
                  f"{ref_mode} nel raggio"),
@@ -500,23 +503,6 @@ if tab_arc.open:
                            "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
                            "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
                            "della zona) a 0 (il più caro).")
-
-# --------------------------------------------------------------------------
-# Petrolio
-# --------------------------------------------------------------------------
-if tab_petrolio.open:
-    with tab_petrolio:
-        # la pagina «Score rifornimento» dell'app scorebrent, incorporata così com'è
-        if bs is None and bs_err.startswith("non configurato|"):
-            _, mancano, trovati = bs_err.split("|", 2)
-            style.html('<p class="x-note">Collegamento a Supabase non configurato: nei Secrets di questa app su '
-                       f"Streamlit manca <code>{escape(mancano)}</code>. Segreti trovati: "
-                       f"<code>{escape(trovati)}</code>. Il riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-        elif bs is None:
-            style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
-                       "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-        st.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA)  # scorre già da sola
-
 
 # --------------------------------------------------------------------------
 # Come funziona

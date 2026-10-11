@@ -23,8 +23,7 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
   del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nella scheda
-  Risultato: «Conviene», «Rifornisci» o «Aspetta». Nella scheda Petrolio c'è la pagina dello score di
-  scorebrent, con grafico e verifiche sul passato.
+  Risultato: «Conviene», «Rifornisci» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano
@@ -82,8 +81,8 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 ### Schede
 
-Il risultato è diviso in quattro schede. L'app calcola e disegna solo quella aperta: la mappa, la tabella
-degli archi e la pagina di scorebrent partono quando si apre la loro scheda, così l'avvio è più leggero.
+Il risultato è diviso in tre schede. L'app calcola e disegna solo quella aperta: la mappa e la tabella degli
+archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Risultato**:
   - il riquadro «Consiglio», blu petrolio in tutti i casi e compatto anche da telefono. Segue lo score del
@@ -97,7 +96,7 @@ degli archi e la pagina di scorebrent partono quando si apre la loro scheda, cos
 
     Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
     conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
-    (il risparmio migliore rispetto alla soglia di convenienza);
+    (il risparmio migliore rispetto alla soglia di convenienza), più una riga che dice perché lo score manca;
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
@@ -107,9 +106,6 @@ degli archi e la pagina di scorebrent partono quando si apre la loro scheda, cos
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
-- **Petrolio**: la pagina «Score rifornimento» dell'app «Prezzo del petrolio»
-  ([scorebrent.streamlit.app](https://scorebrent.streamlit.app/)), incorporata così com'è (vedi «Score del
-  petrolio»).
 - **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
@@ -166,20 +162,6 @@ Lo stesso esito decide il riquadro «Consiglio» in cima, con il cerchio colorat
 (Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta). Il riquadro resta sempre
 blu petrolio, in tutti i casi; il cerchio è bianco dentro.
 
-La scheda **Petrolio** incorpora la pagina «Score rifornimento» di scorebrent, con esito, numeri, grafico e
-verifiche sul passato, all'indirizzo `https://scorebrent.streamlit.app/?embed=true&pagina=score`. Usa le
-impostazioni predefinite (α = 1, θ = 1), le stesse dello score in Supabase. La pagina incorporata è senza
-intestazione né margini, così la sua scheda bianca è allineata ai bordi delle schede di FuelMode. Sopra la pagina non c'è
-altro testo, salvo il motivo quando Supabase non risponde. Se scorebrent è in pausa per inattività, nella scheda
-compare il pulsante di Streamlit per risvegliarla (circa un minuto). La barra «Built with Streamlit / Fullscreen» che Streamlit Cloud
-aggiunge in fondo al riquadro è coperta da una fascia del colore dello sfondo (in `style.py`), perché non si può
-togliere dall'app. Se Supabase non è configurato o non risponde, sopra la pagina compare il motivo.
-
-Se nella scheda compare tutta l'app scorebrent (titolo, schede e barra laterale) invece della sola pagina dello
-score, scorebrent online non ha ancora caricato la versione che riconosce `?pagina=score`. Succede dopo un
-aggiornamento di scorebrent: basta riavviarla su https://share.streamlit.io, accanto a scorebrent,
-*⋮ → Reboot app*, poi ricaricare FuelMode.
-
 Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare
 la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance: decide solo il consiglio mostrato in cima.
 
@@ -206,7 +188,7 @@ url = "https://<progetto>.supabase.co"
 anon_key = "<chiave anon o publishable>"
 ```
 
-Senza configurazione il riquadro dice quale segreto manca ed elenca i nomi dei segreti che l'app trova (mai i
+Senza configurazione il riquadro «Consiglio» dice quale segreto manca ed elenca i nomi dei segreti che l'app trova (mai i
 valori), per capire se sono stati salvati con un altro nome o nell'app sbagliata. Quel messaggio non resta in
 memoria: appena i segreti vengono salvati, alla prossima apertura l'app li trova. Lo score letto, invece, è
 tenuto in cache per 3 ore e «Riscarica ora» lo rilegge.
