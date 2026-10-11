@@ -33,8 +33,8 @@ hr {{ display: none; }}
 
 /* pagina */
 header[data-testid="stHeader"] {{ background: transparent; }}
-[data-testid="stMainBlockContainer"] {{ padding: 20px 20px 40px; max-width: 1040px; margin: 0 auto; }}
-[data-testid="stMain"] [data-testid="stVerticalBlock"] {{ gap: 20px; }}
+[data-testid="stMainBlockContainer"] {{ padding: 8px 12px 8px; max-width: 1040px; margin: 0 auto; }}
+[data-testid="stMain"] [data-testid="stVerticalBlock"] {{ gap: 10px; }}
 
 /* barra laterale disattivata: tutti i controlli sono integrati nella pagina centrale */
 section[data-testid="stSidebar"],
@@ -90,14 +90,12 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-card-schede [class*="st-key-card"] {{ background: transparent; box-shadow: none; padding: 0;
   border-radius: 0; }}
 .st-key-card-schede [class*="st-key-card"] + [class*="st-key-card"],
-.st-key-card-schede [data-testid="stElementContainer"] + [class*="st-key-card"] {{ margin-top: 12px; }}
-/* la mappa (con la frase) subito sotto gli indicatori, alla stessa distanza che c'è tra pillole e indicatori */
-.st-key-card-schede .st-key-card-map {{ margin-top: -8px; }}
+.st-key-card-schede [data-testid="stElementContainer"] + [class*="st-key-card"] {{ margin-top: 0; }}
 .st-key-card-schede .x-metric {{ background: {N100}; box-shadow: none; }}
 
 /* schede */
 [class*="st-key-card"] {{ position: relative; background: #fff; border: 1px solid transparent; border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft); padding: 24px; gap: 12px !important; }}
+  box-shadow: var(--shadow-soft); padding: 16px; gap: 10px !important; }}
 .x-title {{ margin: 0; font-size: 20px; line-height: 1.25; font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 [class*="st-key-card"] p {{ font-size: 14px; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
@@ -107,7 +105,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
    larghezza (400 × 400), centrata */
 .st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 1 / 1; width: 100% !important;
   max-width: 400px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
-.st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; }}
+/* Streamlit fissa il contenitore a 400 px (flex: 0 0 400px): senza questa regola, da telefono restano ~80 px vuoti
+   sotto la mappa */
+.st-key-mappa [data-testid="stElementContainer"] {{ height: auto !important; flex: 0 0 auto !important; }}
 
 /* bottoni: compatti a pillola allineati alla barra dei risultati */
 .stButton button, .stDownloadButton button {{ border-radius: 999px; border: 0; padding: 8px 14px;
@@ -176,6 +176,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
+  /* da telefono margini minimi: pagina quasi a tutta larghezza e riquadri con poco bordo interno */
+  [data-testid="stMainBlockContainer"] {{ padding: 6px 6px 6px !important; }}
+  [class*="st-key-card"] {{ padding: 10px; }}
   .st-key-comandi [data-testid="stHorizontalBlock"] {{ gap: 4px !important; }}
   .st-key-comandi button {{ min-height: 32px !important; padding: 4px 2px !important; }}
   .st-key-comandi button p {{ font-size: 11.5px !important; }}
@@ -188,7 +191,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
   .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ padding: 8px 12px; gap: 4px; }}
-  .st-key-card-schede {{ padding: 16px 14px !important; }}
+  .st-key-card-schede {{ padding: 10px !important; }}
   .st-key-card-schede .stTabs [data-baseweb="tab-list"], .st-key-card-schede .stTabs [role="tablist"] {{ padding: 0; }}
   .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
   .stTabs [role="tab"] p {{ font-size: 12.5px; }}
@@ -220,7 +223,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score sopra il menu del carburante:
    le due colonne restano affiancate anche da telefono */
 .st-key-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft); padding: 16px 18px 16px 22px; }}
+  box-shadow: var(--shadow-soft); padding: 12px 14px 12px 16px; }}
 .st-key-hero [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; gap: 16px !important; }}
 .st-key-hero [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; }}
 .st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 140px !important; min-width: 0 !important; width: auto !important; }}
@@ -231,7 +234,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-hero .x-lead-box strong {{ color: {AMBER}; }}
 .st-key-hero .x-note {{ color: {SKY}; }}
 @media (max-width: 640px) {{
-  .st-key-hero {{ padding: 14px 12px 14px 16px; }}
+  .st-key-hero {{ padding: 10px 10px 10px 12px; }}
   .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
   .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 104px !important; }}
 }}
@@ -275,7 +278,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 
 /* colofon */
 .x-colophon {{ display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
-  padding: 24px 16px 12px; font-size: 13px; color: {N700}; text-align: center; }}
+  padding: 6px 8px 2px; font-size: 13px; color: {N700}; text-align: center; }}
 .x-colophon-brand {{ font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 .x-colophon-ver {{ display: inline-flex; align-items: center; font-size: 11px; font-weight: 700;
   padding: 1px 7px; border-radius: 999px; background: {N200}; color: {BLUE_GREEN}; letter-spacing: .02em; }}
