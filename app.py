@@ -53,7 +53,7 @@ def default_path(name: str) -> Path | None:
     return None
 
 
-@st.cache_data(show_spinner="Leggo i CSV…")
+@st.cache_data(max_entries=2, show_spinner="Leggo i CSV…")  # una copia per giorno di dati, non di più
 def load_data(anag_bytes: bytes, prezzi_bytes: bytes):
     anag, extraction = fm.parse_anagrafica(anag_bytes)
     prezzi = fm.parse_prezzi(prezzi_bytes)
@@ -328,197 +328,205 @@ params = fm.ModelParams(
     use_osrm=use_osrm, ref_mode=ref_mode, theta=theta, livello_min=livello_min,
 )
 cands = fm.build_candidates(anag, prezzi, fuel, self_service, float(max_age), extraction)
-edges, info = fm.compute_edges(cands, origin, params)
 
 data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
          f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
 
-tab_res, tab_arc, tab_petrolio, tab_how = st.tabs(["Risultato", "Archi", "Petrolio", "Come funziona"])
+# Si calcola e si disegna solo la scheda aperta: la mappa, la tabella degli archi e la pagina di scorebrent
+# (un'altra app intera) non partono finché non servono.
+tab_res, tab_arc, tab_petrolio, tab_how = st.tabs(["Risultato", "Archi", "Petrolio", "Come funziona"],
+                                                  key="scheda", on_change="rerun")
+if tab_res.open or tab_arc.open:
+    edges, info = fm.compute_edges(cands, origin, params)
 
 # --------------------------------------------------------------------------
 # Risultato
 # --------------------------------------------------------------------------
 # score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per Risultato e Petrolio
-bs, bs_err = leggi_brent_score()
+bs, bs_err = leggi_brent_score() if tab_res.open or tab_petrolio.open else (None, "")
 
-with tab_res:
-    if edges.empty:
-        style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
-                         "Aumenta il raggio o l'età massima del prezzo.")
-        style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
-    else:
-        best = info["best"]
-        prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
-        if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
-            titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
-            style.hero("Consiglio", titolo, frase, "",
-                       aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
+if tab_res.open:
+    with tab_res:
+        if edges.empty:
+            style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
+                             "Aumenta il raggio o l'età massima del prezzo.")
+            style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
         else:
-            corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-            if not info["consiglio"]:
-                corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
-            style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                       "", corpo, meta_html=note_dati)
-        style.metrics([
-            ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
-             f"{ref_mode} nel raggio"),
-            ("Distributori", str(info["n"]), f"nel raggio di {raggio} km"),
-            ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
-            ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
-        ])
-
-
-        with style.card("map"):
-            style.title("Dove conviene andare")
-            style.lead(
-                f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
-                f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
-                f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
-                f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
-                f"considerando il costo del viaggio."
-            )
-            st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
-                       "arancione = conviene poco.")
-            smin, smax = edges.score.min(), edges.score.max()
-            lo_rgb, hi_rgb = _hex_rgb(style.ORANGE), _hex_rgb(style.BLUE_GREEN)
-
-            def colore(s: float) -> list[int]:
-                t = 1.0 if smax == smin else (s - smin) / (smax - smin)
-                return [int(a + (b - a) * t) for a, b in zip(lo_rgb, hi_rgb)] + [220]
-
-            mappa = edges.copy()
-            mappa["colore"] = mappa.score.map(colore)
-            mappa["etichetta"] = (
-                mappa.bandiera + " · " + mappa.nome + "\n" + mappa.prezzo.map(lambda x: _it(f"{x:.3f}") + " €/l")
-                + " · risparmio " + mappa.score.map(lambda x: eur(x, sign=True))
-                + " · " + mappa.dist_km.map(lambda x: num(x) + " km")
-            )
-            mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
-            mappa["tgt"] = mappa[["lon", "lat"]].values.tolist()
-            layers = []
-            if show_all_lines:
-                layers.append(
-                    pdk.Layer("LineLayer", data=mappa, get_source_position="src", get_target_position="tgt",
-                              get_color="colore", get_width=2, width_min_pixels=1)
-                )
-            
-            if info.get("best_route"):
-                route_df = pd.DataFrame([{"path": info["best_route"]}])
-                layers.append(
-                    pdk.Layer(
-                        "PathLayer",
-                        data=route_df,
-                        get_path="path",
-                        get_color=list(_hex_rgb(style.DEEP)) + [200],
-                        width_scale=1,
-                        width_min_pixels=3,
-                        width_max_pixels=8,
-                        get_width=15
-                    )
-                )
-
-            layers.extend([
-                pdk.Layer("ScatterplotLayer", data=mappa, get_position=["lon", "lat"], get_fill_color="colore",
-                          get_radius=120, radius_min_pixels=5, radius_max_pixels=14, pickable=True),
-                pdk.Layer("ScatterplotLayer", data=pd.DataFrame([{"lat": origin[0], "lon": origin[1]}]),
-                          get_position=["lon", "lat"], get_fill_color=list(_hex_rgb(style.DEEP)) + [255],
-                          get_radius=150, radius_min_pixels=8, radius_max_pixels=16),
+            best = info["best"]
+            prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
+            if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
+                titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
+                style.hero("Consiglio", titolo, frase, "",
+                           aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
+            else:
+                corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
+                if not info["consiglio"]:
+                    corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
+                style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
+                           "", corpo, meta_html=note_dati)
+            style.metrics([
+                ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
+                 f"{ref_mode} nel raggio"),
+                ("Distributori", str(info["n"]), f"nel raggio di {raggio} km"),
+                ("Litri da fare", num(info["q"]) + " l", "pieno" if litri is None else "impostati a mano"),
+                ("Costo al km", _it(f"{info['c_km']:.3f}") + " €/km", "carburante + usura"),
             ])
-            zoom = max(5.0, 12.2 - math.log2(max(raggio, 2) / 5))
-            st.pydeck_chart(
-                pdk.Deck(layers=layers, map_style="light",
-                         initial_view_state=pdk.ViewState(latitude=origin[0], longitude=origin[1], zoom=zoom),
-                         tooltip={"text": "{etichetta}"}),
-                height=480,
-            )
-            st.caption(fonte)
 
-        with style.card("top"):
-            style.title("I 5 migliori")
-            style.table(
-                ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
-                [[escape(r.bandiera), escape(r.comune),
-                  _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.score, sign=True)]
-                 for _, r in edges.head(5).iterrows()],
-            )
+
+            with style.card("map"):
+                style.title("Dove conviene andare")
+                style.lead(
+                    f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
+                    f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
+                    f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
+                    f"<strong>{eur(best.score, sign=True)}</strong> rispetto al prezzo medio della zona, "
+                    f"considerando il costo del viaggio."
+                )
+                st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
+                           "arancione = conviene poco.")
+                smin, smax = edges.score.min(), edges.score.max()
+                lo_rgb, hi_rgb = _hex_rgb(style.ORANGE), _hex_rgb(style.BLUE_GREEN)
+
+                def colore(s: float) -> list[int]:
+                    t = 1.0 if smax == smin else (s - smin) / (smax - smin)
+                    return [int(a + (b - a) * t) for a, b in zip(lo_rgb, hi_rgb)] + [220]
+
+                mappa = edges.copy()
+                mappa["colore"] = mappa.score.map(colore)
+                mappa["etichetta"] = (
+                    mappa.bandiera + " · " + mappa.nome + "\n" + mappa.prezzo.map(lambda x: _it(f"{x:.3f}") + " €/l")
+                    + " · risparmio " + mappa.score.map(lambda x: eur(x, sign=True))
+                    + " · " + mappa.dist_km.map(lambda x: num(x) + " km")
+                )
+                mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
+                mappa["tgt"] = mappa[["lon", "lat"]].values.tolist()
+                layers = []
+                if show_all_lines:
+                    layers.append(
+                        pdk.Layer("LineLayer", data=mappa, get_source_position="src", get_target_position="tgt",
+                                  get_color="colore", get_width=2, width_min_pixels=1)
+                    )
+                
+                if info.get("best_route"):
+                    route_df = pd.DataFrame([{"path": info["best_route"]}])
+                    layers.append(
+                        pdk.Layer(
+                            "PathLayer",
+                            data=route_df,
+                            get_path="path",
+                            get_color=list(_hex_rgb(style.DEEP)) + [200],
+                            width_scale=1,
+                            width_min_pixels=3,
+                            width_max_pixels=8,
+                            get_width=15
+                        )
+                    )
+
+                layers.extend([
+                    pdk.Layer("ScatterplotLayer", data=mappa, get_position=["lon", "lat"], get_fill_color="colore",
+                              get_radius=120, radius_min_pixels=5, radius_max_pixels=14, pickable=True),
+                    pdk.Layer("ScatterplotLayer", data=pd.DataFrame([{"lat": origin[0], "lon": origin[1]}]),
+                              get_position=["lon", "lat"], get_fill_color=list(_hex_rgb(style.DEEP)) + [255],
+                              get_radius=150, radius_min_pixels=8, radius_max_pixels=16),
+                ])
+                zoom = max(5.0, 12.2 - math.log2(max(raggio, 2) / 5))
+                st.pydeck_chart(
+                    pdk.Deck(layers=layers, map_style="light",
+                             initial_view_state=pdk.ViewState(latitude=origin[0], longitude=origin[1], zoom=zoom),
+                             tooltip={"text": "{etichetta}"}),
+                    height=480,
+                )
+                st.caption(fonte)
+
+            with style.card("top"):
+                style.title("I 5 migliori")
+                style.table(
+                    ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
+                    [[escape(r.bandiera), escape(r.comune),
+                      _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.score, sign=True)]
+                     for _, r in edges.head(5).iterrows()],
+                )
 
 # --------------------------------------------------------------------------
 # Archi
 # --------------------------------------------------------------------------
-with tab_arc:
-    if edges.empty:
-        style.error_card("Nessun arco da mostrare: nessun distributore nel raggio scelto.")
-    else:
-        tab = edges.rename(
-            columns={
-                "rank": "#", "bandiera": "Bandiera", "nome": "Impianto", "indirizzo": "Indirizzo", "comune": "Comune",
-                "prezzo": "Prezzo (€/l)", "dist_km": "Distanza (km)", "dev_km": "Km in più",
-                "guadagno": "Risparmio sul prezzo (€)", "brent": "Effetto Brent (€)", "costo_log": "Costo del viaggio (€)",
-                "score": "Risparmio netto (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
-                "ep_pct": "Convenienza prezzo (posizione)", "eta_giorni": "Età prezzo (gg)",
-            }
-        )
-        cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", "Prezzo (€/l)", "Distanza (km)", "Km in più",
-                "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
-                "Convenienza prezzo", "Convenienza prezzo (posizione)", "Età prezzo (gg)", "id", "lat", "lon"]
-        cols = [c for c in cols if c in tab.columns]
-        export = tab[cols].copy()
-        export.insert(0, "origine_lat", origin[0])
-        export.insert(1, "origine_lon", origin[1])
-
-        with style.card("edges"):
-            c = st.columns([1, 0.2], vertical_alignment="center")
-            with c[0]:
-                style.title(f"Archi origine → distributore · {len(tab)}")
-            c[1].download_button("Scarica CSV",
-                                 export.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
-                                 file_name="archi_pesati.csv", mime="text/csv", width="stretch")
-            st.dataframe(
-                tab[cols], hide_index=True, height=480, width="stretch",
-                column_config={
-                    "Prezzo (€/l)": st.column_config.NumberColumn(format="%.3f"),
-                    "Distanza (km)": st.column_config.NumberColumn(format="%.1f"),
-                    "Km in più": st.column_config.NumberColumn(format="%.1f"),
-                    "Risparmio sul prezzo (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Effetto Brent (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Costo del viaggio (€)": st.column_config.NumberColumn(format="%.2f"),
-                    "Risparmio netto (€)": st.column_config.NumberColumn(format="%+.2f"),
-                    "Peso arco": st.column_config.NumberColumn(format="%+.2f"),
-                    "Peso arco (≥ 0)": st.column_config.NumberColumn(format="%.2f"),
-                    "Convenienza prezzo": st.column_config.NumberColumn(format="%.2f"),
-                    "Convenienza prezzo (posizione)": st.column_config.NumberColumn(format="%.2f"),
-                    "Età prezzo (gg)": st.column_config.NumberColumn(format="%.1f"),
-                },
+if tab_arc.open:
+    with tab_arc:
+        if edges.empty:
+            style.error_card("Nessun arco da mostrare: nessun distributore nel raggio scelto.")
+        else:
+            tab = edges.rename(
+                columns={
+                    "rank": "#", "bandiera": "Bandiera", "nome": "Impianto", "indirizzo": "Indirizzo", "comune": "Comune",
+                    "prezzo": "Prezzo (€/l)", "dist_km": "Distanza (km)", "dev_km": "Km in più",
+                    "guadagno": "Risparmio sul prezzo (€)", "brent": "Effetto Brent (€)", "costo_log": "Costo del viaggio (€)",
+                    "score": "Risparmio netto (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
+                    "ep_pct": "Convenienza prezzo (posizione)", "eta_giorni": "Età prezzo (gg)",
+                }
             )
-            st.caption("Risparmio netto = risparmio sul prezzo + effetto Brent − costo del viaggio. «Peso arco» è il "
-                       "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
-                       "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
-                       "della zona) a 0 (il più caro).")
+            cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", "Prezzo (€/l)", "Distanza (km)", "Km in più",
+                    "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
+                    "Convenienza prezzo", "Convenienza prezzo (posizione)", "Età prezzo (gg)", "id", "lat", "lon"]
+            cols = [c for c in cols if c in tab.columns]
+            export = tab[cols].copy()
+            export.insert(0, "origine_lat", origin[0])
+            export.insert(1, "origine_lon", origin[1])
+
+            with style.card("edges"):
+                c = st.columns([1, 0.2], vertical_alignment="center")
+                with c[0]:
+                    style.title(f"Archi origine → distributore · {len(tab)}")
+                c[1].download_button("Scarica CSV",
+                                     export.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
+                                     file_name="archi_pesati.csv", mime="text/csv", width="stretch")
+                st.dataframe(
+                    tab[cols], hide_index=True, height=480, width="stretch",
+                    column_config={
+                        "Prezzo (€/l)": st.column_config.NumberColumn(format="%.3f"),
+                        "Distanza (km)": st.column_config.NumberColumn(format="%.1f"),
+                        "Km in più": st.column_config.NumberColumn(format="%.1f"),
+                        "Risparmio sul prezzo (€)": st.column_config.NumberColumn(format="%+.2f"),
+                        "Effetto Brent (€)": st.column_config.NumberColumn(format="%+.2f"),
+                        "Costo del viaggio (€)": st.column_config.NumberColumn(format="%.2f"),
+                        "Risparmio netto (€)": st.column_config.NumberColumn(format="%+.2f"),
+                        "Peso arco": st.column_config.NumberColumn(format="%+.2f"),
+                        "Peso arco (≥ 0)": st.column_config.NumberColumn(format="%.2f"),
+                        "Convenienza prezzo": st.column_config.NumberColumn(format="%.2f"),
+                        "Convenienza prezzo (posizione)": st.column_config.NumberColumn(format="%.2f"),
+                        "Età prezzo (gg)": st.column_config.NumberColumn(format="%.1f"),
+                    },
+                )
+                st.caption("Risparmio netto = risparmio sul prezzo + effetto Brent − costo del viaggio. «Peso arco» è il "
+                           "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
+                           "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
+                           "della zona) a 0 (il più caro).")
 
 # --------------------------------------------------------------------------
 # Petrolio
 # --------------------------------------------------------------------------
-with tab_petrolio:
-    # la pagina «Score rifornimento» dell'app scorebrent, incorporata così com'è
-    if bs is None and bs_err.startswith("non configurato|"):
-        _, mancano, trovati = bs_err.split("|", 2)
-        style.html('<p class="x-note">Collegamento a Supabase non configurato: nei Secrets di questa app su '
-                   f"Streamlit manca <code>{escape(mancano)}</code>. Segreti trovati: "
-                   f"<code>{escape(trovati)}</code>. Il riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-    elif bs is None:
-        style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
-                   "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-    components.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA, scrolling=True)
+if tab_petrolio.open:
+    with tab_petrolio:
+        # la pagina «Score rifornimento» dell'app scorebrent, incorporata così com'è
+        if bs is None and bs_err.startswith("non configurato|"):
+            _, mancano, trovati = bs_err.split("|", 2)
+            style.html('<p class="x-note">Collegamento a Supabase non configurato: nei Secrets di questa app su '
+                       f"Streamlit manca <code>{escape(mancano)}</code>. Segreti trovati: "
+                       f"<code>{escape(trovati)}</code>. Il riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
+        elif bs is None:
+            style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
+                       "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
+        components.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA, scrolling=True)
 
 
 # --------------------------------------------------------------------------
 # Come funziona
 # --------------------------------------------------------------------------
-with tab_how, style.card("how"):
-    style.title("Come funziona")
-    st.markdown(
-        """
+if tab_how.open:
+    with tab_how, style.card("how"):
+        style.title("Come funziona")
+        st.markdown(
+            """
 L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparmi facendo lì il rifornimento**.
 
 - **Il prezzo**: confronta il prezzo di ogni distributore con quello tipico della zona e calcola quanto spendi

@@ -64,6 +64,15 @@ def download_csv(name: str, timeout: float = 60.0) -> bytes:
     return data
 
 
+def _to_bytes(src) -> bytes:
+    if isinstance(src, (str, Path)):
+        return Path(src).read_bytes()
+    if isinstance(src, (bytes, bytearray)):
+        return bytes(src)
+    data = src.read()
+    return data.encode("utf-8") if isinstance(data, str) else data
+
+
 def _to_text(src) -> str:
     if isinstance(src, (str, Path)):
         return Path(src).read_text(encoding="utf-8-sig", errors="replace")
@@ -124,13 +133,14 @@ def parse_prezzi(src) -> pd.DataFrame:
     """Legge prezzo_alle_8.csv (separatore '|', 1ª riga = titolo)."""
     import io
 
-    text = _to_text(src)
-    df = pd.read_csv(io.StringIO(text), sep="|", skiprows=1, dtype=str, on_bad_lines="skip")
+    # dai byte, senza passare da una stringa Python: lettura circa due volte più veloce
+    df = pd.read_csv(io.BytesIO(_to_bytes(src)), sep="|", skiprows=1, dtype=str, on_bad_lines="skip",
+                     encoding="utf-8-sig", encoding_errors="replace")
     df = df.rename(
         columns={"idImpianto": "id", "descCarburante": "carburante", "isSelf": "is_self", "dtComu": "dt_comu"}
     )
     df["id"] = df["id"].str.strip()
-    df["carburante"] = df["carburante"].str.strip()
+    df["carburante"] = df["carburante"].str.strip().astype("category")  # pochi valori ripetuti: meno memoria
     df["prezzo"] = pd.to_numeric(df["prezzo"].str.replace(",", ".", regex=False), errors="coerce")
     df["is_self"] = pd.to_numeric(df["is_self"], errors="coerce").fillna(0).astype(int) == 1
     df["dt_comu"] = pd.to_datetime(df["dt_comu"], format="%d/%m/%Y %H:%M:%S", errors="coerce")
