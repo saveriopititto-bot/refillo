@@ -173,6 +173,7 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 .x-hero.wait .k {{ color: {A100}; }}
 .x-hero.wait .v {{ color: #fff; }}
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.45; text-wrap: pretty; color: #fff; }}
+.x-hero p.x-hero-nota {{ margin-top: 6px; color: {N200}; max-width: 62ch; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
 .x-hero.aside {{ grid-template-columns: minmax(0, 1fr) auto; padding-right: 14px; }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
@@ -236,18 +237,20 @@ def lead(text_html: str) -> None:
 
 
 def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
-         meta_html: Sequence[str] = (), aside_html: str = "") -> None:
+         meta_html: Sequence[str] = (), aside_html: str = "", nota_html: str = "") -> None:
     """Scheda scura in evidenza con il verdetto (ambra se non conviene).
 
     meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. aside_html: al posto del testo, un elemento
-    allineato a destra e alto quanto la scheda (il cerchio dello score). Gli HTML passati vanno già validati.
+    allineato a destra e alto quanto la scheda (il cerchio dello score). nota_html: paragrafo sotto il
+    sottotitolo, nella colonna di sinistra (il perché del consiglio). Gli HTML passati vanno già validati.
     """
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
+    nota = f'<p class="x-hero-nota">{nota_html}</p>' if nota_html else ""
     classi = "x-hero" + ("" if ok else " wait") + (" aside" if aside_html else "")
     destra = f'<div class="x-hero-aside">{aside_html}</div>' if aside_html else f"<p>{body_html}</p>"
     html(f"""<div class="{classi}">
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
-<span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span></div>
+<span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span>{nota}</div>
 {destra}</div>""")
 
 

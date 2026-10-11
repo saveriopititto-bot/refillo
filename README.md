@@ -92,6 +92,12 @@ quanto il riquadro (più piccolo da telefono):
 | 0 | Rifornisci | Quando ti serve | arancione, pallino |
 | −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù |
 
+Sotto la frase, un paragrafo spiega il perché con i numeri del giorno: quanto costa il petrolio (Brent, in euro
+al barile), la sua media degli ultimi 30 giorni, di quanto se ne discosta e cosa vuol dire per i prezzi alla
+pompa (Conviene: i prezzi di oggi sono buoni e difficilmente miglioreranno nei prossimi giorni; Rifornisci: il
+petrolio pesa sempre, ma oggi non spinge né in su né in giù; Aspetta: oscilla più del solito e i prezzi tendono
+a scendere), con la data del dato.
+
 Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
 conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
 (il risparmio migliore rispetto alla soglia di convenienza), più una riga che dice perché lo score manca.
