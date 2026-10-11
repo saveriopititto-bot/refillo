@@ -50,7 +50,8 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 | Nell'app | Nella formula |
 |---|---|
-| Risparmio netto / Risparmio migliore | S_i / S_max |
+| Risparmio netto (tabella Archi) / Risparmio migliore | S_i / S_max |
+| Risparmio (frase, mappa, 5 migliori) | S_i senza il termine Brent: q·(P_market − P_i) − D_i·C_km |
 | Litri da fare | q |
 | Prezzo tipico della zona | P_market |
 | Km in più | D_i |
@@ -94,6 +95,8 @@ quanto il riquadro (più piccolo da telefono):
 Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
 conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
 (il risparmio migliore rispetto alla soglia di convenienza), più una riga che dice perché lo score manca.
+Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
+sempre «Rifornisci», qualunque sia lo score del petrolio.
 
 Sotto il riquadro, le pillole delle tre schede. L'app disegna solo quella aperta: la mappa e la tabella degli
 archi partono quando si apre la loro scheda, così l'avvio è più leggero.
@@ -102,7 +105,8 @@ archi partono quando si apre la loro scheda, così l'avvio è più leggero.
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
-    del distributore migliore, prezzo, distanza e risparmio), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
+    del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
+    Brent), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
@@ -127,7 +131,9 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
-riserva L_min. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
+riserva L_min (che vale anche sopra lo score del petrolio). Il risparmio mostrato nella frase, nella mappa e
+nei 5 migliori è S_i senza il termine Brent, che è uguale per tutti e non è un risparmio vero: sposta solo il
+verdetto. La classifica non cambia. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
 negativi.
 
 ## Dati
