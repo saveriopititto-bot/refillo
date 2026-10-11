@@ -69,8 +69,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Lo score decide il riquadro
   «Consiglio» (Conviene / Rifornisci / Aspetta, con il cerchio), ma non entra nel calcolo del risparmio né nella
   classifica; senza score il riquadro torna al verdetto sul risparmio, con una riga che dice perché manca
-  (segreto mancante o Supabase non raggiungibile). Con lo score, `perche_petrolio` in `app.py` spiega il
-  consiglio con i numeri del giorno (Brent e media 30 giorni in euro). Nei test va simulato `fm.fetch_brent_score`.
+  (segreto mancante o Supabase non raggiungibile). Con lo score, `PERCHE_PETROLIO` in `app.py` spiega il
+  consiglio con le frasi scelte dall'utente (non cambiarle senza chiedere). Nei test va simulato `fm.fetch_brent_score`.
 - **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
   `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
   `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nei 5 migliori
