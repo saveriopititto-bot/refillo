@@ -67,12 +67,11 @@ def test_compute_edges(dati):
 
 
 def test_compute_edges_scarta_prezzi_troppo_bassi():
-    # mediana 1,80: 1,69 è più di 10 centesimi sotto e sparisce, 1,70 (esattamente 10 sotto) resta
     c = pd.DataFrame({"id": list("abcde"), "lat": [43.23] * 5, "lon": [12.78] * 5,
                       "prezzo": [1.69, 1.70, 1.80, 1.85, 1.90]})
     edges, info = fm.compute_edges(c, (43.23, 12.78), fm.ModelParams(use_osrm=False))
     assert sorted(edges.id) == list("bcde") and info["n"] == 4
-    assert info["p_market"] == pytest.approx(1.80)  # calcolato prima del filtro
+    assert info["p_market"] == pytest.approx(1.80)
     edges, info = fm.compute_edges(c, (43.23, 12.78), fm.ModelParams(use_osrm=False, sconto_max=None))
     assert info["n"] == 5
 
