@@ -11,7 +11,7 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 ## Cosa fa
 
 - **Usa la tua posizione reale**: il browser chiede il permesso e l'app parte dalle coordinate del dispositivo.
-  In alternativa puoi scegliere un comune o inserire le coordinate a mano.
+  In alternativa puoi scegliere un comune.
 - **Usa dati sempre aggiornati**: all'apertura scarica da sola anagrafica e prezzi dal sito del MIMIT,
   senza file da caricare.
 - **Dice se conviene**: confronta il prezzo di ogni distributore con il prezzo tipico della zona e toglie il
@@ -37,14 +37,14 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 La barra laterale è compatta e divisa in due sezioni:
 
-1. **Dove sei**: «La mia posizione» (predefinita), «Comune» o «Coordinate».
-2. **Carburante**: prodotto, capacità del serbatoio, carburante nel serbatoio (in %), consumo e raggio di
-   ricerca.
+1. **Dove sei**: «La mia posizione» (predefinita) o «Comune».
+2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano).
 
-In «Opzioni avanzate» ci sono self o servito (predefinito: self), i parametri del modello (soglia di riserva,
-litri da fare, usura dell'auto, età massima del prezzo, strada in più rispetto alla linea d'aria, prezzo
-tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante
-«Riscarica ora», che aggiorna prezzi e Brent.
+In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
+consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura
+dell'auto, età massima del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del
+petrolio sui prezzi) e, in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora»,
+che aggiorna prezzi e Brent.
 
 L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezione «Il modello» qui sotto:
 
@@ -68,8 +68,8 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 |---|---|
 | Capacità del serbatoio | 50 l |
 | Carburante nel serbatoio | 25% |
-| Consumo | 6,5 l/100 km |
-| Raggio d'azione | 15 km su strada |
+| Consumo | 5,0 l/100 km |
+| Raggio d'azione | 20 km su strada |
 | Soglia di riserva | 10% |
 | Litri da fare | il pieno |
 | Self o servito | self |
@@ -240,7 +240,7 @@ perché il browser la stima dalla rete. Nella barra laterale compaiono coordinat
 «Aggiorna posizione» la rileva di nuovo.
 
 Se il permesso viene negato, l'app spiega come riattivarlo dalle impostazioni del sito nel browser e propone
-Comune o Coordinate.
+Comune.
 
 ## Avvio in locale
 
@@ -266,17 +266,20 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 
 ## Struttura
 
-| File | Contenuto |
+| File / Cartella | Contenuto |
 |---|---|
 | `app.py` | Interfaccia Streamlit: barra laterale, schede Risultato, Archi e Come funziona, geolocalizzazione |
-| `fuel_model.py` | Download e lettura dei CSV MIMIT, geometria, Brent da Yahoo Finance, score del Brent da Supabase, calcolo degli score |
+| `fuel_model.py` | Facade pubblica e retrocompatibile del modello (riesporta core, ingestion, clients) |
+| `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
+| `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
+| `clients/` | Client per API esterne: OSRM (`osrm.py`), Yahoo Finance (`yahoo.py`), Supabase (`supabase.py`) |
+| `ui/` | Moduli interfaccia: formattatori italiani (`formatters.py`), configurazione (`config.py`), mappe (`map_deck.py`) |
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
-| `tests/test_fuel_model.py` | Test di parsing, filtri, download, Brent, score del Brent da Supabase e score |
-| `tests/test_storico.py` | Test dello storico: mediane, finestra di 40 giorni, archivi, lettura e scrittura |
+| `tests/` | Suite di test: test del modello, dello storico, dei calcoli geometrici, dei formattatori e della configurazione |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |

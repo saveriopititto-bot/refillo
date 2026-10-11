@@ -106,7 +106,7 @@ def scrivi(df: pd.DataFrame, path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     out = df.copy()
-    if "data" in out:
+    if "data" in out and pd.api.types.is_datetime64_any_dtype(out["data"]):
         out["data"] = out.data.dt.strftime("%Y-%m-%d")
     out.to_csv(path, index=False, compression={"method": "gzip", "mtime": 0})
 
@@ -150,6 +150,8 @@ def medie_da_archivio(percorsi, dal: pd.Timestamp | None = None, max_age_days: f
                     if not m.isfile() or not m.name.lower().endswith(".csv"):
                         continue
                     f = tar.extractfile(m)
+                    if f is None:
+                        continue
                     testa = f.read(4000)
                     tipo, data = _tipo_e_data(testa.decode("utf-8-sig", errors="replace"), m.name)
                     if tipo is None or data is None:
@@ -167,14 +169,19 @@ def medie_da_archivio(percorsi, dal: pd.Timestamp | None = None, max_age_days: f
         log(f"  trovati {len(prezzi_per_giorno)} giorni di prezzi e {len(anag_per_giorno)} di anagrafica")
         date_anag = sorted(anag_per_giorno)
         parti, comuni = [], pd.DataFrame(columns=COLONNE_COMUNI)
+        anag_cache: dict[Path, tuple[pd.DataFrame, pd.DataFrame]] = {}
         for giorno in sorted(prezzi_per_giorno):
             precedenti = [d for d in date_anag if d <= giorno] or date_anag[:1]
             if not precedenti:
                 log(f"  salto {giorno:%Y-%m-%d}: nessuna anagrafica disponibile")
                 continue
-            anag, _ = fm.parse_anagrafica(anag_per_giorno[precedenti[-1]])
+            anag_path = anag_per_giorno[precedenti[-1]]
+            if anag_path not in anag_cache:
+                anag_parsed, _ = fm.parse_anagrafica(anag_path)
+                anag_cache[anag_path] = (anag_parsed, centri_comuni(anag_parsed))
+            anag, centri = anag_cache[anag_path]
             prezzi = fm.parse_prezzi(prezzi_per_giorno[giorno])
             parti.append(medie_giornaliere(anag, prezzi, giorno, max_age_days))
-            comuni = unisci_comuni(comuni, centri_comuni(anag))
+            comuni = unisci_comuni(comuni, centri)
             log(f"  {giorno:%Y-%m-%d}: {len(parti[-1])} righe")
     return (pd.concat(parti, ignore_index=True) if parti else vuoto()), comuni

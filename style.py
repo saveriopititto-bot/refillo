@@ -1,8 +1,8 @@
 """Stile 'smooth' (opzione 1a, lo stesso di test4): CSS globale e blocchi HTML riusati da app.py."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 from html import escape
-from typing import Sequence
 
 import streamlit as st
 

@@ -101,7 +101,7 @@ def test_compute_edges_riserva(dati):
     anag, prezzi, extraction = dati
     c = fm.build_candidates(anag, prezzi, "Benzina", True, 7, extraction)
     p = fm.ModelParams(livello=0.05, livello_min=0.10, theta=1000, raggio_km=10, use_osrm=False)
-    edges, info = fm.compute_edges(c, (43.23, 12.78), p)
+    _, info = fm.compute_edges(c, (43.23, 12.78), p)
     assert info["riserva"] and info["consiglio"]  # sotto riserva si rifornisce anche se non conviene
 
 
@@ -109,7 +109,15 @@ def test_compute_edges_vuoto(dati):
     anag, prezzi, extraction = dati
     c = fm.build_candidates(anag, prezzi, "Benzina", True, 7, extraction)
     edges, info = fm.compute_edges(c, (45.0, 9.0), fm.ModelParams(raggio_km=5))
-    assert edges.empty and info["n"] == 0
+    assert edges.empty and info["n"] == 0 and not info["riserva"]
+
+
+def test_compute_edges_tutti_scartati_da_sconto_max():
+    # se sconto_max scarta candidati anomali (es. prezzo < p_market - sconto_max)
+    c_two = pd.DataFrame({"id": ["a", "b"], "lat": [43.23, 43.23], "lon": [12.78, 12.78], "prezzo": [1.00, 2.00]})
+    edges, _info = fm.compute_edges(c_two, (43.23, 12.78), fm.ModelParams(use_osrm=False, sconto_max=0.10))
+    # 'a' ha prezzo 1.00 che dista 0.50 dalla mediana 1.50 -> scartato
+    assert len(edges) == 1 and edges.iloc[0].id == "b"
 
 
 class _Risposta:
@@ -219,3 +227,37 @@ def test_osrm_errore_non_in_cache(monkeypatch):
     assert fm.get_osrm_distances(origine, dest) == [None]
     assert fm.get_osrm_distances(origine, dest) == [None]
     assert len(chiamate) == 2  # dopo un errore si riprova
+
+
+def test_osrm_route(monkeypatch):
+    fm._osrm_route.cache_clear()
+    coordinate_finte = [[12.78, 43.23], [12.785, 43.235], [12.79, 43.24]]
+    risposta = _RispostaJSON(200, {"code": "Ok", "routes": [{"geometry": {"coordinates": coordinate_finte}}]})
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: risposta)
+    route = fm.get_osrm_route((43.23, 12.78), (43.24, 12.79))
+    assert route == coordinate_finte
+
+
+def test_osrm_route_errore(monkeypatch):
+    fm._osrm_route.cache_clear()
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: _RispostaJSON(500, {}))
+    assert fm.get_osrm_route((43.23, 12.78), (43.24, 12.79)) == []
+
+
+def test_fetch_brent_yf(monkeypatch):
+    import sys
+    from unittest.mock import MagicMock
+
+    date_idx = pd.date_range("2026-09-01", "2026-10-10", freq="D")
+    serie_finta = pd.Series(75.0, index=date_idx)
+    mock_ticker = MagicMock()
+    mock_ticker.history.return_value = pd.DataFrame({"Close": serie_finta})
+
+    mock_yf = MagicMock()
+    mock_yf.Ticker.return_value = mock_ticker
+    monkeypatch.setitem(sys.modules, "yfinance", mock_yf)
+
+    res = fm.fetch_brent_yf(7)
+    assert res["b_t"] == pytest.approx(75.0)
+    assert res["fx_t"] == pytest.approx(75.0)
+    assert res["data_t"] == pd.Timestamp("2026-10-10")

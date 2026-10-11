@@ -1,0 +1,125 @@
+"""Parsing e costruzione dei candidati dai CSV MIMIT."""
+from __future__ import annotations
+
+import io
+import re
+from pathlib import Path
+
+import pandas as pd
+
+from core.geo import ITALY_BBOX
+
+# Solo i prodotti "standard": le varianti premium (Blue Diesel, V-Power, ...)
+# hanno prezzi diversi e falserebbero il confronto.
+FUELS = ("Benzina", "Gasolio", "GPL", "Metano")
+
+# Intervalli plausibili (€/l, Metano €/kg) per scartare errori di inserimento.
+PRICE_BOUNDS = {
+    "Benzina": (0.8, 3.5),
+    "Gasolio": (0.8, 3.5),
+    "GPL": (0.3, 2.0),
+    "Metano": (0.8, 3.5),
+}
+
+
+def _to_bytes(src) -> bytes:
+    if isinstance(src, (str, Path)):
+        return Path(src).read_bytes()
+    if isinstance(src, (bytes, bytearray)):
+        return bytes(src)
+    data = src.read()
+    return data.encode("utf-8") if isinstance(data, str) else data
+
+
+def _to_text(src) -> str:
+    if isinstance(src, (str, Path)):
+        return Path(src).read_text(encoding="utf-8-sig", errors="replace")
+    if isinstance(src, (bytes, bytearray)):
+        return bytes(src).decode("utf-8-sig", errors="replace")
+    data = src.read()
+    return data.decode("utf-8-sig", errors="replace") if isinstance(data, bytes) else data
+
+
+def _extraction_date(first_line: str) -> pd.Timestamp | None:
+    m = re.search(r"(\d{4}-\d{2}-\d{2})", first_line)
+    return pd.Timestamp(m.group(1)) if m else None
+
+
+def parse_anagrafica(src) -> tuple[pd.DataFrame, pd.Timestamp | None]:
+    """Legge anagrafica_impianti_attivi.csv (separatore '|', 1ª riga = titolo).
+
+    Alcune righe hanno un '|' in più dentro nome/indirizzo: i campi fissi
+    (id, gestore, bandiera, tipo in testa; comune, provincia, lat, lon in coda)
+    permettono di ricostruirle senza perderle.
+    """
+    lines = _to_text(src).splitlines()
+    extraction = _extraction_date(lines[0]) if lines else None
+    rows = []
+    for line in lines[2:]:
+        f = line.split("|")
+        if len(f) < 10:
+            continue
+        mid = f[4:-4]
+        rows.append(
+            (
+                f[0].strip(),
+                f[1].strip(),
+                f[2].strip(),
+                f[3].strip(),
+                mid[0].strip() if mid else "",
+                " ".join(m.strip() for m in mid[1:]),
+                f[-4].strip().upper(),
+                f[-3].strip().upper(),
+                f[-2],
+                f[-1],
+            )
+        )
+    df = pd.DataFrame(
+        rows,
+        columns=["id", "gestore", "bandiera", "tipo", "nome", "indirizzo",
+                 "comune", "provincia", "lat", "lon"],
+    )
+    for c in ("lat", "lon"):
+        df[c] = pd.to_numeric(df[c].astype(str).str.replace(",", ".", regex=False), errors="coerce")
+    la0, la1, lo0, lo1 = ITALY_BBOX
+    df = df.dropna(subset=["lat", "lon"])
+    df = df[df.lat.between(la0, la1) & df.lon.between(lo0, lo1)]
+    return df.drop_duplicates("id").reset_index(drop=True), extraction
+
+
+def parse_prezzi(src) -> pd.DataFrame:
+    """Legge prezzo_alle_8.csv (separatore '|', 1ª riga = titolo)."""
+    # dai byte, senza passare da una stringa Python: lettura circa due volte più veloce
+    df = pd.read_csv(io.BytesIO(_to_bytes(src)), sep="|", skiprows=1, dtype=str, on_bad_lines="skip",
+                     encoding="utf-8-sig", encoding_errors="replace")
+    df = df.rename(
+        columns={"idImpianto": "id", "descCarburante": "carburante", "isSelf": "is_self", "dtComu": "dt_comu"}
+    )
+    df["id"] = df["id"].str.strip()
+    df["carburante"] = df["carburante"].str.strip().astype("category")  # pochi valori ripetuti: meno memoria
+    df["prezzo"] = pd.to_numeric(df["prezzo"].str.replace(",", ".", regex=False), errors="coerce")
+    df["is_self"] = pd.to_numeric(df["is_self"], errors="coerce").fillna(0).astype(int) == 1
+    df["dt_comu"] = pd.to_datetime(df["dt_comu"], format="%d/%m/%Y %H:%M:%S", errors="coerce")
+    return df.dropna(subset=["prezzo"]).reset_index(drop=True)
+
+
+def build_candidates(
+    anag: pd.DataFrame,
+    prezzi: pd.DataFrame,
+    fuel: str,
+    self_service: bool,
+    max_age_days: float | None,
+    extraction_date: pd.Timestamp | None,
+) -> pd.DataFrame:
+    """Un record per distributore: anagrafica + prezzo del carburante scelto."""
+    p = prezzi[(prezzi.carburante.str.lower() == fuel.lower()) & (prezzi.is_self == self_service)]
+    lo, hi = PRICE_BOUNDS.get(fuel, (0.0, 10.0))
+    p = p[p.prezzo.between(lo, hi)]
+    if max_age_days is not None and extraction_date is not None:
+        limite = extraction_date + pd.Timedelta(days=1) - pd.Timedelta(days=max_age_days)
+        p = p[p.dt_comu >= limite]
+    p = p.sort_values("dt_comu").drop_duplicates("id", keep="last")
+    out = anag.merge(p[["id", "prezzo", "dt_comu"]], on="id", how="inner")
+    if extraction_date is not None:
+        out["eta_giorni"] = (extraction_date + pd.Timedelta(days=1) - out["dt_comu"]).dt.total_seconds() / 86400
+    return out.reset_index(drop=True)

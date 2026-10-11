@@ -1,18 +1,18 @@
 """App Streamlit: pesi degli archi (posizione -> distributori) con lo score di rifornimento."""
 from __future__ import annotations
 
-import math
-import os
 from html import escape
 from pathlib import Path
 
 import pandas as pd
-import pydeck as pdk
 import streamlit as st
 import streamlit_js_eval
 
 import fuel_model as fm
 import style
+from ui.config import supabase_config
+from ui.formatters import _it, eur, num
+from ui.map_deck import build_fuel_deck
 
 st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide")
 style.apply_style()
@@ -23,23 +23,6 @@ CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
 BRENT_GIORNI = 7  # n: finestra della variazione del Brent
 
 
-# --------------------------------------------------------------------------
-# Formattazione
-# --------------------------------------------------------------------------
-def _it(s: str) -> str:
-    return s.replace(",", "§").replace(".", ",").replace("§", ".")
-
-
-def eur(x: float, d: int = 2, sign: bool = False) -> str:
-    return _it(f"{x:{'+' if sign else ''},.{d}f}") + " €"
-
-
-def num(x: float, d: int = 1) -> str:
-    return _it(f"{x:,.{d}f}")
-
-
-def _hex_rgb(h: str) -> tuple[int, int, int]:
-    return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
 
 
 # --------------------------------------------------------------------------
@@ -73,54 +56,6 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-NOMI_URL = ("supabase_url", "url")
-NOMI_CHIAVE = ("supabase_anon_key", "supabase_publishable_key", "supabase_key", "anon_key",
-               "publishable_key", "key")
-
-
-def _segreti_piatti() -> dict[str, str]:
-    """Tutti i Secrets di Streamlit come {«sezione.nome» in minuscolo: valore}, sezioni annidate comprese."""
-    try:
-        segreti = dict(st.secrets)
-    except Exception:  # nessun file dei segreti
-        return {}
-    piatti: dict[str, str] = {}
-
-    def visita(d, prefisso: str) -> None:
-        for k, v in d.items():
-            nome = f"{prefisso}{str(k).strip().lower()}"
-            if hasattr(v, "items"):
-                visita(v, nome + ".")
-            elif isinstance(v, str):
-                piatti[nome] = v.strip()
-
-    visita(segreti, "")
-    return piatti
-
-
-def supabase_config() -> tuple[str, str, list[str]]:
-    """(indirizzo, chiave pubblica, nomi dei Secrets presenti) di Supabase.
-
-    Cerca, senza badare a maiuscole e minuscole, SUPABASE_URL e SUPABASE_ANON_KEY (o SUPABASE_KEY,
-    SUPABASE_PUBLISHABLE_KEY) in cima ai Secrets o nelle variabili d'ambiente, oppure url e anon_key (o key)
-    in una sezione che nel nome contiene «supabase», come [supabase] o [connections.supabase]."""
-    piatti = _segreti_piatti()
-
-    def cerca(nomi: tuple[str, ...]) -> str:
-        for n in nomi:  # in cima ai Secrets o nell'ambiente: solo i nomi completi SUPABASE_…
-            if not n.startswith("supabase_"):
-                continue
-            v = piatti.get(n) or os.environ.get(n.upper(), "").strip()
-            if v:
-                return v
-        for n in nomi:  # dentro una sezione «supabase»
-            for chiave, v in piatti.items():
-                sezione, _, nome = chiave.rpartition(".")
-                if v and nome == n and "supabase" in sezione:
-                    return v
-        return ""
-
-    return cerca(NOMI_URL), cerca(NOMI_CHIAVE), sorted(piatti)
 
 
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Leggo lo score del petrolio…")
@@ -195,13 +130,19 @@ def posizione_browser() -> tuple[tuple[float, float] | None, str]:
     geo = streamlit_js_eval.get_geolocation(component_key=f"geo_{giro}")
     if not geo:
         return None, "Consenti l'accesso alla posizione quando il browser lo chiede…"
+    if not isinstance(geo, dict):
+        return None, "Posizione non disponibile."
     if "error" in geo:
         err = geo["error"] or {}
-        return None, "Posizione non disponibile: " + GEO_ERRORI.get(err.get("code"), err.get("message", "errore sconosciuto")) + "."
-    c = geo["coords"]
+        msg = err.get("message", "errore sconosciuto") if isinstance(err, dict) else str(err)
+        code = err.get("code") if isinstance(err, dict) else None
+        return None, "Posizione non disponibile: " + GEO_ERRORI.get(code, msg) + "."
+    c = geo.get("coords")
+    if not c or not isinstance(c, dict):
+        return None, "Posizione non disponibile."
     lat, lon = float(c["latitude"]), float(c["longitude"])
     acc = c.get("accuracy")
-    nota = f"Posizione rilevata: {lat:.5f}, {lon:.5f}" + (f" (precisione ±{acc:,.0f} m)".replace(",", ".") if acc else "")
+    nota = f"Posizione rilevata: {lat:.5f}, {lon:.5f}" + (f" (precisione ±{num(acc, 0)} m)" if acc else "")
     la0, la1, lo0, lo1 = fm.ITALY_BBOX
     if not (la0 <= lat <= la1 and lo0 <= lon <= lo1):
         nota += ". Sei fuori dall'Italia: i dati MIMIT coprono solo i distributori italiani."
@@ -395,65 +336,20 @@ if tab_res.open:
                 )
                 st.caption("Punto blu scuro = la tua posizione. Più un distributore è verde-azzurro, più conviene; "
                            "arancione = conviene poco.")
-                smin, smax = edges.score.min(), edges.score.max()
-                lo_rgb, hi_rgb = _hex_rgb(style.ORANGE), _hex_rgb(style.BLUE_GREEN)
-
-                def colore(s: float) -> list[int]:
-                    t = 1.0 if smax == smin else (s - smin) / (smax - smin)
-                    return [int(a + (b - a) * t) for a, b in zip(lo_rgb, hi_rgb)] + [220]
-
-                mappa = edges.copy()
-                mappa["colore"] = mappa.score.map(colore)
-                mappa["etichetta"] = (
-                    mappa.bandiera + " · " + mappa.nome + "\n" + mappa.prezzo.map(lambda x: _it(f"{x:.3f}") + " €/l")
-                    + " · risparmio " + mappa.risparmio.map(lambda x: eur(x, sign=True))
-                    + " · " + mappa.dist_km.map(lambda x: num(x) + " km")
+                deck = build_fuel_deck(
+                    origin, edges,
+                    best_route=info.get("best_route"),
+                    show_all_lines=show_all_lines,
+                    raggio=raggio,
                 )
-                mappa["src"] = [[origin[1], origin[0]]] * len(mappa)
-                mappa["tgt"] = mappa[["lon", "lat"]].values.tolist()
-                layers = []
-                if show_all_lines:
-                    layers.append(
-                        pdk.Layer("LineLayer", data=mappa, get_source_position="src", get_target_position="tgt",
-                                  get_color="colore", get_width=2, width_min_pixels=1)
-                    )
-                
-                if info.get("best_route"):
-                    route_df = pd.DataFrame([{"path": info["best_route"]}])
-                    layers.append(
-                        pdk.Layer(
-                            "PathLayer",
-                            data=route_df,
-                            get_path="path",
-                            get_color=list(_hex_rgb(style.DEEP)) + [200],
-                            width_scale=1,
-                            width_min_pixels=3,
-                            width_max_pixels=8,
-                            get_width=15
-                        )
-                    )
-
-                layers.extend([
-                    pdk.Layer("ScatterplotLayer", data=mappa, get_position=["lon", "lat"], get_fill_color="colore",
-                              get_radius=120, radius_min_pixels=5, radius_max_pixels=14, pickable=True),
-                    pdk.Layer("ScatterplotLayer", data=pd.DataFrame([{"lat": origin[0], "lon": origin[1]}]),
-                              get_position=["lon", "lat"], get_fill_color=list(_hex_rgb(style.DEEP)) + [255],
-                              get_radius=150, radius_min_pixels=8, radius_max_pixels=16),
-                ])
-                zoom = max(5.0, 12.2 - math.log2(max(raggio, 2) / 5))
-                st.pydeck_chart(
-                    pdk.Deck(layers=layers, map_style="light",
-                             initial_view_state=pdk.ViewState(latitude=origin[0], longitude=origin[1], zoom=zoom),
-                             tooltip={"text": "{etichetta}"}),
-                    height=480,
-                )
+                st.pydeck_chart(deck, height=480)
                 st.caption(fonte)
 
             with style.card("top"):
                 style.title("I 5 migliori")
                 style.table(
                     ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
-                    [[escape(r.bandiera), escape(r.comune),
+                    [[escape(r.bandiera or r.nome or "Distributore"), escape(r.comune),
                       _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
                      for _, r in edges.head(5).iterrows()],
                 )

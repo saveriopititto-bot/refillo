@@ -3,10 +3,10 @@ import tarfile
 
 import pandas as pd
 import pytest
+from test_fuel_model import ANAG, PREZZI
 
 import fuel_model as fm
 import storico
-from test_fuel_model import ANAG, PREZZI
 
 
 @pytest.fixture
@@ -54,6 +54,15 @@ def test_scrivi_e_leggi(tmp_path, dati):
     pd.testing.assert_frame_equal(letto.reset_index(drop=True), df.reset_index(drop=True), check_dtype=False)
     assert letto.self.dtype == bool
     assert storico.leggi(tmp_path / "manca.csv.gz").empty
+
+
+def test_scrivi_con_date_stringa(tmp_path, dati):
+    df = storico.medie_giornaliere(*dati)
+    df["data"] = df["data"].dt.strftime("%Y-%m-%d")  # già stringhe
+    f = tmp_path / "storico" / "medie_str.csv.gz"
+    storico.scrivi(df, f)  # non deve sollevare AttributeError
+    letto = storico.leggi(f)
+    assert not letto.empty
 
 
 def _tar(path, files):
