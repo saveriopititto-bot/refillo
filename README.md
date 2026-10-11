@@ -17,8 +17,9 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 - **Dice se conviene**: confronta il prezzo di ogni distributore con il prezzo tipico della zona e toglie il
   costo dei chilometri in più. Il consiglio segue lo score del petrolio («Conviene», «Rifornisci» o
   «Aspetta»); se lo score non è disponibile, il verdetto è «Rifornisci» o «Non conviene».
-- **Mostra dove andare**: una mappa con i distributori colorati dal più conveniente (verde-azzurro) al meno
-  conveniente (arancione), e la classifica dei 5 migliori.
+- **Mostra dove andare**: una mappa (Leaflet) con i distributori colorati dal più conveniente (verde-azzurro) al
+  meno conveniente (arancione), e la classifica dei 5 migliori. Toccando un distributore si apre un riquadro con
+  prezzo, distanza, risparmio e il link «Portami qui», che apre il percorso nel navigatore (Google Maps).
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
@@ -115,7 +116,9 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
     una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
-    Brent), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
+    Brent), poi la mappa Leaflet, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata:
+    sfondo chiaro CARTO, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di
+    blu scuro) e, toccando un distributore, il riquadro con i dati e «Portami qui»;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
 - **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
@@ -284,7 +287,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
 | `clients/` | Client per API esterne: OSRM (`osrm.py`), Yahoo Finance (`yahoo.py`), Supabase (`supabase.py`) |
-| `ui/` | Moduli interfaccia: viste delle schede (`result_view`, `edges_view`, `how_view`), hero (`hero_view`), controlli (`controls_view`), dati e geolocalizzazione (`data_service`), mappe (`map_deck.py`), formattatori (`formatters.py`), configurazione (`config.py`) |
+| `ui/` | Moduli interfaccia: viste delle schede (`result_view`, `edges_view`, `how_view`), hero (`hero_view`), controlli (`controls_view`), dati e geolocalizzazione (`data_service`), mappa Leaflet (`map_leaflet.py`), formattatori (`formatters.py`), configurazione (`config.py`) |
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate, colofon e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |

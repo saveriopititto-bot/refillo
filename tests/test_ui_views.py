@@ -138,3 +138,26 @@ def test_dati_freschi():
     assert dati_freschi(b"Estrazione del 2026-10-09\nid|x", alle_8)  # prima delle 9 vale quella di ieri
     assert not dati_freschi(b"Estrazione del 2026-10-08\nid|x", alle_8)
     assert not dati_freschi(b"senza data\nid|x", alle_10)
+
+
+def test_mappa_leaflet():
+    import re
+    import warnings
+
+    from ui.map_leaflet import build_fuel_map, map_html
+
+    edges = pd.DataFrame({
+        "rank": [1, 2], "bandiera": ["Q8", "IP"], "nome": ["Q8 Uno", "IP <Due>"], "indirizzo": ["Via A", "Via B"],
+        "comune": ["ROMA", "ROMA"], "prezzo": [1.8, 1.9], "dist_km": [1.2, 2.5], "risparmio": [1.5, -0.4],
+        "score": [1.5, -0.4], "lat": [41.90, 41.91], "lon": [12.50, 12.51],
+    })
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # niente avvisi, per esempio sulla chiave dei tile CARTO
+        html = map_html(build_fuel_map((41.895, 12.49), edges, best_route=[[12.49, 41.895], [12.50, 41.90]]))
+    assert html.count("L.circleMarker(") == 3  # due distributori e la posizione
+    assert "https://www.google.com/maps/dir/?api=1&amp;destination=41.900000,12.500000" in html \
+        or "https://www.google.com/maps/dir/?api=1&destination=41.900000,12.500000" in html
+    assert "IP &lt;Due&gt;" in html and "IP <Due>" not in html  # nomi dal CSV MIMIT sempre escapati
+    assert "L.polyline(" in html and "fitBounds" in html
+    script = re.findall(r'<script src="([^"]+)"', html)
+    assert len(script) == 2 and any("leaflet@" in s for s in script) and any("jquery" in s for s in script)

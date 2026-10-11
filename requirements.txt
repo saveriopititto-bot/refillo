@@ -1,7 +1,7 @@
 streamlit>=1.65
 pandas
 numpy
-pydeck
+folium
 yfinance
 streamlit-js-eval
 requests

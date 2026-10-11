@@ -6,10 +6,11 @@ from html import escape
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 import style
 from ui.formatters import _it, eur, num
-from ui.map_deck import build_fuel_deck
+from ui.map_leaflet import build_fuel_map, map_html
 
 
 @dataclass
@@ -46,14 +47,15 @@ class ResultView:
                 f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
                 f"considerando il costo del viaggio."
             )
-            st.caption("Più un distributore è verde, più conviene")
-            deck = build_fuel_deck(
+            st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
+                       "il percorso con il navigatore.")
+            mappa = build_fuel_map(
                 self.origin, self.edges,
                 best_route=self.info.get("best_route"),
                 show_all_lines=self.show_all_lines,
-                raggio=self.raggio,
             )
-            st.pydeck_chart(deck, height=480)
+            with st.container(key="mappa"):
+                components.html(map_html(mappa), height=600)
             st.caption(self.fonte)
 
         with style.card("top"):
