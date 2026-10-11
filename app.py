@@ -226,23 +226,26 @@ note_dati = [escape(nota_prezzi), nota_brent]
 
 with c_pos:
     style.section("1 · Dove sei")
-    modo_pos = st.radio("Imposta da", ["La mia posizione", "Comune"], horizontal=True,
-                        label_visibility="collapsed")
-    origin, attesa_pos = None, ""
-    if modo_pos == "La mia posizione":
-        origin, nota = posizione_browser()
-        attesa_pos = nota if origin is None else ""
-        st.caption(nota)
-        if st.button("Aggiorna posizione", width="stretch"):
-            st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-            st.rerun()
-    else:
+    origin, nota = posizione_browser()
+    if st.button("Aggiorna posizione", width="stretch"):
+        st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+        st.rerun()
+    st.caption(nota)
+    if origin is None:
         comuni = sorted(anag.comune.unique())
-        idx = comuni.index("GUALDO TADINO") if "GUALDO TADINO" in comuni else 0
-        comune = st.selectbox("Comune", comuni, index=idx)
-        sel = anag[anag.comune == comune]
-        origin = (float(sel.lat.median()), float(sel.lon.median()))
-        st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
+        comune = st.selectbox("Comune", comuni, index=None, placeholder="Scegli il tuo comune…")
+        if comune:
+            sel = anag[anag.comune == comune]
+            origin = (float(sel.lat.median()), float(sel.lon.median()))
+            st.caption(f"Centro stimato dai distributori del comune: {origin[0]:.5f}, {origin[1]:.5f}")
+
+if origin is None:
+    with c_hero:
+        style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>'
+                   f'{escape(nota)}<br>In alternativa scegli un <strong>Comune</strong> '
+                   f'in «1 · Dove sei» qui sotto.</div>')
+    style.colophon()
+    st.stop()
 
 with c_fuel:
     style.section("2 · Carburante")
@@ -276,17 +279,6 @@ with adv_model:
                                 help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
         alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
                           help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
-
-# --------------------------------------------------------------------------
-# Calcolo
-# --------------------------------------------------------------------------
-if origin is None:
-    with c_hero:
-        style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>'
-                   f'{escape(attesa_pos)}<br>In alternativa scegli <strong>Comune</strong> '
-                   f'in «1 · Dove sei» qui sotto.</div>')
-    style.colophon()
-    st.stop()
 params = fm.ModelParams(
     v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
     consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
