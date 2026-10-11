@@ -44,13 +44,10 @@ class ControlsView:
     def render(c_hero: any) -> ControlsResult:
         c_controls = style.card("controls")
         with c_controls:
-            col_pos, col_fuel = st.columns([1, 1], gap="large")
-            with col_pos:
-                c_pos = st.container()
-            with col_fuel:
-                c_fuel = st.container()
-                adv = st.expander("Opzioni avanzate")
-                adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+            c_row = st.container()
+            c_caption = st.empty()
+            adv = st.expander("Opzioni avanzate")
+            adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
         with adv_data:
             style.section("Dati")
@@ -121,21 +118,21 @@ class ControlsView:
             origin = (float(sel.lat.median()), float(sel.lon.median()))
             nota = f"Posizione impostata su {comune_override} (da Opzioni avanzate)"
 
-        with c_pos:
-            style.section("1 · Dove sei")
-            if st.button("Aggiorna posizione", width="stretch"):
-                st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-                st.rerun()
-            st.caption(nota)
+        with c_row:
+            col_pos, col_fuel = st.columns([1, 1], gap="medium", vertical_alignment="center")
+            with col_pos:
+                if st.button("Aggiorna posizione", width="stretch"):
+                    st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+                    st.rerun()
+            with col_fuel:
+                fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+
+        c_caption.caption(nota)
 
         if origin is None:
             render_waiting(c_hero, nota)
             style.colophon()
             st.stop()
-
-        with c_fuel:
-            style.section("2 · Carburante")
-            fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
         with adv_model:
             col_v1, col_v2 = st.columns(2)
