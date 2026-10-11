@@ -272,7 +272,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
 | `clients/` | Client per API esterne: OSRM (`osrm.py`), Yahoo Finance (`yahoo.py`), Supabase (`supabase.py`) |
-| `ui/` | Moduli interfaccia: formattatori italiani (`formatters.py`), configurazione (`config.py`), mappe (`map_deck.py`) |
+| `ui/` | Moduli interfaccia: viste delle schede (`result_view`, `edges_view`, `how_view`), hero (`hero_view`), controlli (`controls_view`), dati e geolocalizzazione (`data_service`), mappe (`map_deck.py`), formattatori (`formatters.py`), configurazione (`config.py`) |
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate, colofon e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
