@@ -268,7 +268,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
-Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole, schede bianche arrotondate, palette
+Lo stile è lo stesso di test4 (layout «1a»: navigazione a pillole sotto il titolo, schede bianche arrotondate, palette
 `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
 interni di Streamlit, testati con la 1.65: se dopo un aggiornamento un elemento perde lo stile, va aggiornato
 il selettore.

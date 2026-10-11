@@ -94,12 +94,13 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 [data-testid="stSlider"] [data-baseweb="slider"] > div > div:first-child {{ border-radius: 999px; }}
 [data-testid="stTooltipIcon"] svg {{ stroke: {N500}; }}
 
-/* tab come barra di navigazione (selettori per Streamlit < 1.6x e >= 1.6x) */
+/* tab come barra di navigazione (selettori per Streamlit < 1.6x e >= 1.6x): titolo su una riga, sotto le pillole
+   allineate a sinistra con il titolo */
 .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ gap: 4px; align-items: center; flex-wrap: wrap;
-  row-gap: 10px; background: #fff; border: 0; box-shadow: var(--shadow-soft); padding: 12px 12px 12px 24px;
+  row-gap: 10px; background: #fff; border: 0; box-shadow: var(--shadow-soft); padding: 16px 24px 14px;
   border-radius: var(--radius-lg); overflow: visible; }}
 .stTabs [data-baseweb="tab-list"]::before, .stTabs [role="tablist"]::before {{ content: "{BRAND}";
-  margin-right: auto; padding-right: 16px; font-size: 18px; font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
+  flex: 0 0 100%; font-size: 18px; font-weight: 800; letter-spacing: -0.015em; color: {DEEP}; }}
 .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ height: auto; padding: 8px 10px; margin: 0; border: 0;
   border-radius: 999px; background: transparent; cursor: pointer; }}
 .stTabs [role="tab"] p {{ font-size: 14px; font-weight: 600; color: {DEEP}; }}
