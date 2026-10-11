@@ -9,7 +9,6 @@ from pathlib import Path
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
-import streamlit.components.v1 as components
 import streamlit_js_eval
 
 import fuel_model as fm
@@ -516,7 +515,7 @@ if tab_petrolio.open:
         elif bs is None:
             style.html(f'<p class="x-note">Score del petrolio da Supabase non raggiungibile ({escape(bs_err)}): il '
                        "riquadro «Consiglio» usa il verdetto sul risparmio.</p>")
-        components.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA, scrolling=True)
+        st.iframe(f"{SCOREBRENT_URL}?embed=true&pagina=score", height=SCOREBRENT_ALTEZZA)  # scorre già da sola
 
 
 # --------------------------------------------------------------------------
