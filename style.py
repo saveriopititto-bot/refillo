@@ -178,6 +178,18 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
 
+/* cerchio di caricamento / progressione */
+.x-progress-wrap {{ display: flex; justify-content: center; align-items: center; padding: 24px 16px; width: 100%; }}
+.x-progress-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+  padding: 26px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; max-width: 360px; width: 100%; text-align: center; }}
+.x-progress-lbl {{ font-size: 13px; font-weight: 700; color: {DEEP}; line-height: 1.35; letter-spacing: -0.01em; }}
+@media (max-width: 640px) {{
+  .x-progress-box {{ padding: 18px 20px; max-width: 290px; gap: 10px; }}
+  .x-progress-box svg {{ width: 95px; height: 95px; }}
+  .x-progress-lbl {{ font-size: 12px; }}
+}}
+
 /* colofon */
 .x-colophon {{ display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
   padding: 24px 16px 12px; font-size: 13px; color: {N700}; text-align: center; }}
@@ -259,6 +271,28 @@ def cerchio_score(esito: int, etichetta: str) -> str:
     return (f'<span class="x-cerchio" role="img" aria-label="{escape(etichetta)}" title="{escape(etichetta)}">'
             f'<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">'
             f'<circle cx="32" cy="32" r="28" fill="#fff" stroke="{colore}" stroke-width="5"/>{simbolo}</svg></span>')
+
+
+def cerchio_progresso(pct: int, label: str = "") -> str:
+    """Riquadro con cerchio SVG e progressione percentuale (0-100%)."""
+    p = max(0, min(100, int(pct)))
+    raggio = 44
+    circ = 276.46
+    offset = circ * (1.0 - p / 100.0)
+    lbl_html = f'<div class="x-progress-lbl">{escape(label)}</div>' if label else ""
+    return (
+        f'<div class="x-progress-wrap">'
+        f'<div class="x-progress-box">'
+        f'<svg width="110" height="110" viewBox="0 0 110 110">'
+        f'<circle cx="55" cy="55" r="{raggio}" fill="none" stroke="{N200}" stroke-width="7"/>'
+        f'<circle cx="55" cy="55" r="{raggio}" fill="none" stroke="{ORANGE}" stroke-width="7" '
+        f'stroke-linecap="round" stroke-dasharray="{circ:.2f}" stroke-dashoffset="{offset:.2f}" '
+        f'transform="rotate(-90 55 55)" style="transition: stroke-dashoffset 0.1s ease-out;"/>'
+        f'<text x="55" y="62" text-anchor="middle" font-size="20" font-weight="800" fill="{DEEP}">{p}%</text>'
+        f'</svg>'
+        f'{lbl_html}'
+        f'</div></div>'
+    )
 
 
 def error_card(msg: str) -> None:

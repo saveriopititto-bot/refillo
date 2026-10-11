@@ -53,3 +53,32 @@ def test_result_view_empty_no_error(monkeypatch):
     rv.render()
     assert len(called) == 1
     assert "Nessun distributore da mostrare" in called[0]
+
+
+def test_get_mimit_dataset_with_progress(monkeypatch):
+    import ui.data_service as ds
+
+    ds.clear_all_caches()
+    progress_updates = []
+
+    class MockProgress:
+        def markdown(self, text, unsafe_allow_html=False):
+            progress_updates.append(text)
+
+    fake_anag = b"id;nome;lat;lon;comune\n1;Dist;43.1;12.1;Roma"
+    fake_prezzi = b"id;carburante;prezzo;isSelf\n1;Benzina;1.75;1"
+
+    monkeypatch.setattr(ds.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: (
+        fake_anag if "anagrafica" in name else fake_prezzi
+    ))
+
+    c_progress = MockProgress()
+    (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset(c_progress=c_progress)
+
+    assert anag_b == fake_anag
+    assert prezzi_b == fake_prezzi
+    assert src_a == "scaricato"
+    assert src_p == "scaricato"
+    assert len(progress_updates) > 0
+    assert any("0%" in p for p in progress_updates)
+    assert any("100%" in p for p in progress_updates)

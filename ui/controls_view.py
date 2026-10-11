@@ -17,6 +17,7 @@ from ui.data_service import (
     PREZZI_FILE,
     clear_all_caches,
     get_bytes,
+    get_mimit_dataset,
     load_data,
     brent_yahoo,
     posizione_browser,
@@ -42,19 +43,36 @@ class ControlsResult:
 class ControlsView:
     @staticmethod
     def render(c_hero: any) -> ControlsResult:
-        c_controls = style.card("controls")
-        with c_controls:
-            c_row = st.container()
-            adv = st.expander("Opzioni avanzate")
-            adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+        up_a = st.session_state.get("up_anag")
+        up_p = st.session_state.get("up_prezzi")
 
-        with adv_data:
-            style.section("Dati")
-            up_a = st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE)
-            up_p = st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE)
-
+        c_progress = st.empty()
         st.session_state.pop("download_err", None)
-        (anag_b, src_a), (prezzi_b, src_p) = get_bytes(up_a, ANAG_FILE), get_bytes(up_p, PREZZI_FILE)
+        (anag_b, src_a), (prezzi_b, src_p) = get_mimit_dataset(c_progress, up_a, up_p)
+        c_progress.empty()
+
+        if anag_b is None or prezzi_b is None:
+            errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
+            render_error(c_hero, "Non sono riuscito a scaricare i dati dal sito del MIMIT"
+                         + (f":<br><code>{errori}</code><br>" if errori else ". ")
+                         + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
+                           "da «Opzioni avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
+                           "<code>app.py</code>.")
+            c_controls = style.card("controls")
+            with c_controls:
+                adv = st.expander("Opzioni avanzate", expanded=True)
+                with adv:
+                    style.section("Dati")
+                    st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE, key="up_anag")
+                    st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE, key="up_prezzi")
+            style.colophon()
+            st.stop()
+
+        anag, prezzi, extraction = load_data(anag_b, prezzi_b)
+        if anag.empty or prezzi.empty:
+            render_error(c_hero, "Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
+            style.colophon()
+            st.stop()
 
         brent, brent_err = brent_yahoo(BRENT_GIORNI)
         if brent:
@@ -66,28 +84,21 @@ class ControlsView:
             dB = 0.0
             nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): non considerato"
 
+        c_controls = style.card("controls")
+        with c_controls:
+            c_row = st.container()
+            adv = st.expander("Opzioni avanzate")
+            adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+
         with adv_data:
+            style.section("Dati")
+            st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE, key="up_anag")
+            st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE, key="up_prezzi")
             st.caption(f"Prezzi MIMIT e Brent si scaricano da soli e si aggiornano ogni {CACHE_ORE} ore. "
                        "I CSV caricati qui hanno la precedenza.")
             if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
                 clear_all_caches()
                 st.rerun()
-
-        if anag_b is None or prezzi_b is None:
-            errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
-            render_error(c_hero, "Non sono riuscito a scaricare i dati dal sito del MIMIT"
-                         + (f":<br><code>{errori}</code><br>" if errori else ". ")
-                         + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
-                           "da «Opzioni avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
-                           "<code>app.py</code>.")
-            style.colophon()
-            st.stop()
-
-        anag, prezzi, extraction = load_data(anag_b, prezzi_b)
-        if anag.empty or prezzi.empty:
-            render_error(c_hero, "Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
-            style.colophon()
-            st.stop()
 
         del_giorno = f" del {extraction:%d/%m/%Y}" if extraction is not None else ""
         if "caricato" in (src_a, src_p):
