@@ -245,7 +245,6 @@ with c_main:
     with col_fuel:
         style.section("2 · Carburante")
         fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
-        self_service = st.radio("Modalità", ["Self", "Servito"], horizontal=True) == "Self"
 
 with adv_model:
     col_v1, col_v2 = st.columns(2)
@@ -261,6 +260,7 @@ with adv_model:
             litri = st.number_input("Litri da fare", min_value=1.0, max_value=float(v_tot),
                                     value=min(30.0, float(v_tot)), step=1.0)
     with col_v2:
+        self_service = st.radio("Self o servito", ["Self", "Servito"], horizontal=True) == "Self"
         use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
         show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
         usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,

@@ -37,10 +37,10 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 La scheda dei controlli si trova subito sotto il riquadro «Consiglio» ed è divisa in due sezioni:
 
 1. **Dove sei**: «La mia posizione» (predefinita) o «Comune».
-2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano) e modalità (Self o Servito).
+2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano).
 
 In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
-consumo, raggio d'azione, OSRM per percorsi reali, soglia di riserva, litri da fare, usura dell'auto, età massima
+consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
 del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,
 in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che aggiorna prezzi e Brent.
 A piè di pagina in tutte le schede è presente il colofon con versione e diritti riservati.
