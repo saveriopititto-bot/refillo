@@ -246,11 +246,12 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
     """
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
     nota = f'<p class="x-hero-nota">{nota_html}</p>' if nota_html else ""
+    sottotitolo = f'<span class="s">{escape(sub)}</span>' if sub else ""
     classi = "x-hero" + ("" if ok else " wait") + (" aside" if aside_html else "")
     destra = f'<div class="x-hero-aside">{aside_html}</div>' if aside_html else f"<p>{body_html}</p>"
     html(f"""<div class="{classi}">
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
-<span class="v">{escape(value)}</span>{meta}<span class="s">{escape(sub)}</span>{nota}</div>
+<span class="v">{escape(value)}</span>{meta}{sottotitolo}{nota}</div>
 {destra}</div>""")
 
 

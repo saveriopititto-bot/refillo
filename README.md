@@ -86,13 +86,13 @@ In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in t
 i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato, grande
 quanto il riquadro (più piccolo da telefono):
 
-| Score | Consiglio | Frase sotto, in bianco | Cerchio |
-|---|---|---|---|
-| +1 | Conviene | I prezzi sono migliori della media degli ultimi trenta giorni | verde, freccia in su |
-| 0 | Rifornisci | Quando ti serve | arancione, pallino |
-| −1 | Aspetta | A meno che tu non ne possa fare a meno | rosso, freccia in giù |
+| Score | Consiglio | Cerchio |
+|---|---|---|
+| +1 | Conviene | verde, freccia in su |
+| 0 | Rifornisci | arancione, pallino |
+| −1 | Aspetta | rosso, freccia in giù |
 
-Sotto la frase, un paragrafo spiega il perché, con la data del dato:
+Sotto il consiglio, una frase spiega il perché:
 
 - Conviene: «Il petrolio costa più del solito. Tra pochi giorni anche la benzina costerà di più. Fai benzina oggi.»
 - Rifornisci: «Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.»
