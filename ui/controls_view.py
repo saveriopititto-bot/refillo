@@ -15,6 +15,7 @@ from ui.data_service import (
     BRENT_GIORNI,
     PREZZI_FILE,
     clear_all_caches,
+    fonte_download,
     get_mimit_dataset,
     load_data,
     brent_yahoo,
@@ -116,6 +117,8 @@ class ControlsView:
         else:
             quando = st.session_state["scaricato_alle"]
             nota_prezzi = f"Prezzi MIMIT{del_giorno}, scaricati alle {quando:%H:%M} del {quando:%d/%m}"
+            if fonte_download():
+                nota_prezzi += f" {fonte_download()}"
         if extraction is None:
             nota_prezzi += " (data di estrazione non trovata: filtro sull'età del prezzo disattivato)"
         note_dati = [escape(nota_prezzi), nota_brent]

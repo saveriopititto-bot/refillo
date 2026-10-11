@@ -84,6 +84,7 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     assert prezzi_b == fake_prezzi
     assert src_a == "scaricato"
     assert src_p == "scaricato"
+    assert ds.fonte_download() == ds.FONTE_SITO  # copia vecchia: scaricati dal MIMIT
     assert len(progress_updates) > 0
     assert any("0%" in p for p in progress_updates)
     assert any("100%" in p for p in progress_updates)
@@ -123,6 +124,7 @@ def test_get_mimit_dataset_usa_copia_dati_di_oggi(monkeypatch):
     monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: copia)
     (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset()
     assert anag_b == copia and prezzi_b == copia and src_a == src_p == "scaricato"
+    assert ds.fonte_download() == ds.FONTE_DATI
     ds.clear_all_caches()
 
 

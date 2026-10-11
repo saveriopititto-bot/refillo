@@ -87,6 +87,14 @@ def nota_score(motivo: str) -> str:
 
 
 _CACHE_MIMIT: dict[str, tuple[bytes, pd.Timestamp]] = {}
+_FONTE_MIMIT: dict[str, str] = {}  # da dove arriva ogni file scaricato
+FONTE_DATI, FONTE_SITO = "dalla copia GitHub (branch dati)", "dal sito del MIMIT"
+
+
+def fonte_download() -> str:
+    """Da dove sono stati scaricati i due file, in parole semplici (vuoto se non si sa)."""
+    a, p = _FONTE_MIMIT.get(ANAG_FILE, ""), _FONTE_MIMIT.get(PREZZI_FILE, "")
+    return a if a == p else f"(anagrafica {a or '?'}, prezzi {p or '?'})"
 
 
 def ultimo_rilascio_mimit(ora: pd.Timestamp) -> pd.Timestamp:
@@ -175,10 +183,13 @@ def get_mimit_dataset(
             try:
                 data = fm.download_dati(name, on_progress=on_progress)
                 if dati_freschi(data, ora):
+                    _FONTE_MIMIT[name] = FONTE_DATI
                     return data
             except Exception:
                 pass  # copia non raggiungibile: si scarica dal MIMIT
-            return fm.download_csv(name, on_progress=on_progress)
+            data = fm.download_csv(name, on_progress=on_progress)
+            _FONTE_MIMIT[name] = FONTE_SITO
+            return data
 
         if cached_a is None:
             cached_a = scarica(ANAG_FILE, 0, "Scaricamento anagrafica impianti…")
@@ -206,6 +217,7 @@ def get_mimit_dataset(
 def clear_all_caches() -> None:
     """Pulisce le cache Streamlit per riscaricare i dati."""
     _CACHE_MIMIT.clear()
+    _FONTE_MIMIT.clear()
     brent_yahoo.clear()
     brent_score.clear()
 
