@@ -102,7 +102,7 @@ archi partono quando si apre la loro scheda, così l'avvio è più leggero.
   - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
     al km), che restano su una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
-    del distributore migliore, prezzo, distanza e risparmio), poi la mappa, sempre in verticale (larga 2, alta 3) a qualunque larghezza dello schermo;
+    del distributore migliore, prezzo, distanza e risparmio), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
 - **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio

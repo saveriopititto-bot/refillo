@@ -117,8 +117,10 @@ section[data-testid="stSidebar"] > [data-testid="stSidebarContent"] {{ backgroun
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 13px; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDeckGlJsonChart"], [class*="st-key-card"] [data-testid="stDataFrame"] {{
   border-radius: var(--radius-md); overflow: hidden; }}
-/* mappa sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello schermo */
-[data-testid="stDeckGlJsonChart"] {{ height: auto !important; aspect-ratio: 2 / 3; }}
+/* mappa sempre in verticale, larga 2 e alta 3, a qualunque larghezza dello schermo; da computer al massimo
+   500 px di larghezza, centrata */
+[data-testid="stDeckGlJsonChart"] {{ height: auto !important; aspect-ratio: 2 / 3; width: 100% !important;
+  max-width: 500px; margin: 0 auto; }}
 [data-testid="stElementContainer"]:has([data-testid="stDeckGlJsonChart"]),
 [data-testid="stFullScreenFrame"]:has(> [data-testid="stDeckGlJsonChart"]) {{ flex: 0 0 auto !important;
   height: auto !important; }}
