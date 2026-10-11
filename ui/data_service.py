@@ -94,6 +94,17 @@ def nota_score(motivo: str) -> str:
 _CACHE_MIMIT: dict[str, tuple[bytes, pd.Timestamp]] = {}
 
 
+def ultimo_rilascio_mimit(ora: pd.Timestamp) -> pd.Timestamp:
+    """Restituisce il punto di riferimento delle ore 09:00 più recente (oggi se ora >= 09:00, altrimenti ieri)."""
+    rilascio_oggi = ora.floor("D") + pd.Timedelta(hours=9)
+    return rilascio_oggi if ora >= rilascio_oggi else rilascio_oggi - pd.Timedelta(days=1)
+
+
+def is_fresco_mimit(ts: pd.Timestamp, ora: pd.Timestamp) -> bool:
+    """I dati MIMIT sono freschi se scaricati dopo l'ultimo rilascio delle 09:00."""
+    return ts >= ultimo_rilascio_mimit(ora)
+
+
 def get_mimit_dataset(
     c_progress: any = None,
     up_a: any = None,
@@ -123,12 +134,11 @@ def get_mimit_dataset(
         return (anag_b, src_a), (prezzi_b, src_p)
 
     ora = pd.Timestamp.now(tz="Europe/Rome")
-    ttl_sec = CACHE_ORE * 3600
 
     def cache_valida(name: str) -> bytes | None:
         if name in _CACHE_MIMIT:
             data, ts = _CACHE_MIMIT[name]
-            if (ora - ts).total_seconds() < ttl_sec:
+            if is_fresco_mimit(ts, ora):
                 return data
         return None
 
@@ -194,7 +204,7 @@ def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
     if name in _CACHE_MIMIT:
         data, ts = _CACHE_MIMIT[name]
         ora = pd.Timestamp.now(tz="Europe/Rome")
-        if (ora - ts).total_seconds() < CACHE_ORE * 3600:
+        if is_fresco_mimit(ts, ora):
             st.session_state["scaricato_alle"] = ts
             return data, "scaricato"
     try:

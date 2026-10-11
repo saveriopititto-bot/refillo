@@ -94,7 +94,7 @@ class ControlsView:
             style.section("Dati")
             st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE, key="up_anag")
             st.file_uploader("Prezzi alle 8 (CSV)", type="csv", help=PREZZI_FILE, key="up_prezzi")
-            st.caption(f"Prezzi MIMIT e Brent si scaricano da soli e si aggiornano ogni {CACHE_ORE} ore. "
+            st.caption("I prezzi MIMIT si aggiornano ogni mattina alle 09:00. "
                        "I CSV caricati qui hanno la precedenza.")
             if st.button("Riscarica ora", width="stretch", help="Scarica di nuovo prezzi MIMIT e Brent."):
                 clear_all_caches()

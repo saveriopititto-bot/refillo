@@ -82,3 +82,22 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     assert len(progress_updates) > 0
     assert any("0%" in p for p in progress_updates)
     assert any("100%" in p for p in progress_updates)
+
+
+def test_script_aggiorna_mimit(monkeypatch, tmp_path):
+    import scripts.aggiorna_mimit as am
+    from tests.test_fuel_model import ANAG, PREZZI
+
+    fake_anag = ANAG.encode()
+    fake_prezzi = PREZZI.encode()
+
+    monkeypatch.setattr(am.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: (
+        fake_anag if "anagrafica" in name else fake_prezzi
+    ))
+
+    dest = tmp_path / "test_data"
+    ret = am.main(["--dest", str(dest)])
+
+    assert ret == 0
+    assert (dest / am.fm.ANAG_FILE).read_bytes() == fake_anag
+    assert (dest / am.fm.PREZZI_FILE).read_bytes() == fake_prezzi

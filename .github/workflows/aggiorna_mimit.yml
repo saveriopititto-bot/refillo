@@ -1,0 +1,39 @@
+name: Aggiorna Dati MIMIT
+
+# Ogni mattina scarica i dati MIMIT (anagrafica e prezzi alle 8) e li salva nella cartella data/
+# così l'app Streamlit li trova direttamente in locale senza dover scaricare nulla all'accesso.
+on:
+  schedule:
+    - cron: "05 7 * * *"  # 07:05 UTC (8:05 solare / 9:05 legale in Italia, dopo le 8:00 MIMIT)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mimit-data
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installa le dipendenze
+        run: pip install -r requirements.txt
+      - name: Scarica i dati MIMIT
+        run: python scripts/aggiorna_mimit.py --dest data
+      - name: Salva i file aggiornati
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/anagrafica_impianti_attivi.csv data/prezzo_alle_8.csv
+          if git diff --cached --quiet; then
+            echo "Nessuna variazione nei dati MIMIT."
+          else
+            git commit -m "Dati MIMIT aggiornati: $(date -u +'%Y-%m-%d')"
+            git push
+          fi
