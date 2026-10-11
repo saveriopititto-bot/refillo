@@ -258,6 +258,14 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-table tbody tr:nth-child(odd) td {{ background: {N100}; }}
 .x-table tbody tr td:first-child {{ border-radius: 10px 0 0 10px; font-weight: 600; }}
 .x-table tbody tr td:last-child {{ border-radius: 0 10px 10px 0; }}
+/* «Top 5» da telefono: senza la colonna Comune (nel raggio è quasi sempre la stessa) e con il testo più piccolo,
+   così distanza e risparmio restano visibili */
+@media (max-width: 640px) {{
+  .st-key-comandi .x-table {{ font-size: 12px; }}
+  .st-key-comandi .x-table th, .st-key-comandi .x-table td {{ padding: 6px 5px; }}
+  .st-key-comandi .x-table th {{ font-size: 9.5px; letter-spacing: .02em; }}
+  .st-key-comandi .x-table th:nth-child(2), .st-key-comandi .x-table td:nth-child(2) {{ display: none; }}
+}}
 .stApp .x-note {{ font-size: 12px; line-height: 1.45; color: {N700}; margin: 0; }}
 [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.45; color: {N700}; }}
 /* componente invisibile che chiede la posizione al browser: niente spazio vuoto */
