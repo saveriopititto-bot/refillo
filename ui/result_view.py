@@ -18,7 +18,6 @@ class ResultView:
     info: dict
     origin: tuple[float, float]
     raggio: int | float
-    litri: float | None
     ref_mode: str
     show_all_lines: bool
     fonte: str
@@ -32,10 +31,9 @@ class ResultView:
         prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
 
         style.metrics([
-            ("Prezzo di mercato", _it(f"{self.info['p_market']:.3f}") + " €/l",
+            ("Prezzo medio", _it(f"{self.info['p_market']:.3f}") + " €/l",
              f"{self.ref_mode} nel raggio"),
             ("Distributori", str(self.info["n"]), f"nel raggio di {self.raggio} km"),
-            ("Litri da fare", num(self.info["q"]) + " l", "pieno" if self.litri is None else "impostati a mano"),
             ("Costo al km", _it(f"{self.info['c_km']:.3f}") + " €/km", "carburante + usura"),
         ])
 

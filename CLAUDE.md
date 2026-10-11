@@ -32,7 +32,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
   `fm.get_osrm_route` e `streamlit_js_eval.get_geolocation`) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
-- Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "Archi"`; `st.cache_data` resta in
+- Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "Come funziona"`; `st.cache_data` resta in
   memoria tra un AppTest e l'altro nello stesso processo, quindi per casi diversi usa argomenti diversi.
 - Nell'ambiente di sviluppo cloud `www.mimit.gov.it` e Yahoo Finance sono bloccati dal proxy: il download
   reale va verificato sull'app online. Anche `router.project-osrm.org` (OSRM) è bloccato.
@@ -46,9 +46,14 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
   1.65; `requirements.txt` chiede `streamlit>=1.65`).
-- **Pagina**: niente titolo. In cima il riquadro «Consiglio», visibile in tutte le schede; sotto, le pillole
-  Risultato / Archi / Come funziona (`st.tabs(..., key="scheda", on_change="rerun")`): si disegna solo la
-  scheda aperta (`tab.open`). La scheda Petrolio (pagina di scorebrent) è stata tolta: non rimetterla.
+- **Pagina**: niente titolo. In cima il riquadro «Consiglio», visibile in tutte le schede; sotto, la riga dei
+  tre controlli (Aggiorna posizione, carburante, Opzioni avanzate), in linea anche da telefono (in Streamlit 1.65
+  le colonne sono `stColumn` e il menu a tendina è un `input` dentro `stSelectbox`); poi un unico riquadro
+  `style.card("schede")` con le pillole Risultato / Come funziona (`st.tabs(..., key="scheda", on_change="rerun")`)
+  e tutto il loro contenuto: si disegna solo la scheda aperta (`tab.open`). La tabella degli archi sta in fondo a
+  «Come funziona» (la scheda Archi è stata tolta). Indicatori del Risultato: prezzo medio, distributori, costo al km
+  (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
+  rimetterla.
 - **Mappa**: sempre in verticale, proporzione 2:3 (`aspect-ratio` in `style.py`), al massimo 500 px di
   larghezza da computer, centrata; da telefono a tutta larghezza.
 - **Dati**: prezzi e anagrafica MIMIT da `ui/data_service.get_mimit_dataset`, con precedenza: CSV caricati a

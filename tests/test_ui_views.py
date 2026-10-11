@@ -47,7 +47,6 @@ def test_result_view_empty_no_error(monkeypatch):
         info={},
         origin=(43.0, 12.0),
         raggio=20,
-        litri=None,
         ref_mode="mediana",
         show_all_lines=False,
         fonte="test",
