@@ -49,10 +49,10 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 | Nell'app | Nella formula |
 |---|---|
-| Risparmio netto (tabella Archi) / Risparmio migliore | S_i / S_max |
+| Risparmio netto (tabella degli archi) / Risparmio migliore | S_i / S_max |
 | Risparmio (frase, mappa, 5 migliori) | S_i senza il termine Brent: q·(P_market − P_i) − D_i·C_km |
 | Litri da fare | q |
-| Prezzo tipico della zona | P_market |
+| Prezzo medio (indicatore) / Prezzo tipico della zona (opzione) | P_market |
 | Km in più | D_i |
 | Costo al km | C_km |
 | Soglia di convenienza | θ |
@@ -103,21 +103,23 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto il riquadro, le pillole delle tre schede. L'app disegna solo quella aperta: la mappa e la tabella degli
-archi partono quando si apre la loro scheda, così l'avvio è più leggero.
+Sotto, la riga dei controlli: «Aggiorna posizione», carburante e «Opzioni avanzate», sempre in linea anche da
+telefono (le opzioni avanzate, quando si aprono, vanno a capo e prendono tutta la riga). Poi un unico riquadro
+con le pillole delle due schede e il loro contenuto. L'app disegna solo la scheda aperta: la mappa e la tabella
+degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Risultato**:
-  - quattro indicatori compatti su una riga (prezzo di mercato, distributori nel raggio, litri da fare, costo
-    al km), che restano su una riga anche da telefono;
+  - tre indicatori compatti su una riga (prezzo medio, distributori nel raggio, costo al km), che restano su
+    una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
     Brent), poi la mappa, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa
     insegna.
-- **Archi**: la tabella completa ed export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
+- **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
+  la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
-- **Come funziona**: la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»).
 
 ## Il modello
 

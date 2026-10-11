@@ -36,7 +36,9 @@ HeroView(c_hero, edges, info, bs, bs_err, controls.note_dati).render()
 # --------------------------------------------------------------------------
 # Schede di dettaglio
 # --------------------------------------------------------------------------
-tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"], key="scheda", on_change="rerun")
+# Schede dentro un unico riquadro; la tabella degli archi sta in «Come funziona»
+with style.card("schede"):
+    tab_res, tab_how = st.tabs(["Risultato", "Come funziona"], key="scheda", on_change="rerun")
 
 if tab_res.open:
     with tab_res:
@@ -45,19 +47,15 @@ if tab_res.open:
             info=info,
             origin=controls.origin,
             raggio=controls.raggio,
-            litri=controls.litri,
             ref_mode=controls.ref_mode,
             show_all_lines=controls.show_all_lines,
             fonte=controls.fonte,
         ).render()
 
-if tab_arc.open:
-    with tab_arc:
-        EdgesView(edges=edges, origin=controls.origin).render()
-
 if tab_how.open:
     with tab_how:
         HowView(fonte=controls.fonte).render()
+        EdgesView(edges=edges, origin=controls.origin).render()
 
 # --------------------------------------------------------------------------
 # Colofon
