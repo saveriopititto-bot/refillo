@@ -148,8 +148,9 @@ ordine:
 
 1. i file caricati a mano da «Opzioni avanzate» → «Dati»;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
-3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se la data di estrazione
-   è quella dell'ultimo aggiornamento delle 9:00;
+3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
+   aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione
+   del» 10);
 4. altrimenti il download dal sito del MIMIT.
 
 I file scaricati (dal branch `dati` o dal MIMIT) restano in memoria fino al prossimo aggiornamento delle 9:00.

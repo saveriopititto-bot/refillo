@@ -101,9 +101,14 @@ def is_fresco_mimit(ts: pd.Timestamp, ora: pd.Timestamp) -> bool:
 
 
 def dati_freschi(data: bytes, ora: pd.Timestamp) -> bool:
-    """La copia del branch `dati` vale se la data di estrazione scritta nella prima riga è quella dell'ultimo rilascio."""
+    """La copia del branch `dati` vale se è quella dell'ultimo rilascio delle 9:00.
+
+    Il MIMIT data i file con il giorno prima («Estrazione del 10» nei file pubblicati l'11 mattina),
+    come in build_candidates: la copia vale se estrazione + 1 giorno è il giorno dell'ultimo rilascio."""
     estrazione = fm._extraction_date(data[:200].decode("utf-8-sig", errors="replace").split("\n", 1)[0])
-    return estrazione is not None and estrazione >= ultimo_rilascio_mimit(ora).tz_localize(None).normalize()
+    if estrazione is None:
+        return False
+    return estrazione + pd.Timedelta(days=1) >= ultimo_rilascio_mimit(ora).tz_localize(None).normalize()
 
 
 def get_mimit_dataset(
