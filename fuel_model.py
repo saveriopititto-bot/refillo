@@ -269,6 +269,11 @@ def fetch_brent_score(url: str, chiave: str, timeout: float = 15) -> dict:
 # --------------------------------------------------------------------------
 # Modello
 # --------------------------------------------------------------------------
+# Filtro non mostrato nell'interfaccia: si scartano i distributori che costano più di 10 centesimi meno del prezzo
+# di mercato della zona (prezzi così bassi sono quasi sempre errori di comunicazione o offerte non reali).
+SCONTO_MAX = 0.10  # €/l
+
+
 class ModelParams:
     def __init__(self,
                  v_tot: float = 50.0,
@@ -283,7 +288,8 @@ class ModelParams:
                  use_osrm: bool = True,
                  ref_mode: str = "mediana",
                  theta: float = 0.0,
-                 livello_min: float = 0.10):
+                 livello_min: float = 0.10,
+                 sconto_max: float | None = SCONTO_MAX):
         self.v_tot = v_tot
         self.livello = livello
         self.litri = litri
@@ -297,6 +303,7 @@ class ModelParams:
         self.ref_mode = ref_mode
         self.theta = theta
         self.livello_min = livello_min
+        self.sconto_max = sconto_max
 
     @property
     def litri_effettivi(self) -> float:
@@ -397,6 +404,9 @@ def compute_edges(
         return df, summary
 
     p_market = float(df.prezzo.median() if p.ref_mode == "mediana" else df.prezzo.mean())
+    if p.sconto_max is not None:  # il prezzo di mercato resta quello calcolato su tutti i distributori nel raggio
+        df = df[df.prezzo >= p_market - p.sconto_max - 1e-9].copy()  # esattamente 10 centesimi sotto: resta
+        summary["n"] = len(df)
     c_km = p.consumo_l100 / 100 * p_market + p.usura_eur_km
     q = p.litri_effettivi
 

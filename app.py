@@ -337,36 +337,40 @@ data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data 
 fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
          f"{fuel} {'self' if self_service else 'servito'} valido in tutta Italia").replace(",", ".")
 
-# Si calcola e si disegna solo la scheda aperta: la mappa e la tabella degli archi non partono finché non servono.
+edges, info = fm.compute_edges(cands, origin, params)
+# score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per il riquadro «Consiglio»
+bs, bs_err = leggi_brent_score()
+
+# --------------------------------------------------------------------------
+# Consiglio: in cima, sopra le schede, visibile in tutte
+# --------------------------------------------------------------------------
+if edges.empty:
+    style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
+                     "Aumenta il raggio o l'età massima del prezzo.")
+    style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
+elif bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
+    titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
+    style.hero("Consiglio", titolo, frase, "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
+else:
+    corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
+    if not info["consiglio"]:
+        corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
+    style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
+               "", corpo, meta_html=note_dati + [nota_score(bs_err)])
+
+# Si disegna solo la scheda aperta: la mappa e la tabella degli archi non partono finché non servono.
 tab_res, tab_arc, tab_how = st.tabs(["Risultato", "Archi", "Come funziona"], key="scheda", on_change="rerun")
-if tab_res.open or tab_arc.open:
-    edges, info = fm.compute_edges(cands, origin, params)
 
 # --------------------------------------------------------------------------
 # Risultato
 # --------------------------------------------------------------------------
-# score del petrolio dall'app «Prezzo del petrolio» (tabella brent_score in Supabase), per il riquadro «Consiglio»
-bs, bs_err = leggi_brent_score() if tab_res.open else (None, "")
-
 if tab_res.open:
     with tab_res:
         if edges.empty:
-            style.error_card("Nessun distributore nel raggio scelto con un prezzo valido. "
-                             "Aumenta il raggio o l'età massima del prezzo.")
-            style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
+            style.error_card("Nessun distributore da mostrare: nessun distributore nel raggio scelto.")
         else:
             best = info["best"]
             prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
-            if bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
-                titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
-                style.hero("Consiglio", titolo, frase, "",
-                           aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
-            else:
-                corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
-                if not info["consiglio"]:
-                    corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
-                style.hero("Consiglio", "Rifornisci" if info["consiglio"] else "Non conviene",
-                           "", corpo, meta_html=note_dati + [nota_score(bs_err)])
             style.metrics([
                 ("Prezzo di mercato", _it(f"{info['p_market']:.3f}") + " €/l",
                  f"{ref_mode} nel raggio"),
