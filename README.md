@@ -116,7 +116,7 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
     una riga anche da telefono;
   - il riquadro «Dove conviene andare»: subito sotto il titolo il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
-    Brent), poi la mappa Leaflet, sempre in verticale (larga 2, alta 3) e al massimo larga 500 px, centrata:
+    Brent), poi la mappa Leaflet, sempre in verticale (larga 2, alta 3) e al massimo larga 400 px (400 × 600), centrata:
     sfondo OpenStreetMap schiarito, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di
     blu scuro) e, toccando un distributore, il riquadro con i dati e «Portami qui»;
   - i 5 distributori migliori, con il nome dell'impianto per distinguere quelli della stessa

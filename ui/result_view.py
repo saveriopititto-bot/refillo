@@ -47,8 +47,6 @@ class ResultView:
                 f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
                 f"considerando il costo del viaggio."
             )
-            st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
-                       "il percorso con il navigatore.")
             mappa = build_fuel_map(
                 self.origin, self.edges,
                 best_route=self.info.get("best_route"),
@@ -57,6 +55,8 @@ class ResultView:
             with st.container(key="mappa"):
                 components.html(map_html(mappa), height=600)
             st.caption(self.fonte)
+            st.caption("Più un distributore è verde, più conviene. Tocca un distributore per i dettagli e "
+                       "il percorso con il navigatore.")
 
         with style.card("top"):
             style.title("I 5 migliori")
