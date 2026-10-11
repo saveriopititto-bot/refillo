@@ -128,7 +128,8 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
     una riga anche da telefono;
   - il riquadro della mappa, senza titolo: in cima il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
-    Brent), poi la mappa Leaflet, sempre in verticale (larga 2, alta 3) e al massimo larga 400 px (400 × 600), centrata:
+    Brent), poi la mappa Leaflet, quadrata e al massimo larga 400 px (400 × 400), centrata, inquadrata sul percorso
+    dalla tua posizione al distributore migliore (gli altri restano visibili allontanando la mappa):
     sfondo OpenStreetMap schiarito, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di
     blu scuro) e, toccando un distributore, il riquadro con i dati e «Portami qui».
 - **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto

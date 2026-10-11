@@ -160,5 +160,8 @@ def test_mappa_leaflet():
     assert "IP &lt;Due&gt;" in html and "IP <Due>" not in html  # nomi dal CSV MIMIT sempre escapati
     assert "L.polyline(" in html and "fitBounds" in html
     assert "tile.openstreetmap.org" in html and "cartocdn" not in html  # CARTO ora chiede una chiave
+    # inquadratura sul percorso verso il migliore, non su tutti i distributori (il secondo è a 41,91 / 12,51)
+    limiti = re.search(r"fitBounds\(\s*(\[\[.*?\]\])", html, re.S).group(1)
+    assert "41.91" not in limiti and "12.51" not in limiti and '"maxZoom": 16' in html
     script = re.findall(r'<script src="([^"]+)"', html)
     assert len(script) == 2 and any("leaflet@" in s for s in script) and any("jquery" in s for s in script)
