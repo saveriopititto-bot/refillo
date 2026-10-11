@@ -34,10 +34,12 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 
 ## Come si usa
 
-La scheda dei controlli si trova subito sotto il riquadro «Consiglio» ed è divisa in due sezioni:
-
-1. **Dove sei**: «La mia posizione» (predefinita) o «Comune».
-2. **Carburante**: scelta del prodotto (Benzina, Gasolio, GPL, Metano).
+- **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
+  cerchio dello score.
+- **Dove sei**: la posizione arriva dal browser; «Aggiorna posizione» la rileva di nuovo. In alternativa si sceglie
+  un comune in «Opzioni avanzate».
+- La riga in cima al riquadro delle schede, in linea anche da telefono: «Aggiorna posizione», le pillole
+  Risultato / Come funziona e «Opzioni avanzate» (che, quando si aprono, vanno a capo e prendono tutta la riga).
 
 In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
@@ -82,8 +84,8 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 ### Schede
 
 In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in tutte le schede: blu petrolio in tutti
-i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato, grande
-quanto il riquadro (più piccolo da telefono):
+i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato (più piccolo
+da telefono) e, sotto il cerchio, il menu del carburante:
 
 | Score | Consiglio | Cerchio |
 |---|---|---|
@@ -103,9 +105,8 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, la riga dei controlli: «Aggiorna posizione», carburante e «Opzioni avanzate», sempre in linea anche da
-telefono (le opzioni avanzate, quando si aprono, vanno a capo e prendono tutta la riga). Poi un unico riquadro
-con le pillole delle due schede e il loro contenuto. L'app disegna solo la scheda aperta: la mappa e la tabella
+Sotto, un unico riquadro: in cima la riga «Aggiorna posizione» · Risultato / Come funziona · «Opzioni avanzate»,
+sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
 degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Risultato**:

@@ -31,17 +31,15 @@ bs, bs_err = leggi_brent_score()
 # --------------------------------------------------------------------------
 # Consiglio in evidenza (in cima)
 # --------------------------------------------------------------------------
-HeroView(c_hero, edges, info, bs, bs_err, controls.note_dati).render()
+HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, controls.note_dati).render()
 
 # --------------------------------------------------------------------------
 # Schede di dettaglio
 # --------------------------------------------------------------------------
-# Schede dentro un unico riquadro; la tabella degli archi sta in «Come funziona»
-with style.card("schede"):
-    tab_res, tab_how = st.tabs(["Risultato", "Come funziona"], key="scheda", on_change="rerun")
-
-if tab_res.open:
-    with tab_res:
+# La riga con le pillole (radio «scheda») sta in ControlsView; si disegna solo la scheda scelta.
+# La tabella degli archi sta in «Come funziona».
+if st.session_state.get("scheda", "Risultato") == "Risultato":
+    with controls.contenuto:
         ResultView(
             edges=edges,
             info=info,
@@ -52,8 +50,8 @@ if tab_res.open:
             fonte=controls.fonte,
         ).render()
 
-if tab_how.open:
-    with tab_how:
+else:
+    with controls.contenuto:
         HowView(fonte=controls.fonte).render()
         EdgesView(edges=edges, origin=controls.origin).render()
 
