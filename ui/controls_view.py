@@ -60,11 +60,11 @@ class ControlsView:
             render_error(c_hero, "Non sono riuscito a scaricare i dati dal sito del MIMIT"
                          + (f":<br><code>{errori}</code><br>" if errori else ". ")
                          + f"Riprova più tardi, oppure carica i due CSV (<code>{ANAG_FILE}</code> e <code>{PREZZI_FILE}</code>) "
-                           "da «Opzioni avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
+                           "da «Avanzate» qui sotto, o mettili nella cartella <code>data/</code> accanto ad "
                            "<code>app.py</code>.")
             c_controls = style.card("controls")
             with c_controls:
-                adv = st.expander("Opzioni avanzate", expanded=True)
+                adv = st.expander("Avanzate", expanded=True)
                 with adv:
                     style.section("Dati")
                     st.file_uploader("Anagrafica impianti (CSV)", type="csv", help=ANAG_FILE, key="up_anag")
@@ -94,7 +94,7 @@ class ControlsView:
             hero_cerchio = st.container()
             fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
-        # riquadro delle schede: Aggiorna posizione · Risultato / Come funziona · Opzioni avanzate, poi il contenuto
+        # riquadro delle schede: Aggiorna posizione · Risultato / Come funziona · Avanzate, poi il contenuto
         with style.card("schede"):
             with st.container(key="comandi"):
                 col_pos, col_tabs, col_adv = st.columns([1, 1.5, 1], gap="small", vertical_alignment="top")
@@ -109,7 +109,7 @@ class ControlsView:
             st.radio("Scheda", SCHEDE, horizontal=True, label_visibility="collapsed", key="scheda")
 
         with col_adv:
-            adv = st.expander("Opzioni avanzate")
+            adv = st.expander("Avanzate")
             adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
         with adv_data:
@@ -150,7 +150,7 @@ class ControlsView:
         if comune_override:
             sel = anag[anag.comune == comune_override]
             origin = (float(sel.lat.median()), float(sel.lon.median()))
-            nota = f"Posizione impostata su {comune_override} (da Opzioni avanzate)"
+            nota = f"Posizione impostata su {comune_override} (da Avanzate)"
 
         if origin is None:
             render_waiting(hero_testo, nota)

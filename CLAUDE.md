@@ -49,7 +49,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi` (Aggiorna posizione · pillole Risultato / Come
-  funziona · Opzioni avanzate), in linea anche da telefono, poi il contenuto della scheda scelta. Le pillole sono un
+  funziona · Avanzate), in linea anche da telefono, poi il contenuto della scheda scelta. Le pillole sono un
   `st.radio(key="scheda")` disegnato a pillole (`st.tabs` non accetta altri elementi nella sua barra): si disegna
   solo la scheda scelta. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
   `stSelectbox`. La tabella degli archi sta in fondo a

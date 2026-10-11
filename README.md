@@ -37,11 +37,11 @@ Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
 - **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
   cerchio dello score.
 - **Dove sei**: la posizione arriva dal browser; «Aggiorna posizione» la rileva di nuovo. In alternativa si sceglie
-  un comune in «Opzioni avanzate».
+  un comune in «Avanzate».
 - La riga in cima al riquadro delle schede, in linea anche da telefono: «Aggiorna posizione», le pillole
-  Risultato / Come funziona e «Opzioni avanzate» (che, quando si aprono, vanno a capo e prendono tutta la riga).
+  Risultato / Come funziona e «Avanzate» (che, quando si apre, va a capo e prende tutta la riga).
 
-In «Opzioni avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
+In «Avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
 del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,
 in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che aggiorna prezzi e Brent.
@@ -105,7 +105,7 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, un unico riquadro: in cima la riga «Aggiorna posizione» · Risultato / Come funziona · «Opzioni avanzate»,
+Sotto, un unico riquadro: in cima la riga «Aggiorna posizione» · Risultato / Come funziona · «Avanzate»,
 sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
 degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
@@ -149,7 +149,7 @@ negativi.
 L'app usa gli open data MIMIT `anagrafica_impianti_attivi.csv` e `prezzo_alle_8.csv`. Li prende da, in
 ordine:
 
-1. i file caricati a mano da «Opzioni avanzate» → «Dati»;
+1. i file caricati a mano da «Avanzate» → «Dati»;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
 3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
    aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione
