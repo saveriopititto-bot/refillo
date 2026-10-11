@@ -1,3 +1,5 @@
+import gzip
+
 import pandas as pd
 from ui.data_service import nota_score, perche_petrolio
 from ui.edges_view import EdgesView
@@ -71,6 +73,9 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     monkeypatch.setattr(ds.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: (
         fake_anag if "anagrafica" in name else fake_prezzi
     ))
+    monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: (
+        b"Estrazione del 2000-01-01\n" + (fake_anag if "anagrafica" in name else fake_prezzi)  # vecchia: scartata
+    ))
 
     c_progress = MockProgress()
     (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset(c_progress=c_progress)
@@ -99,5 +104,34 @@ def test_script_aggiorna_mimit(monkeypatch, tmp_path):
     ret = am.main(["--dest", str(dest)])
 
     assert ret == 0
-    assert (dest / am.fm.ANAG_FILE).read_bytes() == fake_anag
-    assert (dest / am.fm.PREZZI_FILE).read_bytes() == fake_prezzi
+    assert gzip.decompress((dest / f"{am.fm.ANAG_FILE}.gz").read_bytes()) == fake_anag
+    assert gzip.decompress((dest / f"{am.fm.PREZZI_FILE}.gz").read_bytes()) == fake_prezzi
+
+
+def test_get_mimit_dataset_usa_copia_dati_di_oggi(monkeypatch):
+    import ui.data_service as ds
+
+    ds.clear_all_caches()
+    oggi = pd.Timestamp.now(tz="Europe/Rome")
+    giorno = ds.ultimo_rilascio_mimit(oggi)
+    copia = f"Estrazione del {giorno:%Y-%m-%d}\nid|x\n".encode()
+
+    def mimit_non_serve(*a, **k):
+        raise AssertionError("con la copia di oggi non si scarica dal MIMIT")
+
+    monkeypatch.setattr(ds.fm, "download_csv", mimit_non_serve)
+    monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: copia)
+    (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset()
+    assert anag_b == copia and prezzi_b == copia and src_a == src_p == "scaricato"
+    ds.clear_all_caches()
+
+
+def test_dati_freschi():
+    from ui.data_service import dati_freschi
+
+    alle_10 = pd.Timestamp("2026-10-11 10:00", tz="Europe/Rome")
+    alle_8 = pd.Timestamp("2026-10-11 08:00", tz="Europe/Rome")
+    assert dati_freschi(b"Estrazione del 2026-10-11\nid|x", alle_10)
+    assert not dati_freschi(b"Estrazione del 2026-10-10\nid|x", alle_10)
+    assert dati_freschi(b"Estrazione del 2026-10-10\nid|x", alle_8)  # prima delle 9 vale quella di ieri
+    assert not dati_freschi(b"senza data\nid|x", alle_10)

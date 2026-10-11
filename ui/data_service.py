@@ -44,11 +44,6 @@ def load_data(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[pd.DataFrame, pd.
     return anag, prezzi, extraction
 
 
-@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico i dati aggiornati dal MIMIT…")
-def download(name: str) -> tuple[bytes, pd.Timestamp]:
-    return fm.download_csv(name), pd.Timestamp.now(tz="Europe/Rome")
-
-
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico il Brent da Yahoo Finance…")
 def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
     """Brent ed EUR/USD da Yahoo Finance; in caso di errore (None, motivo), così anche il fallimento resta in cache."""
@@ -103,6 +98,12 @@ def ultimo_rilascio_mimit(ora: pd.Timestamp) -> pd.Timestamp:
 def is_fresco_mimit(ts: pd.Timestamp, ora: pd.Timestamp) -> bool:
     """I dati MIMIT sono freschi se scaricati dopo l'ultimo rilascio delle 09:00."""
     return ts >= ultimo_rilascio_mimit(ora)
+
+
+def dati_freschi(data: bytes, ora: pd.Timestamp) -> bool:
+    """La copia del branch `dati` vale se la data di estrazione scritta nella prima riga è quella dell'ultimo rilascio."""
+    estrazione = fm._extraction_date(data[:200].decode("utf-8-sig", errors="replace").split("\n", 1)[0])
+    return estrazione is not None and estrazione >= ultimo_rilascio_mimit(ora).tz_localize(None).normalize()
 
 
 def get_mimit_dataset(
@@ -161,26 +162,29 @@ def get_mimit_dataset(
 
         update_progress(0, "Connessione ai server del MIMIT…")
 
-        if cached_a is None:
-            def on_anag(read: int, total: int):
-                p = int((read / max(1, total)) * 50) if total else 25
-                update_progress(p, "Scaricamento anagrafica impianti…")
+        def scarica(name: str, da: int, etichetta: str) -> bytes:
+            """Copia del branch `dati` se è di oggi, altrimenti il sito MIMIT; avanza il cerchio da `da` a `da` + 50."""
+            def on_progress(read: int, total: int):
+                update_progress(da + (min(50, int(read / total * 50)) if total else 25), etichetta)
 
-            anag_bytes = fm.download_csv(ANAG_FILE, on_progress=on_anag)
-            _CACHE_MIMIT[ANAG_FILE] = (anag_bytes, ora)
-            cached_a = anag_bytes
+            try:
+                data = fm.download_dati(name, on_progress=on_progress)
+                if dati_freschi(data, ora):
+                    return data
+            except Exception:
+                pass  # copia non raggiungibile: si scarica dal MIMIT
+            return fm.download_csv(name, on_progress=on_progress)
+
+        if cached_a is None:
+            cached_a = scarica(ANAG_FILE, 0, "Scaricamento anagrafica impianti…")
+            _CACHE_MIMIT[ANAG_FILE] = (cached_a, ora)
             update_progress(50, "Anagrafica completata!")
         else:
             update_progress(50, "Anagrafica già disponibile…")
 
         if cached_p is None:
-            def on_prezzi(read: int, total: int):
-                p = 50 + (int((read / max(1, total)) * 50) if total else 25)
-                update_progress(p, "Scaricamento prezzi dal MIMIT…")
-
-            prezzi_bytes = fm.download_csv(PREZZI_FILE, on_progress=on_prezzi)
-            _CACHE_MIMIT[PREZZI_FILE] = (prezzi_bytes, ora)
-            cached_p = prezzi_bytes
+            cached_p = scarica(PREZZI_FILE, 50, "Scaricamento prezzi dal MIMIT…")
+            _CACHE_MIMIT[PREZZI_FILE] = (cached_p, ora)
             update_progress(100, "Dati MIMIT completati con successo!")
         else:
             update_progress(100, "Dati MIMIT completati!")
@@ -194,33 +198,9 @@ def get_mimit_dataset(
         return (None, ""), (None, "")
 
 
-def get_bytes(uploaded, name: str) -> tuple[bytes | None, str]:
-    """Contenuto del CSV e da dove arriva: caricato a mano, cartella data/ o download dal MIMIT."""
-    if uploaded is not None:
-        return uploaded.getvalue(), "caricato"
-    p = default_path(name)
-    if p:
-        return p.read_bytes(), "locale"
-    if name in _CACHE_MIMIT:
-        data, ts = _CACHE_MIMIT[name]
-        ora = pd.Timestamp.now(tz="Europe/Rome")
-        if is_fresco_mimit(ts, ora):
-            st.session_state["scaricato_alle"] = ts
-            return data, "scaricato"
-    try:
-        data, quando = download(name)
-        _CACHE_MIMIT[name] = (data, quando)
-    except Exception as e:
-        st.session_state.setdefault("download_err", []).append(f"{name}: {e}")
-        return None, ""
-    st.session_state["scaricato_alle"] = quando
-    return data, "scaricato"
-
-
 def clear_all_caches() -> None:
     """Pulisce le cache Streamlit per riscaricare i dati."""
     _CACHE_MIMIT.clear()
-    download.clear()
     brent_yahoo.clear()
     brent_score.clear()
 

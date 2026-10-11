@@ -4,3 +4,4 @@ numpy
 pydeck
 yfinance
 streamlit-js-eval
+requests

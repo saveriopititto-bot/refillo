@@ -13,10 +13,8 @@ import style
 from ui.data_service import (
     ANAG_FILE,
     BRENT_GIORNI,
-    CACHE_ORE,
     PREZZI_FILE,
     clear_all_caches,
-    get_bytes,
     get_mimit_dataset,
     load_data,
     brent_yahoo,

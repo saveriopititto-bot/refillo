@@ -29,7 +29,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - La CI (GitHub Actions) gira su Python **3.10** e 3.12. Niente sintassi solo 3.12+, come le f-string con
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
 - I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
-  (simulando `fm.download_csv`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
+  (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
   `fm.get_osrm_route` e `streamlit_js_eval.get_geolocation`) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
 - Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "Archi"`; `st.cache_data` resta in
@@ -41,7 +41,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 
 - **Interfaccia in italiano semplice**: niente simboli matematici né formule (la formula è solo nel
   README, sezione «Il modello», con la tabella nomi dell'app ↔ simboli). Numeri in formato italiano
-  (`_it`, `eur`, `num` in `app.py`); percentuali per livelli e pesi.
+  (`_it`, `eur`, `num` in `ui/formatters.py`); percentuali per livelli e pesi.
 - **Stile**: `style.py` + `.streamlit/config.toml`, lo stesso di test4 (palette `#8ecae6` `#219ebc`
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
@@ -51,9 +51,12 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   scheda aperta (`tab.open`). La scheda Petrolio (pagina di scorebrent) è stata tolta: non rimetterla.
 - **Mappa**: sempre in verticale, proporzione 2:3 (`aspect-ratio` in `style.py`), al massimo 500 px di
   larghezza da computer, centrata; da telefono a tutta larghezza.
-- **Dati**: prezzi e anagrafica MIMIT scaricati da `fuel_model.download_csv` (cache 3 ore), Brent da Yahoo
-  Finance (`fetch_brent_yf`, cache 3 ore). Precedenza: CSV caricati a mano → cartella `data/` → download.
-  I CSV in `data/` non si versionano. `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`).
+- **Dati**: prezzi e anagrafica MIMIT da `ui/data_service.get_mimit_dataset`, con precedenza: CSV caricati a
+  mano → cartella `data/` → copia nel branch `dati` (`fm.download_dati`, `mimit/*.csv.gz`, solo se la data di
+  estrazione è quella dell'ultimo aggiornamento delle 9:00) → sito MIMIT (`fm.download_csv`); i file scaricati
+  restano in memoria fino alle 9:00 successive. La copia la salva ogni mattina `.github/workflows/aggiorna_mimit.yml`
+  (`scripts/aggiorna_mimit.py`) nel branch `dati`: i CSV MIMIT non vanno mai su `main` e non si versionano.
+  Brent da Yahoo Finance (`fetch_brent_yf`, cache 3 ore). `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`).
   `parse_anagrafica` resta con il ciclo Python: la versione con `read_csv` è stata misurata ed è più lenta.
 - **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
   OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
@@ -69,7 +72,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `SUPABASE_ANON_KEY` nei Secrets di Streamlit, mai la `service_role`. Lo score decide il riquadro
   «Consiglio» (Conviene / Rifornisci / Aspetta, con il cerchio), ma non entra nel calcolo del risparmio né nella
   classifica; senza score il riquadro torna al verdetto sul risparmio, con una riga che dice perché manca
-  (segreto mancante o Supabase non raggiungibile). Con lo score, `PERCHE_PETROLIO` in `app.py` spiega il
+  (segreto mancante o Supabase non raggiungibile). Con lo score, `PERCHE_PETROLIO` in `ui/data_service.py` spiega il
   consiglio con le frasi scelte dall'utente (non cambiarle senza chiedere). Nei test va simulato `fm.fetch_brent_score`.
 - **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
   `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
@@ -78,4 +81,5 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
-- La logica del modello sta in `fuel_model.py`; `app.py` è solo interfaccia.
+- La logica del modello sta in `core/`, `ingestion/` e `clients/` (riesportati da `fuel_model.py`, che i test e
+  l'app importano come `fm`); l'interfaccia sta in `app.py` (solo coordinamento) e nelle viste di `ui/`.

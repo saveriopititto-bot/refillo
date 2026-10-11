@@ -1,7 +1,8 @@
 name: Aggiorna Dati MIMIT
 
-# Ogni mattina scarica i dati MIMIT (anagrafica e prezzi alle 8) e li salva nella cartella data/
-# così l'app Streamlit li trova direttamente in locale senza dover scaricare nulla all'accesso.
+# Ogni mattina scarica i CSV MIMIT (anagrafica e prezzi alle 8) e li salva compressi nel branch `dati`
+# (mimit/*.csv.gz): l'app li scarica da lì, se sono di oggi, invece che dal sito del ministero.
+# Non scrive mai su main.
 on:
   schedule:
     - cron: "05 7 * * *"  # 07:05 UTC (8:05 solare / 9:05 legale in Italia, dopo le 8:00 MIMIT)
@@ -11,7 +12,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mimit-data
+  group: dati  # lo stesso di storico.yml: un solo workflow alla volta scrive nel branch dati
   cancel-in-progress: false
 
 jobs:
@@ -24,16 +25,27 @@ jobs:
           python-version: "3.12"
       - name: Installa le dipendenze
         run: pip install -r requirements.txt
-      - name: Scarica i dati MIMIT
-        run: python scripts/aggiorna_mimit.py --dest data
-      - name: Salva i file aggiornati
+      - name: Prepara il branch dati
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f data/anagrafica_impianti_attivi.csv data/prezzo_alle_8.csv
+          if git ls-remote --exit-code --heads origin dati > /dev/null; then
+            git fetch --depth 1 origin dati
+            git worktree add dati-wt FETCH_HEAD
+            git -C dati-wt switch -c dati
+          else
+            git worktree add --detach dati-wt
+            git -C dati-wt switch --orphan dati
+          fi
+      - name: Scarica i dati MIMIT
+        run: python scripts/aggiorna_mimit.py --dest dati-wt/mimit
+      - name: Salva nel branch dati
+        working-directory: dati-wt
+        run: |
+          git add mimit
           if git diff --cached --quiet; then
             echo "Nessuna variazione nei dati MIMIT."
           else
-            git commit -m "Dati MIMIT aggiornati: $(date -u +'%Y-%m-%d')"
-            git push
+            git commit -m "Dati MIMIT: $(date -u +%Y-%m-%d)"
+            git push origin dati
           fi

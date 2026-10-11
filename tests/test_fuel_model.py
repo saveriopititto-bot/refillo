@@ -123,9 +123,11 @@ def test_compute_edges_tutti_scartati_da_sconto_max():
 class _Risposta:
     def __init__(self, data: bytes):
         self.data = data
+        self.headers = {"Content-Length": str(len(data))}
 
-    def read(self):
-        return self.data
+    def read(self, n=-1):
+        letto, self.data = (self.data, b"") if n < 0 else (self.data[:n], self.data[n:])
+        return letto
 
     def __enter__(self):
         return self
@@ -145,6 +147,22 @@ def test_download_csv(monkeypatch):
     data = fm.download_csv(fm.ANAG_FILE)
     assert chiamate == ["https://www.mimit.gov.it/images/exportCSV/anagrafica_impianti_attivi.csv"]
     assert len(fm.parse_anagrafica(data)[0]) == 3
+
+
+def test_download_dati_decomprime(monkeypatch):
+    import gzip
+
+    chiamate, progressi = [], []
+
+    def finto_urlopen(req, timeout):
+        chiamate.append(req.full_url)
+        return _Risposta(gzip.compress(PREZZI.encode()))
+
+    monkeypatch.setattr("urllib.request.urlopen", finto_urlopen)
+    data = fm.download_dati(fm.PREZZI_FILE, on_progress=lambda letti, totale: progressi.append((letti, totale)))
+    assert chiamate == ["https://raw.githubusercontent.com/saveriopititto-bot/refillo/dati/mimit/prezzo_alle_8.csv.gz"]
+    assert data == PREZZI.encode()
+    assert progressi and progressi[-1][0] == progressi[-1][1]
 
 
 def test_download_csv_rifiuta_html(monkeypatch):
