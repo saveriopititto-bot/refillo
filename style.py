@@ -123,8 +123,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   color: {DEEP}; cursor: pointer; }}
 [data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
-/* riga dei comandi (Home, Posizione, Avanzate, Top 5, F.A.Q.): sempre orizzontale, cinque pillole della stessa
-   larghezza che riempiono tutta la riga, a qualunque larghezza dello schermo. Avanzate e Top 5 sono popover:
+/* riga dei comandi (Home, Posizione, Opzioni, Top 5, F.A.Q.): sempre orizzontale, cinque pillole della stessa
+   larghezza che riempiono tutta la riga, a qualunque larghezza dello schermo. Opzioni e Top 5 sono popover:
    si aprono sopra la pagina, la riga non va mai a capo */
 .st-key-comandi [data-testid="stHorizontalBlock"] {{
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;

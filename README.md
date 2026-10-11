@@ -35,7 +35,7 @@ Carburanti: Benzina e Gasolio (self o servito), GPL e Metano. GPL e Metano si ve
 (in self li hanno pochissimi distributori), quindi per loro la scelta self/servito non conta: si usa il prezzo
 che c'è e, se un distributore li ha entrambi, il più basso. Il Metano si paga a chilo: prezzi in €/kg, serbatoio in
 kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carburante (si possono modificare in
-«Avanzate»):
+«Opzioni»):
 
 | Carburante | Serbatoio | Consumo |
 |---|---|---|
@@ -48,14 +48,14 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 - **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
   cerchio dello score.
 - **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
-  un comune in «Avanzate».
+  un comune in «Opzioni».
 - La riga in cima al riquadro delle schede, sempre su una riga anche da telefono: «Home», «Posizione»,
-  «Avanzate», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
-  sfondo tenue e il testo normale. «Avanzate» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina
-  che si chiude toccando fuori; «Avanzate» resta aperto mentre si cambiano i valori. «Top 5» mostra i 5
+  «Opzioni», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
+  sfondo tenue e il testo normale. «Opzioni» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina
+  che si chiude toccando fuori; «Opzioni» resta aperto mentre si cambiano i valori. «Top 5» mostra i 5
   distributori che convengono di più (insegna, comune, prezzo, distanza, risparmio; da telefono senza il comune).
 
-In «Avanzate» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
+In «Opzioni» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
 del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,
 in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che aggiorna prezzi e Brent.
@@ -119,7 +119,7 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, un unico riquadro: in cima la riga Home · «Posizione» · «Avanzate» · «Top 5» · F.A.Q., tutta a sinistra e
+Sotto, un unico riquadro: in cima la riga Home · «Posizione» · «Opzioni» · «Top 5» · F.A.Q., tutta a sinistra e
 sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
 degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
 
@@ -163,7 +163,7 @@ negativi.
 L'app usa gli open data MIMIT `anagrafica_impianti_attivi.csv` e `prezzo_alle_8.csv`. Li prende da, in
 ordine:
 
-1. i file caricati a mano da «Avanzate» → «Dati»;
+1. i file caricati a mano da «Opzioni» → «Dati»;
 2. i file nella cartella `data/` (vedi `data/README.md`), utile offline o per analizzare un giorno preciso;
 3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
    aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione

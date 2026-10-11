@@ -28,7 +28,7 @@ L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparm
   distributori allo stesso modo, quindi cambia il verdetto ma non la classifica.
 
 Il risultato è un punteggio in euro: più è alto, più conviene. Il verdetto è **Rifornisci** se il distributore
-migliore fa risparmiare (oltre la soglia scelta in «Avanzate»), oppure se il serbatoio è quasi vuoto.
+migliore fa risparmiare (oltre la soglia scelta in «Opzioni»), oppure se il serbatoio è quasi vuoto.
 
 I prezzi e i distributori sono quelli ufficiali del MIMIT, aggiornati ogni giorno; il Brent arriva da Yahoo
 Finance. Le distanze sono quelle su strada calcolate dal servizio OSRM; se non risponde, sono stimate in linea

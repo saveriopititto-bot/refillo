@@ -49,8 +49,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, sempre su una riga anche da telefono: Home ·
-  Posizione · Avanzate · Top 5 · F.A.Q., cinque pillole della stessa larghezza (colonne `flex: 1 1 0`, pulsanti
-  `width="stretch"`) con lo sfondo tenue `N100` e testo senza grassetto. Avanzate e Top 5 sono `st.popover`
+  Posizione · Opzioni · Top 5 · F.A.Q., cinque pillole della stessa larghezza (colonne `flex: 1 1 0`, pulsanti
+  `width="stretch"`) con lo sfondo tenue `N100` e testo senza grassetto. Opzioni e Top 5 sono `st.popover`
   (restano aperti mentre si cambiano i valori; il corpo `stPopoverBody` sta fuori dalla riga, quindi le sue regole
   CSS non vanno sotto `.st-key-comandi`); il Top 5 si riempie in `app.py` con `render_top5`. Da telefono la freccia
   dei popover è nascosta; poi il contenuto della scheda scelta. Home e F.A.Q. sono
