@@ -116,6 +116,33 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   color: {DEEP}; cursor: pointer; }}
 [data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
+/* riga a tre controlli (Aggiorna posizione, Carburante, Opzioni avanzate) sempre orizzontale */
+[class*="st-key-card-controls"] [data-testid="stHorizontalBlock"] {{
+  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+  gap: 8px !important; align-items: flex-start !important;
+}}
+[class*="st-key-card-controls"] [data-testid="column"] {{
+  flex: 1 1 0 !important; min-width: 0 !important; width: 0 !important;
+}}
+[class*="st-key-card-controls"] .stButton button {{
+  width: 100% !important; padding: 6px 8px !important; min-height: 36px !important;
+}}
+[class*="st-key-card-controls"] .stButton button p {{
+  font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}}
+[class*="st-key-card-controls"] [data-baseweb="select"] > div {{
+  min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
+}}
+[class*="st-key-card-controls"] [data-baseweb="select"] * {{
+  font-size: 12.5px !important; font-weight: 700 !important; white-space: nowrap !important;
+}}
+[class*="st-key-card-controls"] [data-testid="stExpander"] summary {{
+  min-height: 36px !important; padding: 6px 8px !important;
+}}
+[class*="st-key-card-controls"] [data-testid="stExpander"] summary p {{
+  font-size: 12.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}}
+
 /* blocchi HTML: Streamlit dà margin-bottom -16px al contenitore markdown */
 [data-testid="stMarkdownContainer"]:has(> [class^="x-"]) {{ margin-bottom: 0; }}
 .x-sec {{ font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: {N700};
@@ -135,6 +162,14 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   white-space: nowrap; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
+  [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
+  [class*="st-key-card-controls"] [data-testid="stHorizontalBlock"] {{ gap: 4px !important; }}
+  [class*="st-key-card-controls"] .stButton button {{ min-height: 32px !important; padding: 4px 4px !important; }}
+  [class*="st-key-card-controls"] .stButton button p {{ font-size: 10.5px !important; }}
+  [class*="st-key-card-controls"] [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
+  [class*="st-key-card-controls"] [data-baseweb="select"] * {{ font-size: 10.5px !important; }}
+  [class*="st-key-card-controls"] [data-testid="stExpander"] summary {{ min-height: 32px !important; padding: 4px 4px !important; }}
+  [class*="st-key-card-controls"] [data-testid="stExpander"] summary p {{ font-size: 10.5px !important; }}
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}

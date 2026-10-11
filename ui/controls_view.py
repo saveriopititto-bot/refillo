@@ -86,7 +86,7 @@ class ControlsView:
 
         c_controls = style.card("controls")
         with c_controls:
-            col_pos, col_fuel, col_adv = st.columns(3, gap="medium", vertical_alignment="top")
+            col_pos, col_fuel, col_adv = st.columns(3, gap="small", vertical_alignment="top")
 
             with col_pos:
                 if st.button("Aggiorna posizione", width="stretch"):
