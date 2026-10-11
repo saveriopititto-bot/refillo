@@ -140,25 +140,17 @@ CONSIGLIO_PETROLIO = {
 }
 
 
+PERCHE_PETROLIO = {
+    1: "Il petrolio costa più del solito. Tra pochi giorni anche la benzina costerà di più. Fai benzina oggi.",
+    0: "Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.",
+    -1: "Il petrolio costa meno del solito. Tra pochi giorni anche la benzina costerà di meno. Se puoi, aspetta.",
+}
+
+
 def perche_petrolio(bs: dict) -> str:
-    """Il perché del consiglio (HTML sicuro): prezzo del petrolio di oggi rispetto alla media di 30 giorni."""
-    brent, media = bs["brent_eur"], bs["media_30_eur"]
-    scarto = _it(f"{abs(brent / media - 1):.1%}") if media else ""
-    oggi = (f"Il petrolio (Brent) costa {num(brent, 2)} € al barile; la media degli ultimi 30 giorni è "
-            f"{num(media, 2)} €.")
-    if bs["esito"] == 1:
-        perche = (f" Oggi è il {scarto} sopra la media, più di quanto si muove di solito. I prezzi alla pompa "
-                  "seguono il petrolio con qualche giorno di ritardo: quelli di oggi sono buoni ed è difficile che "
-                  "migliorino nei prossimi giorni, quindi conviene fare rifornimento adesso.")
-    elif bs["esito"] == -1:
-        perche = (f" Oggi è il {scarto} sotto la media, più di quanto si muove di solito: i prezzi stanno "
-                  "oscillando molto e quelli alla pompa tendono a scendere nei prossimi giorni. Se puoi, aspetta; "
-                  "fai rifornimento solo se ti serve davvero.")
-    else:
-        perche = (" Oggi è vicino alla media: il petrolio pesa sempre sul prezzo alla pompa, ma in questo momento "
-                  "non lo spinge né in su né in giù. Non c'è motivo di correre né di aspettare: fai rifornimento "
-                  "quando ti serve.")
-    return escape(oggi + perche) + f" <span style=\"opacity:.75\">Dato del {bs['data']:%d/%m/%Y}.</span>"
+    """Il perché del consiglio (HTML sicuro), con la data dello score del petrolio."""
+    return (escape(PERCHE_PETROLIO[bs["esito"]])
+            + f" <span style=\"opacity:.75\">Dato del {bs['data']:%d/%m/%Y}.</span>")
 
 
 def leggi_brent_score() -> tuple[dict | None, str]:
