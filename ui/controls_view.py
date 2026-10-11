@@ -86,9 +86,19 @@ class ControlsView:
 
         c_controls = style.card("controls")
         with c_controls:
-            c_row = st.container()
-            adv = st.expander("Opzioni avanzate")
-            adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
+            col_pos, col_fuel, col_adv = st.columns(3, gap="medium", vertical_alignment="top")
+
+            with col_pos:
+                if st.button("Aggiorna posizione", width="stretch"):
+                    st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
+                    st.rerun()
+
+            with col_fuel:
+                fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+
+            with col_adv:
+                adv = st.expander("Opzioni avanzate")
+                adv_pos, adv_model, adv_data = adv.container(), adv.container(), adv.container()
 
         with adv_data:
             style.section("Dati")
@@ -127,15 +137,6 @@ class ControlsView:
             sel = anag[anag.comune == comune_override]
             origin = (float(sel.lat.median()), float(sel.lon.median()))
             nota = f"Posizione impostata su {comune_override} (da Opzioni avanzate)"
-
-        with c_row:
-            col_pos, col_fuel = st.columns([1, 1], gap="medium", vertical_alignment="center")
-            with col_pos:
-                if st.button("Aggiorna posizione", width="stretch"):
-                    st.session_state["geo_giro"] = st.session_state.get("geo_giro", 0) + 1
-                    st.rerun()
-            with col_fuel:
-                fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
 
         if origin is None:
             render_waiting(c_hero, nota)

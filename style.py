@@ -109,8 +109,12 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .stButton button[kind="secondary"], .stDownloadButton button {{ background: {N200}; color: {DEEP}; }}
 .stButton button[kind="secondary"]:hover, .stDownloadButton button:hover {{ background: {N300}; color: {DEEP}; }}
 
-/* opzioni avanzate: riquadro tenue */
-[data-testid="stExpander"] details {{ border: 0; background: {N100}; border-radius: var(--radius-md); }}
+/* opzioni avanzate: riquadro tenue a pillola compatto allineato ai controlli */
+[data-testid="stExpander"] details {{ border: 0; background: {N100}; border-radius: 999px; transition: border-radius .15s ease-out; }}
+[data-testid="stExpander"] details[open] {{ border-radius: var(--radius-md); }}
+[data-testid="stExpander"] summary {{ min-height: 36px; padding: 7px 14px; font-weight: 700; font-size: 13.5px;
+  color: {DEEP}; cursor: pointer; }}
+[data-testid="stExpander"] summary:hover {{ color: {ORANGE}; }}
 
 /* blocchi HTML: Streamlit dà margin-bottom -16px al contenitore markdown */
 [data-testid="stMarkdownContainer"]:has(> [class^="x-"]) {{ margin-bottom: 0; }}
@@ -133,6 +137,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 @media (max-width: 640px) {{
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
+  [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
   .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ padding: 8px 12px; gap: 4px; }}
   .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
   .stTabs [role="tab"] p {{ font-size: 12.5px; }}
