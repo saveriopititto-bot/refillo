@@ -10,10 +10,11 @@ import style
 from ui.formatters import _hex_rgb, _it, eur, num
 
 NAVIGA_URL = "https://www.google.com/maps/dir/?api=1&destination={lat:.6f},{lon:.6f}"
-# sfondo chiaro CARTO (lo stesso fornitore della vecchia mappa pydeck), senza la chiave che xyzservices ora chiede
-TILES = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-ATTRIBUZIONE = ('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
-                '&copy; <a href="https://carto.com/attributions">CARTO</a>')
+# sfondo OpenStreetMap standard: gratis e senza chiave (CARTO ora la chiede e mostra «API key required»).
+# Schiarito e meno saturo via CSS (SFONDO_CSS), così i pallini colorati restano in evidenza.
+TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+ATTRIBUZIONE = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+SFONDO_CSS = ".leaflet-tile-pane{filter:saturate(.45) brightness(1.08) contrast(.9)}.leaflet-container{background:#f2f8fb}"
 # solo Leaflet e jQuery (i popup di folium lo usano): folium caricherebbe anche Bootstrap e altri file inutili qui
 LEAFLET_JS = [("leaflet", "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"),
               ("jquery", "https://code.jquery.com/jquery-3.7.1.min.js")]
@@ -50,7 +51,7 @@ def build_fuel_map(
     m = folium.Map(location=list(origin), tiles=None, prefer_canvas=True, zoom_control=True, zoom_snap=0.25,
                    zoom_delta=0.5)
     m.default_js, m.default_css = LEAFLET_JS, LEAFLET_CSS
-    folium.TileLayer(TILES, attr=ATTRIBUZIONE, subdomains="abcd", max_zoom=20).add_to(m)
+    folium.TileLayer(TILES, attr=ATTRIBUZIONE, max_zoom=19).add_to(m)
     smin, smax = edges.score.min(), edges.score.max()
 
     if show_all_lines:
@@ -87,5 +88,5 @@ def build_fuel_map(
 def map_html(m: folium.Map) -> str:
     """Pagina HTML completa della mappa, alta quanto la cornice che la contiene (la proporzione la dà il CSS)."""
     m.get_root().header.add_child(folium.Element(
-        "<style>html,body{margin:0;height:100%}.folium-map{height:100%!important}</style>"))
+        f"<style>html,body{{margin:0;height:100%}}.folium-map{{height:100%!important}}{SFONDO_CSS}</style>"))
     return m.get_root().render()
