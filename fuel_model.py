@@ -48,12 +48,15 @@ from ingestion.downloader import (
 from ingestion.parser import (
     FUELS,
     PRICE_BOUNDS,
+    SENZA_SELF,
+    UNITA,
     _extraction_date,
     _to_bytes,
     _to_text,
     build_candidates,
     parse_anagrafica,
     parse_prezzi,
+    unita,
 )
 
 __all__ = [
@@ -73,6 +76,8 @@ __all__ = [
     "PREZZI_FILE",
     "PRICE_BOUNDS",
     "SCONTO_MAX",
+    "SENZA_SELF",
+    "UNITA",
     "_arrotonda",
     "_extraction_date",
     "_osrm_route",
@@ -92,4 +97,5 @@ __all__ = [
     "parse_anagrafica",
     "parse_prezzi",
     "requests",
+    "unita",
 ]

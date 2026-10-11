@@ -48,6 +48,24 @@ def test_build_candidates_filtra_eta_e_duplicati(dati):
     assert fm.build_candidates(anag, prezzi, "Gasolio", True, 7, extraction).empty
 
 
+def test_build_candidates_gpl_metano_ignorano_self(dati):
+    anag, _, extraction = dati
+    prezzi = fm.parse_prezzi("""Estrazione del 2026-10-09
+idImpianto|descCarburante|prezzo|isSelf|dtComu
+1|GPL|0.790|0|09/10/2026 07:00:00
+1|GPL|0.760|1|09/10/2026 07:00:00
+2|GPL|0.800|0|09/10/2026 07:00:00
+2|GPL|0.700|0|01/10/2026 07:00:00
+3|Metano|1.900|0|09/10/2026 07:00:00
+""".encode())
+    # GPL: self e servito valgono entrambi; con tutti e due il più basso; per lo stesso tipo l'ultimo comunicato
+    for self_service in (True, False):
+        c = fm.build_candidates(anag, prezzi, "GPL", self_service, 30, extraction)
+        assert c.set_index("id").prezzo.to_dict() == {"1": 0.76, "2": 0.80}
+    assert fm.build_candidates(anag, prezzi, "Metano", True, 30, extraction).id.tolist() == ["3"]
+    assert fm.unita("Metano") == "kg" and fm.unita("GPL") == "l" and fm.unita("Benzina") == "l"
+
+
 def test_brent_delta_limitato():
     assert fm.brent_delta(120, 100) == pytest.approx(0.10)
     assert fm.brent_delta(105, 100) == pytest.approx(0.05)

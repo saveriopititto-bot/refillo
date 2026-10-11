@@ -31,7 +31,17 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 - **Parla italiano semplice**: niente simboli né formule nell'interfaccia; percentuali e cifre in euro, con
   i numeri in formato italiano.
 
-Carburanti: Benzina, Gasolio, GPL e Metano, self o servito.
+Carburanti: Benzina e Gasolio (self o servito), GPL e Metano. GPL e Metano si vendono quasi sempre solo serviti
+(in self li hanno pochissimi distributori), quindi per loro la scelta self/servito non conta: si usa il prezzo
+che c'è e, se un distributore li ha entrambi, il più basso. Il Metano si paga a chilo: prezzi in €/kg, serbatoio in
+kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carburante (si possono modificare in
+«Avanzate»):
+
+| Carburante | Serbatoio | Consumo |
+|---|---|---|
+| Benzina, Gasolio | 50 l | 5 l/100 km |
+| GPL | 40 l | 7 l/100 km |
+| Metano | 14 kg | 4 kg/100 km |
 
 ## Come si usa
 

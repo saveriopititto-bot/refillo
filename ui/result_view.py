@@ -22,6 +22,7 @@ class ResultView:
     ref_mode: str
     show_all_lines: bool
     fonte: str
+    unita: str = "l"  # «kg» per il Metano
 
     def render(self) -> None:
         if self.edges.empty:
@@ -29,10 +30,11 @@ class ResultView:
             return
 
         best = self.info["best"]
-        prezzo_txt = _it(f"{best.prezzo:.3f}") + " €/l"
+        eu = f" €/{self.unita}"
+        prezzo_txt = _it(f"{best.prezzo:.3f}") + eu
 
         style.metrics([
-            ("Prezzo medio", _it(f"{self.info['p_market']:.3f}") + " €/l",
+            ("Prezzo medio", _it(f"{self.info['p_market']:.3f}") + eu,
              f"{self.ref_mode} nel raggio"),
             ("Distributori", str(self.info["n"]), f"nel raggio di {self.raggio} km"),
             ("Costo al km", _it(f"{self.info['c_km']:.3f}") + " €/km", "carburante + usura"),
@@ -51,6 +53,7 @@ class ResultView:
                 self.origin, self.edges,
                 best_route=self.info.get("best_route"),
                 show_all_lines=self.show_all_lines,
+                unita=self.unita,
             )
             with st.container(key="mappa"):
                 components.html(map_html(mappa), height=600)
@@ -63,6 +66,6 @@ class ResultView:
             style.table(
                 ["Distributore", "Comune", "Prezzo", "Distanza", "Risparmio"],
                 [[escape(r.bandiera or r.nome or "Distributore"), escape(r.comune),
-                  _it(f"{r.prezzo:.3f}") + " €/l", num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
+                  _it(f"{r.prezzo:.3f}") + eu, num(r.dist_km) + " km", eur(r.risparmio, sign=True)]
                  for _, r in self.edges.head(5).iterrows()],
             )

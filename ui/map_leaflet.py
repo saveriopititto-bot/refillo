@@ -27,14 +27,14 @@ def _colore(t: float) -> str:
     return "#" + "".join(f"{int(a + (b - a) * t):02x}" for a, b in zip(lo, hi))
 
 
-def _popup(r) -> str:
+def _popup(r, unita: str = "l") -> str:
     """Riquadro che si apre toccando il distributore: dati principali e link al navigatore."""
     nome = escape(r.bandiera or r.nome or "Distributore")
     impianto = f"<br>{escape(r.nome)}" if r.nome and r.nome != r.bandiera else ""
     return (
         f'<div style="font-family:Archivo,sans-serif;font-size:13px;line-height:1.4;color:{style.DEEP}">'
         f"<b>{r.rank}. {nome}</b>{impianto}<br>{escape(r.indirizzo)}, {escape(r.comune)}<br>"
-        f"<b>{_it(f'{r.prezzo:.3f}')} €/l</b> · {num(r.dist_km)} km · risparmio {eur(r.risparmio, sign=True)}<br>"
+        f"<b>{_it(f'{r.prezzo:.3f}')} €/{unita}</b> · {num(r.dist_km)} km · risparmio {eur(r.risparmio, sign=True)}<br>"
         f'<a href="{NAVIGA_URL.format(lat=r.lat, lon=r.lon)}" target="_blank" rel="noopener" '
         f'style="display:inline-block;margin-top:6px;font-weight:700;color:{style.A700}">Portami qui →</a></div>'
     )
@@ -45,6 +45,7 @@ def build_fuel_map(
     edges: pd.DataFrame,
     best_route: list[list[float]] | None = None,
     show_all_lines: bool = False,
+    unita: str = "l",
 ) -> folium.Map:
     """Mappa con i distributori colorati per convenienza, la posizione e il percorso (GeoJSON [lon, lat])."""
     # zoom a passi di un quarto: l'inquadratura sui distributori lascia meno margine
@@ -70,7 +71,7 @@ def build_fuel_map(
             location=(r.lat, r.lon), radius=10 if migliore else 7,
             color=style.DEEP if migliore else "#ffffff", weight=3 if migliore else 1,
             fill=True, fill_color=_colore(t), fill_opacity=0.95,
-            popup=folium.Popup(_popup(r), max_width=260),
+            popup=folium.Popup(_popup(r, unita), max_width=260),
         ).add_to(m)
 
     folium.CircleMarker(location=origin, radius=9, color="#ffffff", weight=3, fill=True, fill_color=style.DEEP,
