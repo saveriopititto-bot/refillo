@@ -533,7 +533,8 @@ Il risultato è un punteggio in euro: più è alto, più conviene. Il verdetto �
 migliore fa risparmiare (oltre la soglia scelta nelle opzioni avanzate), oppure se il serbatoio è quasi vuoto.
 
 I prezzi e i distributori sono quelli ufficiali del MIMIT, aggiornati ogni giorno; il Brent arriva da Yahoo
-Finance. Le distanze sono stimate in linea d'aria, corrette per tenere conto delle strade.
+Finance. Le distanze sono quelle su strada calcolate dal servizio OSRM; se non risponde, sono stimate in linea
+d'aria, corrette per tenere conto delle strade.
 """
     )
     st.caption(fonte)

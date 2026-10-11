@@ -149,3 +149,34 @@ def test_fetch_brent_score_errori(monkeypatch, risposta, messaggio):
     monkeypatch.setattr(fm.requests, "get", lambda *a, **k: risposta)
     with pytest.raises(ValueError, match=messaggio):
         fm.fetch_brent_score("https://prova.supabase.co", "chiave-anon")
+
+
+def test_osrm_distanze_in_cache(monkeypatch):
+    fm._osrm_table.cache_clear()
+    chiamate = []
+
+    def finto_get(url, params=None, timeout=None):
+        chiamate.append((url, params))
+        return _RispostaJSON(200, {"code": "Ok", "distances": [[0, 1500.0, None]]})
+
+    monkeypatch.setattr(fm.requests, "get", finto_get)
+    origine, dest = (43.23, 12.78), [(43.24, 12.79), (43.25, 12.80)]
+    assert fm.get_osrm_distances(origine, dest) == [1.5, None]
+    assert fm.get_osrm_distances(origine, dest) == [1.5, None]
+    assert len(chiamate) == 1  # la seconda volta risponde la cache
+    assert chiamate[0][1]["annotations"] == "distance"  # senza, OSRM restituisce solo i tempi
+
+
+def test_osrm_errore_non_in_cache(monkeypatch):
+    fm._osrm_table.cache_clear()
+    chiamate = []
+
+    def finto_get(url, params=None, timeout=None):
+        chiamate.append(url)
+        return _RispostaJSON(503, {})
+
+    monkeypatch.setattr(fm.requests, "get", finto_get)
+    origine, dest = (43.23, 12.78), [(43.24, 12.79)]
+    assert fm.get_osrm_distances(origine, dest) == [None]
+    assert fm.get_osrm_distances(origine, dest) == [None]
+    assert len(chiamate) == 2  # dopo un errore si riprova
