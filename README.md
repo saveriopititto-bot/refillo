@@ -22,8 +22,8 @@ ufficiali del MIMIT e ti dice dove, e se, conviene fare rifornimento.
 - **Considera il Brent**: scarica da solo da Yahoo Finance la variazione del petrolio (in euro) negli ultimi
   7 giorni, che anticipa se i prezzi alla pompa stanno per salire o scendere.
 - **Dice dove va il petrolio**: legge da Supabase lo score del Brent calcolato ogni giorno dall'app «Prezzo
-  del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nella scheda
-  Risultato: «Conviene», «Rifornisci» o «Aspetta».
+  del petrolio» ([scorebrent](https://github.com/saveriopititto-bot/scorebrent)) e lo mostra nel riquadro
+  «Consiglio» in cima: «Conviene», «Rifornisci» o «Aspetta».
 - **Esporta i dati**: la tabella completa degli archi posizione → distributore si scarica in CSV, per usarla
   come grafo pesato.
 - **Funziona anche da telefono**: la barra laterale si apre sopra la pagina e gli indicatori si adattano

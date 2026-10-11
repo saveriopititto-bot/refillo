@@ -212,7 +212,7 @@ def stop_with(msg: str) -> None:
 # --------------------------------------------------------------------------
 sb = st.sidebar
 # I contenitori fissano l'ordine visivo: i CSV caricati a mano (in Opzioni avanzate) servono prima di tutto il resto.
-sb_main, sb_adv, sb_foot = (sb.container() for _ in range(3))
+sb_main, sb_adv = sb.container(), sb.container()
 adv = sb_adv.expander("Opzioni avanzate")
 adv_model, adv_data = adv.container(), adv.container()
 with adv_data:
@@ -317,9 +317,6 @@ with adv_model:
     alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
                       help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
-with sb_foot:
-    style.html('')
-
 # --------------------------------------------------------------------------
 # Calcolo
 # --------------------------------------------------------------------------
@@ -349,7 +346,7 @@ if edges.empty:
                      "Aumenta il raggio o l'età massima del prezzo.")
     style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
 elif bs is not None:  # il consiglio segue lo score del petrolio, con il cerchio a destra
-    titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]][0], CONSIGLIO_PETROLIO[bs["esito"]]
+    titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]], CONSIGLIO_PETROLIO[bs["esito"]]
     style.hero("Consiglio", titolo, frase, "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo))
 else:
     corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
