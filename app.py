@@ -132,12 +132,6 @@ def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-# frase sotto il consiglio quando lo score del petrolio è disponibile (stesso colore del cerchio)
-CONSIGLIO_PETROLIO = {
-    1: "I prezzi sono migliori della media degli ultimi trenta giorni",
-    0: "Quando ti serve",
-    -1: "A meno che tu non ne possa fare a meno",
-}
 
 
 PERCHE_PETROLIO = {
@@ -148,9 +142,8 @@ PERCHE_PETROLIO = {
 
 
 def perche_petrolio(bs: dict) -> str:
-    """Il perché del consiglio (HTML sicuro), con la data dello score del petrolio."""
-    return (escape(PERCHE_PETROLIO[bs["esito"]])
-            + f" <span style=\"opacity:.75\">Dato del {bs['data']:%d/%m/%Y}.</span>")
+    """Il perché del consiglio (HTML sicuro)."""
+    return escape(PERCHE_PETROLIO[bs["esito"]])
 
 
 def leggi_brent_score() -> tuple[dict | None, str]:
@@ -359,8 +352,8 @@ if edges.empty:
                      "Aumenta il raggio o l'età massima del prezzo.")
     style.html(f'<p class="x-note">{"<br>".join(note_dati)}</p>')
 elif bs is not None and not info["riserva"]:  # il consiglio segue lo score del petrolio (sotto riserva no)
-    titolo, frase = fm.BRENT_SCORE_TESTI[bs["esito"]], CONSIGLIO_PETROLIO[bs["esito"]]
-    style.hero("Consiglio", titolo, frase, "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo),
+    titolo = fm.BRENT_SCORE_TESTI[bs["esito"]]
+    style.hero("Consiglio", titolo, "", "", aside_html=style.cerchio_score(bs["esito"], "Petrolio: " + titolo),
                nota_html=perche_petrolio(bs))
 else:
     corpo = escape(_it(info["motivo"][0].upper() + info["motivo"][1:])) + "."
