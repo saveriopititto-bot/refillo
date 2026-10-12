@@ -194,7 +194,10 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-metriche [data-testid="stColumn"] {{ min-width: 0 !important; width: auto !important; }}
 .st-key-metriche [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; }}
 .st-key-metriche [data-testid="stColumn"]:last-child {{ flex: 0 0 calc((100% - 30px) / 4) !important; }}
-.st-key-metriche [data-testid="stColumn"] div:has(.st-key-carb) {{ height: 100%; }}
+/* tutti alti come la riga: il menu e gli indicatori (che da telefono largo stanno su una riga sola) si allineano */
+.st-key-metriche [data-testid="stColumn"] div:has(.st-key-carb),
+.st-key-metriche [data-testid="stColumn"] div:has(.x-metrics),
+.st-key-metriche .x-metrics {{ height: 100%; }}
 .st-key-carb {{ background: {N100}; border-radius: var(--radius-md); padding: 10px 14px; gap: 4px !important;
   height: 100%; justify-content: center; min-width: 0; }}
 .st-key-carb .x-label {{ font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}

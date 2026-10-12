@@ -61,7 +61,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   compattati per questo; controlla con Playwright prima di aggiungere spazio o elementi. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
   `stSelectbox`. La tabella degli archi sta in fondo a
   «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km e, accanto, il menu del
-  carburante (contenitori `metriche` e `carb`, creati in `ControlsView` solo nella Home: quattro riquadri larghi uguali;
+  carburante (contenitori `metriche` e `carb`, creati in `ControlsView` solo nella Home: quattro riquadri larghi e alti uguali a ogni larghezza (da telefono
+  largo le scritte stanno su una riga e gli indicatori sarebbero più bassi: `height: 100%` li allunga);
   gli indicatori li scrive `ResultView` nella colonna `metriche`; nelle altre schede il menu non c'è e la chiave
   `carburante` viene tenuta in vita all'inizio di `ControlsView.render`)
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
