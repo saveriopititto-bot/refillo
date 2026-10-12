@@ -262,6 +262,7 @@ def test_osrm_distanze_in_cache(monkeypatch):
 
 def test_osrm_errore_non_in_cache(monkeypatch):
     fm._osrm_table.cache_clear()
+    fm._osrm_route.cache_clear()  # in CI la rete c'è: un test prima può aver già messo in memoria un percorso vero
     chiamate = []
 
     def finto_get(url, params=None, timeout=None):
