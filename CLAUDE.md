@@ -88,6 +88,10 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   senza copie, chiave corta `impronta` = lunghezza + CRC32 dei byte invece di far leggere a Streamlit 7 MB a ogni giro);
   anche `candidati` (= `build_candidates`) è in `st.cache_resource`: nessuno modifica queste tabelle (`compute_edges` copia).
   `parse_anagrafica` resta con il ciclo Python: la versione con `read_csv` è stata misurata ed è più lenta.
+  `_load_data` toglie i distributori con coordinate in conflitto con il loro comune (`coordinate_sospette` in
+  `ingestion/parser.py`: oltre 50 km dalla mediana del comune; con 2 soli distributori lontani più di 50 km tutti e due;
+  con 1 solo oltre 200 km dalla mediana della provincia) e ne mette il numero in `anag.attrs["esclusi"]`, mostrato in
+  fondo a «F.A.Q.». Lo storico (`storico.py`) non usa il filtro.
 - **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
   OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
   (`lru_cache`), gli errori no, ma dopo un errore OSRM non si chiama per 3 minuti (`PAUSA_DOPO_ERRORE_S`, per tutti;

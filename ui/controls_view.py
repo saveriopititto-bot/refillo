@@ -63,6 +63,7 @@ class ControlsResult:
     metriche: any  # posto degli indicatori della Home, accanto al menu del carburante (None nelle altre schede)
     bs: dict | None  # score del petrolio (None se manca)
     bs_err: str  # perché manca lo score
+    esclusi: int = 0  # distributori tolti perché le coordinate non tornano con il loro comune
 
 
 class ControlsView:
@@ -278,4 +279,5 @@ class ControlsView:
             metriche=metriche,
             bs=bs,
             bs_err=bs_err,
+            esclusi=anag.attrs.get("esclusi", 0),
         )

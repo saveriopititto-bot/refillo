@@ -66,7 +66,7 @@ if st.session_state.get("scheda", HOME) == HOME:
 
 else:
     with controls.contenuto:
-        HowView(fonte=controls.fonte).render()
+        HowView(fonte=controls.fonte, esclusi=controls.esclusi).render()
         EdgesView(edges=edges, origin=controls.origin, unita=controls.unita).render()
 
 # --------------------------------------------------------------------------

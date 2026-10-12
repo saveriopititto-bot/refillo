@@ -183,6 +183,12 @@ La copia nel branch `dati` la prepara un'azione GitHub (`.github/workflows/aggio
 alle 7:05 UTC, con due riprove alle 9:35 e alle 13:05 se GitHub la ritarda o la salta, script `scripts/aggiorna_mimit.py`): scaricarla da GitHub è più veloce e affidabile del sito
 del ministero. L'azione non scrive mai su `main`.
 
+Alcuni distributori nei dati MIMIT hanno le coordinate di un'altra città (per esempio uno di Finale Emilia nel
+centro di Milano) e comparirebbero come «il migliore, a pochi metri» a chi sta lì: l'app li esclude. Un distributore
+è escluso se è a più di 50 km dal centro dei distributori del suo comune; se il comune ne ha solo due, a più di 50 km
+l'uno dall'altro, sono esclusi tutti e due (non si sa quale sia giusto); se ne ha uno solo, se è a più di 200 km dal
+centro della provincia. Con i dati del 10/10/2026 sono 56 su quasi 24.000; il numero è in fondo a «F.A.Q.».
+
 I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
 con i giorni vecchi). Per rendere fluida l'app a ogni tocco restano in memoria anche i distributori validi per
 carburante e opzioni e la mappa già disegnata: se non cambia niente, la mappa non si ricarica. Mentre ricalcola la

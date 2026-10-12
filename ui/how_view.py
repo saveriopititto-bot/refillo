@@ -11,6 +11,7 @@ import style
 @dataclass
 class HowView:
     fonte: str
+    esclusi: int = 0  # distributori tolti perché le coordinate non tornano con il loro comune
 
     def render(self) -> None:
         with style.card("how"):
@@ -35,4 +36,8 @@ Finance. Le distanze sono quelle su strada calcolate dal servizio OSRM; se non r
 d'aria, corrette per tenere conto delle strade.
 """
             )
-            st.caption(self.fonte)
+            nota = self.fonte
+            if self.esclusi:
+                nota += (f" · {self.esclusi} distributori esclusi perché nei dati MIMIT le coordinate non tornano con "
+                         "il loro comune (per esempio un distributore di Finale Emilia nel centro di Milano)")
+            st.caption(nota)
