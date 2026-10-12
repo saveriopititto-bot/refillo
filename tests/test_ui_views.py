@@ -165,3 +165,14 @@ def test_mappa_leaflet():
     assert "41.91" not in limiti and "12.51" not in limiti and '"maxZoom": 16' in html
     script = re.findall(r'<script src="([^"]+)"', html)
     assert len(script) == 2 and any("leaflet@" in s for s in script) and any("jquery" in s for s in script)
+
+
+def test_origine_da_ip():
+    from ui.data_service import ROMA, origine_da_ip
+
+    origine, nota = origine_da_ip({"lat": "43.11", "lon": "12.39", "citta": "Perugia", "paese": "IT"})
+    assert origine == (43.11, 12.39) and nota == "Perugia (stima)"
+    # fuori dall'Italia, errore del servizio o risposta strana: Roma
+    for dato in ({"lat": 48.85, "lon": 2.35, "citta": "Paris"}, {"errore": "TypeError: Failed to fetch"}, "x", {}):
+        origine, nota = origine_da_ip(dato)
+        assert origine == ROMA and nota == "Roma (ripiego)"

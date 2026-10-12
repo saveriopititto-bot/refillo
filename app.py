@@ -31,7 +31,8 @@ bs, bs_err = leggi_brent_score()
 # --------------------------------------------------------------------------
 # Consiglio in evidenza (in cima)
 # --------------------------------------------------------------------------
-HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, controls.note_dati).render()
+HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, controls.note_dati,
+         controls.nota_posizione).render()
 
 # --------------------------------------------------------------------------
 # Schede di dettaglio

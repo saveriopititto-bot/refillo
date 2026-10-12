@@ -242,7 +242,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
 .st-key-hero .x-lead-box {{ background: none; box-shadow: none; padding: 0; color: #fff; font-size: 16px; }}
 .st-key-hero .x-lead-box strong {{ color: {AMBER}; }}
-.st-key-hero .x-note {{ color: {SKY}; }}
+.stApp .st-key-hero .x-note {{ color: {SKY}; font-size: 11px; line-height: 1.3; margin-top: 4px; }}
+/* «📍 Perugia (stima)» sulla riga di «CONSIGLIO»: nessuna altezza in più */
+.x-hero .k .x-pos {{ text-transform: none; letter-spacing: 0; font-weight: 400; cursor: help; white-space: nowrap; }}
 @media (max-width: 640px) {{
   .st-key-hero {{ padding: 8px 10px 8px 12px; }}
   .x-hero .v {{ font-size: 23px; }}
@@ -340,7 +342,7 @@ def lead(text_html: str) -> None:
 
 
 def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
-         meta_html: Sequence[str] = (), aside_html: str = "", nota_html: str = "") -> None:
+         meta_html: Sequence[str] = (), aside_html: str = "", nota_html: str = "", kicker_html: str = "") -> None:
     """Scheda scura in evidenza con il verdetto (ambra se non conviene).
 
     meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. aside_html: al posto del testo, un elemento
@@ -353,7 +355,7 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
     classi = "x-hero" + ("" if ok else " wait") + (" aside" if aside_html else "")
     destra = f'<div class="x-hero-aside">{aside_html}</div>' if aside_html else f"<p>{body_html}</p>"
     html(f"""<div class="{classi}">
-<div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}</span>
+<div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}{kicker_html}</span>
 <span class="v">{escape(value)}</span>{meta}{sottotitolo}{nota}</div>
 {destra}</div>""")
 

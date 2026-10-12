@@ -30,7 +30,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
 - I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
   (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
-  `fm.get_osrm_route` e `streamlit_js_eval.get_geolocation`) e, per i cambi visivi, con Chromium/Playwright
+  `fm.get_osrm_route`, `streamlit_js_eval.get_geolocation` e `streamlit_js_eval.streamlit_js_eval` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
 - Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "F.A.Q."`; `st.cache_data` resta in
   memoria tra un AppTest e l'altro nello stesso processo, quindi per casi diversi usa argomenti diversi.
@@ -105,6 +105,11 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nel Top 5
   (l'effetto Brent è uguale per tutti e non è un risparmio vero). Costo al km = consumo × prezzo di mercato +
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
+- **Posizione**: GPS dal browser (`posizione_browser`); se manca (negato, spento o in attesa) la Home non si ferma:
+  `posizione_ip` chiede al browser, con `streamlit_js_eval`, la posizione dall'IP (`get.geojs.io`, poi `ipwho.is`,
+  4 secondi; una volta per sessione in `st.session_state["pos_ip"]`); fuori dall'Italia o in errore Roma (`ROMA`).
+  La nota «📍 Perugia (stima)» / «📍 Roma (ripiego)» sta sulla riga di «CONSIGLIO» (`kicker_html`), per non
+  allungare la pagina. Nei test AppTest va simulato anche `streamlit_js_eval.streamlit_js_eval`.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
 - La logica del modello sta in `core/`, `ingestion/` e `clients/` (riesportati da `fuel_model.py`, che i test e
