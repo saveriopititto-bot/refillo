@@ -14,6 +14,11 @@ from ui.result_view import ResultView, render_top5
 st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide", initial_sidebar_state="collapsed")
 style.apply_style()
 
+# all'apertura solo il pulsante ⛽: posizione e download partono quando lo si tocca
+if not st.session_state.get("avviato"):
+    style.avvio()
+    st.stop()
+
 c_hero = st.container()
 
 # --------------------------------------------------------------------------
