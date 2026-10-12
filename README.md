@@ -45,13 +45,12 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 
 ## Come si usa
 
-- **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
-  cerchio dello score.
+- **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nella Home, nella riga degli indicatori, accanto a
+  «Costo al km» e largo come loro (da telefono senza la freccia). Nelle altre schede vale il carburante già scelto.
 - **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
   un comune in «Opzioni». Senza GPS l'app non si ferma: usa una posizione stimata dalla rete (vedi «Posizione»).
 - **Avvio**: all'apertura c'è solo un pulsante rotondo verde con il distributore (icona Material) al centro dello schermo, nello stesso riquadro del
-  cerchio di caricamento. Sotto c'è già il menu del carburante: quello scelto qui passa al menu del riquadro
-  «Consiglio». Toccando il pulsante partono la ricerca della posizione e i download, poi si apre la Home.
+  cerchio di caricamento. Sotto c'è già il menu del carburante: quello scelto qui passa al menu della Home. Toccando il pulsante partono la ricerca della posizione e i download, poi si apre la Home.
 - **Caricamento**: mentre l'app scarica i dati MIMIT, legge il Brent e lo score del petrolio e cerca la posizione,
   al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso. Se i dati sono già in memoria
   non compare nemmeno.
@@ -105,7 +104,7 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 
 In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in tutte le schede: blu petrolio in tutti
 i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato (più piccolo
-da telefono) e, sotto il cerchio, il menu del carburante:
+da telefono):
 
 | Score | Consiglio | Cerchio |
 |---|---|---|

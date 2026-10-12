@@ -16,7 +16,7 @@ from ui.formatters import _it
 @dataclass
 class HeroView:
     container: any  # colonna del testo nel riquadro «Consiglio»
-    cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
+    cerchio: any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
     edges: pd.DataFrame
     info: dict
     bs: dict | None

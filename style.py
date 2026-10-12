@@ -150,20 +150,20 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* freccia del popover attaccata al testo */
 .st-key-comandi button > div {{ gap: 2px !important; justify-content: center !important; }}
 .st-key-comandi button [data-testid="stIconMaterial"] {{ margin: 0 !important; font-size: 16px !important; }}
-/* menu del carburante: pillola come i comandi, alta 36 px (30 da telefono), testo centrato in verticale */
-.st-key-hero [data-baseweb="select"] > div {{
+/* menu del carburante (Home, accanto a «Costo al km»): pillola bianca alta 36 px (30 da telefono), testo centrato */
+.st-key-carb [data-baseweb="select"] > div {{
   min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
 }}
-.st-key-hero [data-testid="stSelectbox"] > div > div {{ height: 36px !important; min-height: 0 !important;
+.st-key-carb [data-testid="stSelectbox"] > div > div {{ height: 36px !important; min-height: 0 !important;
   border-radius: 999px !important; display: flex !important; align-items: center !important; overflow: hidden; }}
-.st-key-hero [data-testid="stSelectbox"] input,
-.st-key-hero [data-testid="stSelectbox"] button {{ height: 100% !important; min-height: 0 !important;
+.st-key-carb [data-testid="stSelectbox"] input,
+.st-key-carb [data-testid="stSelectbox"] button {{ height: 100% !important; min-height: 0 !important;
   padding-top: 0 !important; padding-bottom: 0 !important; }}
 /* voci dell'elenco aperto della stessa misura del menu */
 [role="listbox"] [role="option"] {{ font-size: 13px !important; min-height: 32px !important;
   padding-top: 4px !important; padding-bottom: 4px !important; }}
-.st-key-hero [data-baseweb="select"] *,
-.st-key-hero [data-testid="stSelectbox"] input {{
+.st-key-carb [data-baseweb="select"] *,
+.st-key-carb [data-testid="stSelectbox"] input {{
   font-size: 12.5px !important; font-weight: 700 !important; white-space: nowrap !important;
 }}
 
@@ -184,6 +184,16 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-metric .x-label {{ font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 .x-metric .v {{ font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums;
   white-space: nowrap; }}
+/* riga degli indicatori della Home: tre indicatori e il menu del carburante, quattro riquadri larghi uguali */
+.st-key-metriche [data-testid="stHorizontalBlock"] {{ gap: 10px !important; flex-wrap: nowrap !important;
+  align-items: stretch !important; }}
+.st-key-metriche [data-testid="stColumn"] {{ min-width: 0 !important; width: auto !important; }}
+.st-key-metriche [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; }}
+.st-key-metriche [data-testid="stColumn"]:last-child {{ flex: 0 0 calc((100% - 30px) / 4) !important; }}
+.st-key-metriche [data-testid="stColumn"] div:has(.st-key-carb) {{ height: 100%; }}
+.st-key-carb {{ background: {N100}; border-radius: var(--radius-md); padding: 10px 14px; gap: 4px !important;
+  height: 100%; justify-content: center; min-width: 0; }}
+.st-key-carb .x-label {{ font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
   [class*="st-key-card-controls"] {{ padding: 14px 10px !important; }}
@@ -195,9 +205,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .st-key-comandi button p {{ font-size: 11.5px !important; }}
   .st-key-comandi button div[aria-hidden="true"]:has([data-testid="stIconMaterial"]) {{ display: none !important; }}
   /* niente freccia da telefono: c'è poco spazio */
-  .st-key-hero [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
-  .st-key-hero [data-baseweb="select"] *,
-  .st-key-hero [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
+  .st-key-carb [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
+  .st-key-carb [data-baseweb="select"] *,
+  .st-key-carb [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
@@ -212,6 +222,14 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .x-metric .x-label {{ font-size: 9px; letter-spacing: .03em; white-space: normal; line-height: 1.25; }}
   .x-metric .v {{ font-size: 13px; letter-spacing: -.03em; }}
   .x-metric .s {{ display: none; }}
+  .st-key-metriche [data-testid="stHorizontalBlock"] {{ gap: 6px !important; }}
+  .st-key-metriche [data-testid="stColumn"]:last-child {{ flex-basis: calc((100% - 18px) / 4) !important; }}
+  .st-key-carb {{ padding: 6px 6px; gap: 2px !important; }}
+  .st-key-carb .x-label {{ font-size: 9px; letter-spacing: .03em; }}
+  /* da telefono niente freccia nel menu: il nome del carburante resta intero */
+  .st-key-carb [data-testid="stSelectbox"] button {{ display: none !important; }}
+  .st-key-carb [data-testid="stSelectbox"] input {{ text-align: center; padding-left: 4px !important;
+    padding-right: 4px !important; }}
 }}
 .x-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 16px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -231,13 +249,13 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
 .x-hero-aside svg {{ width: 72px; height: 72px; }}
 @media (max-width: 640px) {{ .x-hero-aside svg {{ width: 54px; height: 54px; }} }}
-/* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score sopra il menu del carburante:
+/* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score:
    le due colonne restano affiancate anche da telefono */
 .st-key-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 12px 14px 12px 16px; }}
 .st-key-hero [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; gap: 16px !important; }}
 .st-key-hero [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; }}
-.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 130px !important; min-width: 0 !important; width: auto !important; }}
+.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 84px !important; min-width: 0 !important; width: auto !important; }}
 .st-key-hero .x-hero {{ background: none; box-shadow: none; padding: 0; border-radius: 0; display: flex;
   flex-direction: column; align-items: stretch; gap: 4px; }}
 .st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
@@ -253,9 +271,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .x-lead {{ font-size: 14px; line-height: 1.4; }}
   [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 10.5px; line-height: 1.25; }}
   .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
-  /* menu del carburante più basso: è lui a decidere l'altezza del riquadro «Consiglio» */
-  .st-key-hero [data-testid="stSelectbox"] > div > div {{ height: 30px !important; }}
-  .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 104px !important; }}
+  .st-key-carb [data-testid="stSelectbox"] > div > div {{ height: 30px !important; }}
+  .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 70px !important; }}
 }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
@@ -303,7 +320,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   background: #fff; border: 8px solid {VERDE}; color: {VERDE}; box-shadow: none; transition: background .15s, transform .15s; }}
 .stApp .st-key-avvio .stButton button:hover {{ background: #e8f5ee; color: {VERDE}; transform: scale(1.04); }}
 .stApp .st-key-avvio .x-progress-lbl {{ text-align: center; font-size: 15.5px; }}
-/* menu del carburante: la stessa pillola del riquadro «Consiglio», su sfondo tenue */
+/* menu del carburante: pillola su sfondo tenue, come quello della Home */
 .stApp .st-key-avvio [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {{ width: 190px !important; }}
 .stApp .st-key-avvio [data-baseweb="select"] > div {{ min-height: 38px !important; border-radius: 999px !important;
   padding: 0 6px !important; background: {N100} !important; border-color: {N200} !important; }}
@@ -395,8 +412,7 @@ def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
 def hero_box(container):
     """Riquadro scuro «Consiglio» dentro `container`.
 
-    Restituisce (colonna del testo, colonna a destra): a destra vanno il cerchio dello score e, sotto, il menu del
-    carburante. Il testo si scrive con hero(), che dentro il riquadro perde sfondo e ombra."""
+    Restituisce (colonna del testo, colonna a destra): a destra va il cerchio dello score. Il testo si scrive con hero(), che dentro il riquadro perde sfondo e ombra."""
     with container:
         with st.container(key="hero"):
             testo, lato = st.columns([1, 0.3], gap="medium", vertical_alignment="center")
@@ -451,7 +467,7 @@ def _avvia() -> None:
 
 def avvio(carburanti: Sequence[str]) -> None:
     """Schermata d'avvio: il pulsante del distributore al centro fa partire posizione e download, poi si apre la Home.
-    Sotto, il menu del carburante (lo stesso del riquadro «Consiglio»)."""
+    Sotto, il menu del carburante (la scelta passa a quello della Home)."""
     with st.container(key="avvio"):
         st.button(":material/local_gas_station:", key="avvia", help="Cerca la posizione e i prezzi di oggi", on_click=_avvia)
         html('<div class="x-progress-lbl">Tocca per trovare il distributore che conviene</div>')
