@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from html import escape
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 import streamlit as st
@@ -37,14 +38,14 @@ def default_path(name: str) -> Path | None:
     return None
 
 
-@st.cache_data(max_entries=2, show_spinner="Leggo i CSV…")
+@st.cache_data(max_entries=2, show_spinner=False)
 def load_data(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[pd.DataFrame, pd.DataFrame, pd.Timestamp | None]:
     anag, extraction = fm.parse_anagrafica(anag_bytes)
     prezzi = fm.parse_prezzi(prezzi_bytes)
     return anag, prezzi, extraction
 
 
-@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Scarico il Brent da Yahoo Finance…")
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner=False)
 def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
     """Brent ed EUR/USD da Yahoo Finance; in caso di errore (None, motivo), così anche il fallimento resta in cache."""
     try:
@@ -53,7 +54,7 @@ def brent_yahoo(n_giorni: int) -> tuple[dict | None, str]:
         return None, str(e) or type(e).__name__
 
 
-@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner="Leggo lo score del petrolio…")
+@st.cache_data(ttl=CACHE_ORE * 3600, show_spinner=False)
 def brent_score(url: str, chiave: str) -> tuple[dict | None, str]:
     """Ultimo score del Brent da Supabase; (None, motivo) se non raggiungibile. Anche l'errore resta in cache."""
     try:
@@ -120,13 +121,12 @@ def dati_freschi(data: bytes, ora: pd.Timestamp) -> bool:
 
 
 def get_mimit_dataset(
-    c_progress: any = None,
+    progresso: Callable[[int, str], None] | None = None,
     up_a: any = None,
     up_p: any = None,
 ) -> tuple[tuple[bytes | None, str], tuple[bytes | None, str]]:
-    """Carica o scarica anagrafica e prezzi MIMIT mostrando il cerchio con la percentuale."""
+    """Carica o scarica anagrafica e prezzi MIMIT; `progresso(percentuale, testo)` fa avanzare il cerchio."""
     import time
-    import style
 
     if up_a is not None and up_p is not None:
         return (up_a.getvalue(), "caricato"), (up_p.getvalue(), "caricato")
@@ -169,9 +169,9 @@ def get_mimit_dataset(
         last_pct = [-1]
 
         def update_progress(pct: int, label: str):
-            if c_progress is not None and pct != last_pct[0]:
+            if progresso is not None and pct != last_pct[0]:
                 last_pct[0] = pct
-                c_progress.markdown(style.cerchio_progresso(pct, label), unsafe_allow_html=True)
+                progresso(pct, label)
 
         update_progress(0, "Connessione ai server del MIMIT…")
 

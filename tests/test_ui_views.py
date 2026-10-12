@@ -62,10 +62,6 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     ds.clear_all_caches()
     progress_updates = []
 
-    class MockProgress:
-        def markdown(self, text, unsafe_allow_html=False):
-            progress_updates.append(text)
-
     fake_anag = b"id;nome;lat;lon;comune\n1;Dist;43.1;12.1;Roma"
     fake_prezzi = b"id;carburante;prezzo;isSelf\n1;Benzina;1.75;1"
 
@@ -76,8 +72,7 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
         b"Estrazione del 2000-01-01\n" + (fake_anag if "anagrafica" in name else fake_prezzi)  # vecchia: scartata
     ))
 
-    c_progress = MockProgress()
-    (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset(c_progress=c_progress)
+    (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset(lambda pct, label: progress_updates.append(pct))
 
     assert anag_b == fake_anag
     assert prezzi_b == fake_prezzi
@@ -85,8 +80,7 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     assert src_p == "scaricato"
     assert ds.fonte_download() == ds.FONTE_SITO  # copia vecchia: scaricati dal MIMIT
     assert len(progress_updates) > 0
-    assert any("0%" in p for p in progress_updates)
-    assert any("100%" in p for p in progress_updates)
+    assert progress_updates[0] == 0 and progress_updates[-1] == 100
 
 
 def test_script_aggiorna_mimit(monkeypatch, tmp_path):

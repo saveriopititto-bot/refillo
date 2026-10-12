@@ -105,6 +105,10 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nel Top 5
   (l'effetto Brent è uguale per tutti e non è un risparmio vero). Costo al km = consumo × prezzo di mercato +
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
+- **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
+  `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
+  il browser risponde); le cache hanno `show_spinner=False`. Nei primi 0,3 s compare in ritardo (`x-ritardo`), così
+  non lampeggia quando i dati sono già in memoria. Lo score del petrolio si legge in `ControlsView` (`bs`, `bs_err`).
 - **Posizione**: GPS dal browser (`posizione_browser`); se manca (negato, spento o in attesa) la Home non si ferma:
   `posizione_ip` chiede al browser, con `streamlit_js_eval`, la posizione dall'IP (`get.geojs.io`, poi `ipwho.is`,
   4 secondi; una volta per sessione in `st.session_state["pos_ip"]`); fuori dall'Italia o in errore Roma (`ROMA`).
