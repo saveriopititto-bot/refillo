@@ -322,3 +322,24 @@ def test_fetch_brent_yf(monkeypatch):
     assert res["b_t"] == pytest.approx(75.0)
     assert res["fx_t"] == pytest.approx(75.0)
     assert res["data_t"] == pd.Timestamp("2026-10-10")
+
+
+def test_coordinate_sospette():
+    righe = [
+        # comune con 4 distributori, uno con le coordinate di Milano: solo quello è sospetto
+        ("A1", "FINALE EMILIA", "MO", 44.833, 11.294), ("A2", "FINALE EMILIA", "MO", 44.840, 11.300),
+        ("A3", "FINALE EMILIA", "MO", 44.825, 11.280), ("A4", "FINALE EMILIA", "MO", 45.4642, 9.19),
+        # Roma: distributori a ~25 km dal centro (Ostia) restano
+        ("R1", "ROMA", "RM", 41.90, 12.50), ("R2", "ROMA", "RM", 41.89, 12.48), ("R3", "ROMA", "RM", 41.73, 12.28),
+        # due soli distributori a più di 50 km l'uno dall'altro: non si sa quale sia giusto, via tutti e due
+        ("M1", "MONGHIDORO", "BO", 44.2168, 11.3216), ("M2", "MONGHIDORO", "BO", 41.8109, 12.3330),
+        # due soli vicini: restano
+        ("L1", "LIPARI", "ME", 38.4673, 14.9547), ("L2", "LIPARI", "ME", 38.5590, 14.8340),
+        # un solo distributore: conta la provincia (Bologna), a più di 200 km = sospetto
+        ("B1", "BOLOGNA", "BO", 44.494, 11.343), ("B2", "IMOLA", "BO", 44.353, 11.714),
+        ("B3", "CASTEL SAN PIETRO TERME", "BO", 44.398, 11.589), ("B4", "PORRETTA", "BO", 40.85, 14.27),
+    ]
+    anag = pd.DataFrame(righe, columns=["id", "comune", "provincia", "lat", "lon"])
+    sospette = set(anag.loc[fm.coordinate_sospette(anag), "id"])
+    assert sospette == {"A4", "M1", "M2", "B4"}
+    assert not fm.coordinate_sospette(anag.iloc[0:0]).any()

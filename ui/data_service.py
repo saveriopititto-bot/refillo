@@ -49,6 +49,10 @@ def impronta(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[int, int, int, int
 def _load_data(_anag_bytes: bytes, _prezzi_bytes: bytes, chiave: tuple) -> tuple[pd.DataFrame, pd.DataFrame,
                                                                                   pd.Timestamp | None]:
     anag, extraction = fm.parse_anagrafica(_anag_bytes)
+    # via i distributori con coordinate in conflitto con il loro comune (quanti sono: anag.attrs["esclusi"])
+    sospette = fm.coordinate_sospette(anag)
+    anag = anag[~sospette].reset_index(drop=True)
+    anag.attrs["esclusi"] = int(sospette.sum())
     prezzi = fm.parse_prezzi(_prezzi_bytes)
     return anag, prezzi, extraction
 

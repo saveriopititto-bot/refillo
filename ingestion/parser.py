@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.geo import ITALY_BBOX
+from core.geo import ITALY_BBOX, haversine_km
 
 # Solo i prodotti "standard": le varianti premium (Blue Diesel, V-Power, ...)
 # hanno prezzi diversi e falserebbero il confronto.
@@ -97,6 +97,32 @@ def parse_anagrafica(src) -> tuple[pd.DataFrame, pd.Timestamp | None]:
     df = df.dropna(subset=["lat", "lon"])
     df = df[df.lat.between(la0, la1) & df.lon.between(lo0, lo1)]
     return df.drop_duplicates("id").reset_index(drop=True), extraction
+
+
+# Coordinate sbagliate nell'anagrafica MIMIT: alcuni distributori hanno le coordinate di un'altra città (spesso il centro
+# di Milano, Roma o Palermo) e comparirebbero come «il migliore, a pochi metri» a chi sta lì.
+SOGLIA_COMUNE_KM = 50  # oltre questa distanza dal centro dei distributori del suo comune (Roma arriva a ~26 km, le Eolie a ~42)
+SOGLIA_PROVINCIA_KM = 200  # comuni con un solo distributore: distanza dal centro della provincia (larga per le isole)
+
+
+def coordinate_sospette(anag: pd.DataFrame) -> pd.Series:
+    """True per i distributori con coordinate in conflitto con il loro comune.
+
+    Centro del comune = mediana delle coordinate dei suoi distributori (con 3 o più regge a un errore). Con 2 soli
+    distributori a più di SOGLIA_COMUNE_KM l'uno dall'altro non si sa quale sia giusto: sono sospetti tutti e due.
+    Con 1 solo si guarda la provincia."""
+    if anag.empty:
+        return pd.Series(False, index=anag.index)
+    chiave = ["comune", "provincia"]
+    n = anag.groupby(chiave)["lat"].transform("size")
+    centro = anag.groupby(chiave)[["lat", "lon"]].transform("median")
+    d_comune = haversine_km(anag.lat.values, anag.lon.values, centro.lat.values, centro.lon.values)
+    prov = anag.groupby("provincia")[["lat", "lon"]].transform("median")
+    d_prov = haversine_km(anag.lat.values, anag.lon.values, prov.lat.values, prov.lon.values)
+    # con 2 distributori il centro è a metà strada: lontani più della soglia = ognuno a più di metà soglia dal centro
+    return pd.Series(((n >= 3) & (d_comune > SOGLIA_COMUNE_KM))
+                     | ((n == 2) & (d_comune > SOGLIA_COMUNE_KM / 2))
+                     | ((n == 1) & (d_prov > SOGLIA_PROVINCIA_KM)), index=anag.index)
 
 
 def parse_prezzi(src) -> pd.DataFrame:
