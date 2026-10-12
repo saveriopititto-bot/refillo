@@ -20,6 +20,7 @@ from ui.data_service import (
     load_data,
     brent_yahoo,
     posizione_browser,
+    posizione_ip,
 )
 from ui.formatters import _it, num
 from ui.hero_view import render_error, render_waiting
@@ -56,6 +57,7 @@ class ControlsResult:
     hero_testo: any  # colonna del testo nel riquadro «Consiglio»
     hero_cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
     contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
+    nota_posizione: str  # «Perugia (stima)» / «Roma (ripiego)» se non viene dal GPS, altrimenti ""
     top5: any  # riquadro apribile «Top 5» nella riga dei comandi
 
 
@@ -163,15 +165,20 @@ class ControlsView:
                 key="comune_fallback",
             )
 
-        origin, nota = posizione_browser()
+        origin, _ = posizione_browser()
+        nota_posizione = ""  # riga nel riquadro «Consiglio» quando la posizione non è quella del GPS
         if comune_override:
             sel = anag[anag.comune == comune_override]
             origin = (float(sel.lat.median()), float(sel.lon.median()))
-            nota = f"Posizione impostata su {comune_override} (da Opzioni)"
+        elif origin is None:
+            # GPS negato, spento o in attesa: posizione approssimativa dall'indirizzo internet (o Roma)
+            da_ip = posizione_ip()
+            if da_ip is not None:
+                origin, nota_posizione = da_ip
 
-        if origin is None:
+        if origin is None:  # solo per un attimo, mentre il browser risponde
             top5.caption("Serve la posizione per trovare i distributori migliori.")
-            render_waiting(hero_testo, nota)
+            render_waiting(hero_testo, "Cerco la tua posizione…")
             style.colophon()
             st.stop()
 
@@ -241,5 +248,6 @@ class ControlsView:
             hero_testo=hero_testo,
             hero_cerchio=hero_cerchio,
             contenuto=contenuto,
+            nota_posizione=nota_posizione,
             top5=top5,
         )

@@ -48,7 +48,7 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 - **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nel riquadro «Consiglio», a destra, sotto il
   cerchio dello score.
 - **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
-  un comune in «Opzioni».
+  un comune in «Opzioni». Senza GPS l'app non si ferma: usa una posizione stimata dalla rete (vedi «Posizione»).
 - La riga in cima al riquadro delle schede, sempre su una riga anche da telefono: «Home», «Posizione»,
   «Opzioni», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
   sfondo tenue e il testo normale. «Opzioni» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina
@@ -261,11 +261,14 @@ Lo storico servirà allo score «prezzi rispetto agli ultimi 30 giorni», in svi
 
 La posizione arriva dall'API Geolocation del browser, tramite `streamlit-js-eval`. Funziona solo su HTTPS
 (come su Streamlit Cloud) o su `localhost`. Su telefono usa il GPS; su computer di solito è più approssimativa,
-perché il browser la stima dalla rete. Nella barra laterale compaiono coordinate e precisione, e
-«Posizione» la rileva di nuovo.
+perché il browser la stima dalla rete. «Posizione» la rileva di nuovo.
 
-Se il permesso viene negato, l'app spiega come riattivarlo dalle impostazioni del sito nel browser e propone
-Comune.
+Se il GPS non dà una posizione (permesso negato, GPS spento o in attesa della risposta), l'app non mostra una pagina
+d'attesa: chiede al browser una posizione approssimativa dall'indirizzo internet (servizi gratuiti `get.geojs.io`,
+poi `ipwho.is`, al massimo 4 secondi) e mostra subito la Home per quella zona, con «📍 Perugia (stima)» accanto a
+«CONSIGLIO». Se l'indirizzo non si trova o è fuori dall'Italia usa Roma («📍 Roma (ripiego)»). La richiesta parte dal
+browser di chi usa l'app: dal server si vedrebbe l'indirizzo di Streamlit Cloud. Appena il GPS risponde, o se si
+sceglie un comune in «Opzioni», la posizione esatta prende il posto di quella stimata.
 
 ## Avvio in locale
 

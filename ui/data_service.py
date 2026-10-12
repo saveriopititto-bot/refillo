@@ -222,6 +222,49 @@ def clear_all_caches() -> None:
     brent_score.clear()
 
 
+# Ripiego quando né il GPS né l'indirizzo internet danno una posizione in Italia.
+ROMA = (41.9028, 12.4964)
+
+# Posizione approssimativa dall'indirizzo internet (IP), chiesta dal browser di chi usa l'app (dal server si vedrebbe
+# l'IP di Streamlit Cloud): geojs.io, poi ipwho.is; servizi gratuiti, senza chiave, con CORS. Massimo 4 secondi.
+_IP_JS = """(async () => {
+  const prova = async (url, f) => {
+    const ac = new AbortController(); const t = setTimeout(() => ac.abort(), 4000);
+    try { const r = await fetch(url, {signal: ac.signal}); if (!r.ok) throw new Error('HTTP ' + r.status); return f(await r.json()); }
+    finally { clearTimeout(t); }
+  };
+  const da = d => ({lat: Number(d.latitude), lon: Number(d.longitude), citta: d.city || '', paese: d.country_code || ''});
+  try { return await prova('https://get.geojs.io/v1/ip/geo.json', da); }
+  catch (e) { try { return await prova('https://ipwho.is/', da); } catch (e2) { return {errore: String(e2)}; } }
+})()"""
+
+NOTA_PRECISA = ("Posizione stimata dalla rete (o Roma se non si riesce): per quella esatta consenti la posizione "
+                "nel browser o scegli un comune in «Opzioni».")
+
+
+def origine_da_ip(dato) -> tuple[tuple[float, float], str]:
+    """Dal risultato della richiesta IP: ((lat, lon), nota). Fuori dall'Italia o in errore: Roma."""
+    if isinstance(dato, dict) and "errore" not in dato:
+        try:
+            lat, lon = float(dato["lat"]), float(dato["lon"])
+        except (KeyError, TypeError, ValueError):
+            lat = lon = float("nan")
+        la0, la1, lo0, lo1 = fm.ITALY_BBOX
+        if la0 <= lat <= la1 and lo0 <= lon <= lo1:
+            return (lat, lon), f"{dato.get('citta') or 'Posizione'} (stima)"
+    return ROMA, "Roma (ripiego)"
+
+
+def posizione_ip() -> tuple[tuple[float, float], str] | None:
+    """Posizione dall'indirizzo internet, chiesta una volta per sessione; None mentre il browser risponde."""
+    if "pos_ip" not in st.session_state:
+        dato = streamlit_js_eval.streamlit_js_eval(js_expressions=_IP_JS, key="geo_ip")
+        if dato is None:
+            return None
+        st.session_state["pos_ip"] = origine_da_ip(dato)
+    return st.session_state["pos_ip"]
+
+
 def posizione_browser() -> tuple[tuple[float, float] | None, str]:
     """Posizione reale dal browser (API Geolocation): ((lat, lon), nota) oppure (None, motivo)."""
     giro = st.session_state.get("geo_giro", 0)
