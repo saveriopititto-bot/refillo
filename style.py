@@ -294,10 +294,22 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   gap: 14px; max-width: 320px; width: 100%; text-align: center; }}
 .x-progress-lbl {{ font-size: 13px; font-weight: 700; color: {DEEP}; line-height: 1.35; letter-spacing: -0.01em; }}
 [data-testid="stElementContainer"]:has(.x-progress-wrap) {{ position: absolute; width: 0; height: 0; margin: 0; }}
+/* schermata d'avvio: lo stesso riquadro del cerchio di caricamento, con il pulsante ⛽ al posto del cerchio */
+.stApp .st-key-avvio {{ position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 999990;
+  background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 26px 32px;
+  width: min(320px, calc(100vw - 32px)); align-items: center; gap: 14px; text-align: center; }}
+.stApp .st-key-avvio .stButton button {{ width: 110px; height: 110px; min-height: 0; padding: 0; border-radius: 50%;
+  background: #fff; border: 7px solid {ORANGE}; box-shadow: none; transition: background .15s, transform .15s; }}
+.stApp .st-key-avvio .stButton button:hover {{ background: {A100}; transform: scale(1.04); }}
+.stApp .st-key-avvio .x-progress-lbl {{ text-align: center; }}
+.stApp .st-key-avvio .stButton button p {{ font-size: 46px; line-height: 1; font-weight: 400; }}
 @media (max-width: 640px) {{
   .x-progress-box {{ padding: 18px 20px; max-width: 260px; gap: 10px; }}
   .x-progress-box svg {{ width: 95px; height: 95px; }}
   .x-progress-lbl {{ font-size: 12px; }}
+  .stApp .st-key-avvio {{ padding: 18px 20px; width: min(260px, calc(100vw - 32px)); gap: 10px; }}
+  .stApp .st-key-avvio .stButton button {{ width: 95px; height: 95px; border-width: 6px; }}
+  .stApp .st-key-avvio .stButton button p {{ font-size: 40px; }}
 }}
 
 /* colofon */
@@ -414,6 +426,17 @@ def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False) -> str:
         f'{lbl_html}'
         f'</div></div>'
     )
+
+
+def _avvia() -> None:
+    st.session_state["avviato"] = True
+
+
+def avvio() -> None:
+    """Schermata d'avvio: il pulsante ⛽ al centro fa partire posizione e download, poi si apre la Home."""
+    with st.container(key="avvio"):
+        st.button("⛽", key="avvia", help="Cerca la posizione e i prezzi di oggi", on_click=_avvia)
+        html('<div class="x-progress-lbl">Tocca per trovare il distributore che conviene</div>')
 
 
 class Caricamento:
