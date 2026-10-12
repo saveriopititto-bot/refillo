@@ -30,7 +30,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
 - I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
   (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
-  `fm.get_osrm_route`, `streamlit_js_eval.get_geolocation` e `streamlit_js_eval.streamlit_js_eval` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
+  `fm.get_osrm_route`, `streamlit_js_eval.streamlit_js_eval`: chiave `geo_0` per il GPS, `geo_ip` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
 - Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "F.A.Q."`; `st.cache_data` resta in
   memoria tra un AppTest e l'altro nello stesso processo, quindi per casi diversi usa argomenti diversi.
@@ -90,7 +90,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `parse_anagrafica` resta con il ciclo Python: la versione con `read_csv` è stata misurata ed è più lenta.
 - **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
   OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
-  (`lru_cache`), gli errori no; se OSRM non risponde (attesa massima 2,5 s per `/table`, 1,5 s per `/route`) si usa
+  (`lru_cache`), gli errori no, ma dopo un errore OSRM non si chiama per 3 minuti (`PAUSA_DOPO_ERRORE_S`, per tutti;
+  le risposte già in memoria valgono comunque, `InPausa`; nei test `osrm.riprendi()`); se OSRM non risponde (attesa massima 2,5 s per `/table`, 1,5 s per `/route`) si usa
   la linea d'aria × fattore strada.
 - **Storico**: `storico.py` + `scripts/raccogli_storico.py`, lanciati ogni mattina da
   `.github/workflows/storico.yml`, che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
@@ -120,12 +121,15 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   richiesta di posizione prima del tocco. Sotto il pulsante il menu `carburante_avvio`: al tocco `_avvia` lo copia in
   `st.session_state["carburante"]`, la chiave del menu della Home. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
 - **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
-  `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
+  `position: fixed` e sfondo pieno `BG`: dietro non si vede niente) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
   il browser risponde); le cache hanno `show_spinner=False`. Nei primi 0,3 s compare in ritardo (`x-ritardo`), così
   non lampeggia quando i dati sono già in memoria. Lo score del petrolio si legge in `ControlsView` (`bs`, `bs_err`).
-- **Posizione**: GPS dal browser (`posizione_browser`); se manca (negato, spento o in attesa) la Home non si ferma:
-  `posizione_ip` chiede al browser, con `streamlit_js_eval`, la posizione dall'IP (`get.geojs.io`, poi `ipwho.is`,
-  4 secondi; una volta per sessione in `st.session_state["pos_ip"]`); fuori dall'Italia o in errore Roma (`ROMA`).
+- **Posizione**: `rileva_posizione()` in cima ad `app.py`, prima della schermata d'avvio e sempre nello stesso punto
+  (così la richiesta parte all'apertura e non riparte dopo il tocco). Prima il GPS (`posizione_browser`: `getLocation()`
+  di streamlit_js_eval con un tempo massimo di 15 s, `GPS_ATTESA_S`, oltre il quale vale come errore); solo se fallisce
+  (negato, spento, tempo scaduto) `posizione_ip` chiede al browser la posizione dall'IP (`get.geojs.io`, poi
+  `ipwho.is`, 4 secondi; una volta per sessione in `st.session_state["pos_ip"]`); fuori dall'Italia o in errore Roma
+  (`ROMA`). Mentre il GPS non ha risposto, dopo il tocco resta il cerchio «Cerco la tua posizione…».
   La nota «📍 Perugia (stima)» / «📍 Roma (ripiego)» sta sulla riga di «CONSIGLIO» (`kicker_html`), per non
   allungare la pagina. Nei test AppTest va simulato anche `streamlit_js_eval.streamlit_js_eval`.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del

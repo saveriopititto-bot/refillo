@@ -47,13 +47,14 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 
 - **Carburante**: il menu (Benzina, Gasolio, GPL, Metano) sta nella Home, nella riga degli indicatori, accanto a
   «Costo al km» e largo come loro (da telefono senza la freccia). Nelle altre schede vale il carburante già scelto.
-- **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
-  un comune in «Opzioni». Senza GPS l'app non si ferma: usa una posizione stimata dalla rete (vedi «Posizione»).
+- **Dove sei**: la posizione si chiede appena si apre l'app, già nella schermata d'avvio; «Posizione» la rileva di
+  nuovo. In alternativa si sceglie un comune in «Opzioni». Se il GPS non la dà, l'app usa una posizione stimata dalla
+  rete (vedi «Posizione»).
 - **Avvio**: all'apertura c'è solo un pulsante rotondo verde con il distributore (icona Material) al centro dello schermo, nello stesso riquadro del
   cerchio di caricamento. Sotto c'è già il menu del carburante: quello scelto qui passa al menu della Home. Toccando il pulsante partono la ricerca della posizione e i download, poi si apre la Home.
 - **Caricamento**: mentre l'app scarica i dati MIMIT, legge il Brent e lo score del petrolio e cerca la posizione,
-  al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso. Se i dati sono già in memoria
-  non compare nemmeno.
+  al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso, su sfondo vuoto. Se i dati sono
+  già in memoria non compare nemmeno.
 - La riga in cima al riquadro delle schede, sempre su una riga anche da telefono: «Home», «Posizione»,
   «Opzioni», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
   sfondo tenue e il testo normale. «Opzioni» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina
@@ -155,7 +156,8 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
   strada, chieste al server pubblico OSRM per i 99 distributori più vicini (opzione «Calcola percorsi reali»,
   attiva di default; le risposte restano in memoria finché il server è acceso, così cambiare litri, consumo o
   soglie non rifà la richiesta). Senza OSRM, o se non risponde entro 2,5 secondi (1,5 per il percorso), sono in linea d'aria per un fattore strada
-  (1,3 di default).
+  (1,3 di default). Dopo un errore OSRM non si richiama per 3 minuti (restano valide le risposte già in memoria), così
+  le pagine non aspettano un server che non risponde.
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
@@ -270,8 +272,8 @@ La posizione arriva dall'API Geolocation del browser, tramite `streamlit-js-eval
 (come su Streamlit Cloud) o su `localhost`. Su telefono usa il GPS; su computer di solito è più approssimativa,
 perché il browser la stima dalla rete. «Posizione» la rileva di nuovo.
 
-Se il GPS non dà una posizione (permesso negato, GPS spento o in attesa della risposta), l'app non mostra una pagina
-d'attesa (solo il cerchio di caricamento per un attimo): chiede al browser una posizione approssimativa dall'indirizzo internet (servizi gratuiti `get.geojs.io`,
+La richiesta parte appena si apre l'app, mentre è ancora visibile il pulsante d'avvio: così c'è tempo per rispondere
+al browser. Se il GPS non dà una posizione (permesso negato, GPS spento, o nessuna risposta entro 15 secondi), chiede al browser una posizione approssimativa dall'indirizzo internet (servizi gratuiti `get.geojs.io`,
 poi `ipwho.is`, al massimo 4 secondi) e mostra subito la Home per quella zona, con «📍 Perugia (stima)» accanto a
 «CONSIGLIO». Se l'indirizzo non si trova o è fuori dall'Italia usa Roma («📍 Roma (ripiego)»). La richiesta parte dal
 browser di chi usa l'app: dal server si vedrebbe l'indirizzo di Streamlit Cloud. Appena il GPS risponde, o se si

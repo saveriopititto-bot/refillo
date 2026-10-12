@@ -6,6 +6,7 @@ import streamlit as st
 import fuel_model as fm
 import style
 from ui.controls_view import HOME, ControlsView
+from ui.data_service import rileva_posizione
 from ui.edges_view import EdgesView
 from ui.hero_view import HeroView
 from ui.how_view import HowView
@@ -14,17 +15,21 @@ from ui.result_view import ResultView, render_top5
 st.set_page_config(page_title="Conviene rifornire?", page_icon="⛽", layout="wide", initial_sidebar_state="collapsed")
 style.apply_style()
 
-# all'apertura solo il pulsante ⛽: posizione e download partono quando lo si tocca
+c_hero = st.container()
+
+# la posizione si chiede subito, già nella schermata d'avvio (sempre nello stesso punto della pagina, così la
+# richiesta non riparte dopo il tocco): GPS e, se fallisce, indirizzo internet
+posizione = rileva_posizione()
+
+# all'apertura solo il pulsante del distributore: i download partono quando lo si tocca
 if not st.session_state.get("avviato"):
     style.avvio(fm.FUELS)
     st.stop()
 
-c_hero = st.container()
-
 # --------------------------------------------------------------------------
 # Controlli utente e dati
 # --------------------------------------------------------------------------
-controls = ControlsView.render(c_hero=c_hero)
+controls = ControlsView.render(c_hero=c_hero, posizione=posizione)
 
 # --------------------------------------------------------------------------
 # Calcolo

@@ -307,10 +307,11 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
 
-/* cerchio di caricamento: uno solo, al centro dello schermo, sopra la pagina (MIMIT, Brent, score, posizione).
+/* cerchio di caricamento: uno solo, al centro dello schermo, su sfondo pieno che copre la pagina (MIMIT, Brent, score,
+   posizione).
    Con .x-ritardo compare dopo un attimo, così non lampeggia quando i dati sono già in memoria. */
 .x-progress-wrap {{ position: fixed; inset: 0; z-index: 999990; display: flex; justify-content: center;
-  align-items: center; padding: 16px; background: rgba(238, 246, 250, .72); }}
+  align-items: center; padding: 16px; background: {BG}; }}
 .x-progress-wrap.x-ritardo {{ opacity: 0; animation: x-compari .15s ease-out .3s forwards; }}
 @keyframes x-compari {{ to {{ opacity: 1; }} }}
 .x-progress-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
