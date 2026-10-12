@@ -1,6 +1,7 @@
 """Vista della scheda «Home» (metriche e mappa) e contenuto del riquadro «Top 5»."""
 from __future__ import annotations
 
+from contextlib import nullcontext
 from dataclasses import dataclass
 from html import escape
 
@@ -23,6 +24,7 @@ class ResultView:
     show_all_lines: bool
     fonte: str
     unita: str = "l"  # «kg» per il Metano
+    metriche: any = None  # colonna accanto al menu del carburante, dove vanno gli indicatori
 
     def render(self) -> None:
         if self.edges.empty:
@@ -33,12 +35,13 @@ class ResultView:
         eu = f" €/{self.unita}"
         prezzo_txt = _it(f"{best.prezzo:.3f}") + eu
 
-        style.metrics([
-            ("Prezzo medio", _it(f"{self.info['p_market']:.3f}") + eu,
-             f"{self.ref_mode} nel raggio"),
-            ("Distributori", str(self.info["n"]), f"nel raggio di {self.raggio} km"),
-            ("Costo al km", _it(f"{self.info['c_km']:.3f}") + " €/km", "carburante + usura"),
-        ])
+        with self.metriche if self.metriche is not None else nullcontext():
+            style.metrics([
+                ("Prezzo medio", _it(f"{self.info['p_market']:.3f}") + eu,
+                 f"{self.ref_mode} nel raggio"),
+                ("Distributori", str(self.info["n"]), f"nel raggio di {self.raggio} km"),
+                ("Costo al km", _it(f"{self.info['c_km']:.3f}") + " €/km", "carburante + usura"),
+            ])
 
         with style.card("map"):
             style.lead(

@@ -56,6 +56,7 @@ if st.session_state.get("scheda", HOME) == HOME:
             show_all_lines=controls.show_all_lines,
             fonte=controls.fonte,
             unita=controls.unita,
+            metriche=controls.metriche,
         ).render()
 
 else:

@@ -47,7 +47,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
   1.65; `requirements.txt` chiede `streamlit>=1.65`).
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
-  tutte le schede: testo a sinistra e, a destra, il cerchio dello score con sotto il menu del carburante. Sotto, un
+  tutte le schede: testo a sinistra e, a destra, il cerchio dello score. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, sempre su una riga anche da telefono: Home ·
   Posizione · Opzioni · Top 5 · F.A.Q., cinque pillole della stessa larghezza (colonne `flex: 1 1 0`, pulsanti
   `width="stretch"`) con lo sfondo tenue `N100` e testo senza grassetto. Opzioni e Top 5 sono `st.popover`
@@ -60,7 +60,10 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   computer 1280 × 800, con lo score del petrolio): margini, distacchi (6 px), riquadro «Consiglio» e didascalie sono
   compattati per questo; controlla con Playwright prima di aggiungere spazio o elementi. In Streamlit 1.65 le colonne sono `stColumn` e il menu a tendina è un `input` dentro
   `stSelectbox`. La tabella degli archi sta in fondo a
-  «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km
+  «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km e, accanto, il menu del
+  carburante (contenitori `metriche` e `carb`, creati in `ControlsView` solo nella Home: quattro riquadri larghi uguali;
+  gli indicatori li scrive `ResultView` nella colonna `metriche`; nelle altre schede il menu non c'è e la chiave
+  `carburante` viene tenuta in vita all'inizio di `ControlsView.render`)
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
   rimetterla.
 - **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
@@ -108,7 +111,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Avvio**: finché `st.session_state["avviato"]` non è vero, `app.py` mostra solo `style.avvio()` (contenitore
   `avvio`, lo stesso riquadro del cerchio di caricamento con il pulsante `avvia`: cerchio verde `VERDE` con l'icona `:material/local_gas_station:`, 132 px, 114 da telefono; riquadro largo 384 px, 312 da telefono) e si ferma: niente download né
   richiesta di posizione prima del tocco. Sotto il pulsante il menu `carburante_avvio`: al tocco `_avvia` lo copia in
-  `st.session_state["carburante"]`, la chiave del menu del riquadro «Consiglio». Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
+  `st.session_state["carburante"]`, la chiave del menu della Home. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
 - **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
   `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
   il browser risponde); le cache hanno `show_spinner=False`. Nei primi 0,3 s compare in ritardo (`x-ritardo`), così

@@ -56,10 +56,11 @@ class ControlsResult:
     ref_mode: str
     show_all_lines: bool
     hero_testo: any  # colonna del testo nel riquadro «Consiglio»
-    hero_cerchio: any  # posto del cerchio dello score, sopra il menu del carburante
+    hero_cerchio: any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
     contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
     nota_posizione: str  # «Perugia (stima)» / «Roma (ripiego)» se non viene dal GPS, altrimenti ""
     top5: any  # riquadro apribile «Top 5» nella riga dei comandi
+    metriche: any  # posto degli indicatori della Home, accanto al menu del carburante (None nelle altre schede)
     bs: dict | None  # score del petrolio (None se manca)
     bs_err: str  # perché manca lo score
 
@@ -67,6 +68,9 @@ class ControlsResult:
 class ControlsView:
     @staticmethod
     def render(c_hero: any) -> ControlsResult:
+        # il menu del carburante c'è solo nella Home: così la scelta resta anche quando non è disegnato
+        if "carburante" in st.session_state:
+            st.session_state["carburante"] = st.session_state["carburante"]
         up_a = st.session_state.get("up_anag")
         up_p = st.session_state.get("up_prezzi")
 
@@ -116,11 +120,10 @@ class ControlsView:
             dB = 0.0
             nota_brent = f"Brent non disponibile da Yahoo Finance ({escape(brent_err)}): non considerato"
 
-        # riquadro «Consiglio»: testo a sinistra; a destra il cerchio dello score e, sotto, il carburante
+        # riquadro «Consiglio»: testo a sinistra; a destra il cerchio dello score
         hero_testo, hero_lato = style.hero_box(c_hero)
         with hero_lato:
             hero_cerchio = st.container()
-            fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed", key="carburante")
 
         # riquadro delle schede: Home · Posizione · Opzioni · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
         st.session_state.setdefault("scheda", HOME)
@@ -128,6 +131,20 @@ class ControlsView:
             with st.container(key="comandi"):
                 col_home, col_pos, col_adv, col_top, col_faq = st.columns(5, gap="small", vertical_alignment="top")
             contenuto = st.container()
+
+        # Home: in cima la riga degli indicatori, con il menu del carburante accanto a «Costo al km» (gli indicatori
+        # li scrive ResultView). Nelle altre schede il menu non c'è e vale il carburante già scelto.
+        metriche = None
+        if st.session_state.get("scheda", HOME) == HOME:
+            with contenuto:
+                with st.container(key="metriche"):
+                    metriche, col_carb = st.columns([3, 1], gap="small")
+            with col_carb:
+                with st.container(key="carb"):
+                    style.html('<div class="x-label">Carburante</div>')
+                    fuel = st.selectbox("Carburante", fm.FUELS, label_visibility="collapsed", key="carburante")
+        else:
+            fuel = st.session_state.get("carburante", fm.FUELS[0])
 
         _pillola(col_home, HOME, "nav_home")
         _pillola(col_faq, FAQ, "nav_faq")
@@ -262,6 +279,7 @@ class ControlsView:
             contenuto=contenuto,
             nota_posizione=nota_posizione,
             top5=top5,
+            metriche=metriche,
             bs=bs,
             bs_err=bs_err,
         )
