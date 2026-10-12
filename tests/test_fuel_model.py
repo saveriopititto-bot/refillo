@@ -2,7 +2,17 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import clients.osrm as osrm
 import fuel_model as fm
+
+
+@pytest.fixture(autouse=True)
+def _osrm_senza_pausa():
+    """Ogni test parte senza la pausa di OSRM lasciata da un errore di un altro test."""
+    osrm.riprendi()
+    yield
+    osrm.riprendi()
+
 
 ANAG = """Estrazione del 2026-10-09
 idImpianto|Gestore|Bandiera|Tipo Impianto|Nome Impianto|Indirizzo|Comune|Provincia|Latitudine|Longitudine
@@ -262,7 +272,21 @@ def test_osrm_errore_non_in_cache(monkeypatch):
     origine, dest = (43.23, 12.78), [(43.24, 12.79)]
     assert fm.get_osrm_distances(origine, dest) == [None]
     assert fm.get_osrm_distances(origine, dest) == [None]
-    assert len(chiamate) == 2  # dopo un errore si riprova
+    assert fm.get_osrm_route(origine, dest[0]) == []
+    assert len(chiamate) == 1  # dopo un errore OSRM resta in pausa per qualche minuto: niente nuove chiamate
+    osrm.riprendi()
+    assert fm.get_osrm_distances(origine, dest) == [None]
+    assert len(chiamate) == 2  # finita la pausa si riprova (l'errore non è rimasto in memoria)
+
+
+def test_osrm_in_pausa_usa_la_memoria(monkeypatch):
+    fm._osrm_table.cache_clear()
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: _RispostaJSON(200, {"code": "Ok", "distances": [[0, 2000.0]]}))
+    origine, dest = (43.23, 12.78), [(43.24, 12.79)]
+    assert fm.get_osrm_distances(origine, dest) == [2.0]
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: _RispostaJSON(503, {}))
+    assert fm.get_osrm_distances(origine, [(43.3, 12.9)]) == [None]  # errore: pausa
+    assert fm.get_osrm_distances(origine, dest) == [2.0]  # in pausa, ma questa risposta era già in memoria
 
 
 def test_osrm_route(monkeypatch):

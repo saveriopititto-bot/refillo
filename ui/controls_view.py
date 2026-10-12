@@ -22,8 +22,6 @@ from ui.data_service import (
     impronta,
     load_data,
     brent_yahoo,
-    posizione_browser,
-    posizione_ip,
 )
 from ui.formatters import _it, num
 from ui.hero_view import render_error
@@ -69,7 +67,8 @@ class ControlsResult:
 
 class ControlsView:
     @staticmethod
-    def render(c_hero: any) -> ControlsResult:
+    def render(c_hero: any, posizione: tuple[tuple[float, float] | None, str]) -> ControlsResult:
+        """`posizione` = rileva_posizione(), chiesta in cima ad app.py (GPS, o indirizzo internet se fallisce)."""
         # il menu del carburante c'è solo nella Home: così la scelta resta anche quando non è disegnato
         if "carburante" in st.session_state:
             st.session_state["carburante"] = st.session_state["carburante"]
@@ -196,18 +195,13 @@ class ControlsView:
             )
 
         caricamento.mostra(95, "Cerco la tua posizione…")
-        origin, _ = posizione_browser()
-        nota_posizione = ""  # riga nel riquadro «Consiglio» quando la posizione non è quella del GPS
+        # nota_posizione: riga nel riquadro «Consiglio» quando la posizione non è quella del GPS
+        origin, nota_posizione = posizione
         if comune_override:
             sel = anag[anag.comune == comune_override]
-            origin = (float(sel.lat.median()), float(sel.lon.median()))
-        elif origin is None:
-            # GPS negato, spento o in attesa: posizione approssimativa dall'indirizzo internet (o Roma)
-            da_ip = posizione_ip()
-            if da_ip is not None:
-                origin, nota_posizione = da_ip
+            origin, nota_posizione = (float(sel.lat.median()), float(sel.lon.median())), ""
 
-        if origin is None:  # solo per un attimo, mentre il browser risponde: il cerchio resta al centro
+        if origin is None:  # il browser non ha ancora risposto (al massimo 15 secondi): il cerchio resta al centro
             top5.caption("Serve la posizione per trovare i distributori migliori.")
             style.colophon()
             st.stop()

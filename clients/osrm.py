@@ -2,11 +2,39 @@
 from __future__ import annotations
 
 import logging
+import time
 from functools import lru_cache
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+# dopo un errore OSRM non si richiama per qualche minuto (per tutti, è lo stesso server): intanto linea d'aria,
+# così se il servizio è giù ogni tocco non aspetta fino a 4 secondi
+PAUSA_DOPO_ERRORE_S = 180
+_pausa_fino = 0.0
+
+
+def in_pausa() -> bool:
+    return time.monotonic() < _pausa_fino
+
+
+class InPausa(Exception):
+    """OSRM non si chiama: c'è stato un errore da poco. Le risposte già in memoria valgono comunque."""
+
+
+def _errore(cosa: str, e: Exception) -> None:
+    global _pausa_fino
+    if isinstance(e, InPausa):
+        return
+    _pausa_fino = time.monotonic() + PAUSA_DOPO_ERRORE_S
+    logger.warning("Errore OSRM %s: %s (pausa di %d s)", cosa, e, PAUSA_DOPO_ERRORE_S)
+
+
+def riprendi() -> None:
+    """Toglie la pausa (per i test)."""
+    global _pausa_fino
+    _pausa_fino = 0.0
 
 OSRM_URL = "https://router.project-osrm.org"
 
@@ -14,6 +42,8 @@ OSRM_URL = "https://router.project-osrm.org"
 @lru_cache(maxsize=512)
 def _osrm_table(origin: tuple[float, float], destinations: tuple[tuple[float, float], ...]) -> tuple:
     """Distanze stradali (km) dall'origine; solleva un'eccezione se OSRM non risponde, così l'errore non va in cache."""
+    if in_pausa():
+        raise InPausa()
     coords = ";".join(f"{lon:.5f},{lat:.5f}" for lat, lon in (origin, *destinations))  # OSRM vuole lon,lat
     resp = requests.get(f"{OSRM_URL}/table/v1/driving/{coords}",
                         params={"sources": "0", "annotations": "distance"}, timeout=2.5)
@@ -28,6 +58,8 @@ def _osrm_table(origin: tuple[float, float], destinations: tuple[tuple[float, fl
 
 @lru_cache(maxsize=256)
 def _osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> tuple:
+    if in_pausa():
+        raise InPausa()
     coords = f"{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}"
     resp = requests.get(f"{OSRM_URL}/route/v1/driving/{coords}",
                         params={"geometries": "geojson", "overview": "full"}, timeout=1.5)
@@ -51,7 +83,7 @@ def get_osrm_distances(origin: tuple[float, float], destinations: list[tuple[flo
     try:
         return list(_osrm_table(_arrotonda(origin), tuple(_arrotonda(d) for d in destinations)))
     except Exception as e:
-        logger.warning("Errore OSRM table: %s", e)
+        _errore("table", e)
         return [None] * len(destinations)
 
 
@@ -60,5 +92,5 @@ def get_osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> li
     try:
         return [list(c) for c in _osrm_route(_arrotonda(origin), _arrotonda(dest))]
     except Exception as e:
-        logger.warning("Errore OSRM route: %s", e)
+        _errore("route", e)
         return []

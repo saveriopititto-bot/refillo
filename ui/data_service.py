@@ -284,12 +284,21 @@ def posizione_ip() -> tuple[tuple[float, float], str] | None:
     return st.session_state["pos_ip"]
 
 
+# GPS del browser con un tempo massimo: se chi usa l'app non risponde alla richiesta del permesso (o il GPS non trova
+# la posizione) dopo 15 secondi vale come errore e si passa all'indirizzo internet. getLocation() è la funzione di
+# streamlit_js_eval (la stessa di get_geolocation), che risponde {coords: …} oppure {error: {code, message}}.
+GPS_ATTESA_S = 15
+_GPS_JS = (f"Promise.race([getLocation(), new Promise(r => setTimeout(() => r({{error: {{code: 3, "
+           f"message: 'timeout'}}}}), {GPS_ATTESA_S * 1000}))])")
+
+
 def posizione_browser() -> tuple[tuple[float, float] | None, str]:
-    """Posizione reale dal browser (API Geolocation): ((lat, lon), nota) oppure (None, motivo)."""
+    """Posizione reale dal browser (API Geolocation): ((lat, lon), nota) oppure (None, motivo); il motivo è vuoto
+    finché il browser non ha risposto."""
     giro = st.session_state.get("geo_giro", 0)
-    geo = streamlit_js_eval.get_geolocation(component_key=f"geo_{giro}")
+    geo = streamlit_js_eval.streamlit_js_eval(js_expressions=_GPS_JS, key=f"geo_{giro}")
     if not geo:
-        return None, "Consenti l'accesso alla posizione quando il browser lo chiede…"
+        return None, ""
     if not isinstance(geo, dict):
         return None, "Posizione non disponibile."
     if "error" in geo:
@@ -307,3 +316,17 @@ def posizione_browser() -> tuple[tuple[float, float] | None, str]:
     if not (la0 <= lat <= la1 and lo0 <= lon <= lo1):
         nota += ". Sei fuori dall'Italia: i dati MIMIT coprono solo i distributori italiani."
     return (lat, lon), nota
+
+
+def rileva_posizione() -> tuple[tuple[float, float] | None, str]:
+    """Posizione da usare: prima il GPS; solo se fallisce (negato, spento, 15 secondi senza risposta) l'indirizzo
+    internet, o Roma. ((lat, lon), nota) con nota vuota per il GPS; (None, "") mentre il browser risponde.
+
+    Si chiama in cima ad app.py, già nella schermata d'avvio: la richiesta parte appena si apre l'app."""
+    origin, motivo = posizione_browser()
+    if origin is not None:
+        return origin, ""
+    if not motivo:  # il GPS non ha ancora risposto
+        return None, ""
+    da_ip = posizione_ip()
+    return da_ip if da_ip is not None else (None, "")
