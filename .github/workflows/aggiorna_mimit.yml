@@ -5,7 +5,11 @@ name: Aggiorna Dati MIMIT
 # Non scrive mai su main.
 on:
   schedule:
-    - cron: "05 7 * * *"  # 07:05 UTC (8:05 solare / 9:05 legale in Italia, dopo le 8:00 MIMIT)
+    # 07:05 UTC (8:05 solare / 9:05 legale in Italia, dopo le 8:00 MIMIT), più due riprove: GitHub a volte avvia
+    # le azioni programmate con ore di ritardo o le salta; se i file non sono cambiati non si salva niente
+    - cron: "05 7 * * *"
+    - cron: "35 9 * * *"
+    - cron: "05 13 * * *"
   workflow_dispatch:
 
 permissions:
