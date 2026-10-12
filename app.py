@@ -34,6 +34,7 @@ controls = ControlsView.render(c_hero=c_hero, posizione=posizione)
 # --------------------------------------------------------------------------
 # Calcolo
 # --------------------------------------------------------------------------
+controls.caricamento.mostra(98, "Calcolo le distanze su strada…")
 edges, info = fm.compute_edges(controls.cands, controls.origin, controls.params)
 
 # --------------------------------------------------------------------------
@@ -73,3 +74,7 @@ else:
 # Colofon
 # --------------------------------------------------------------------------
 style.colophon()
+
+# pagina completa: si chiude il cerchio (prima la pagina si vedrebbe a metà, per esempio mentre risponde OSRM)
+controls.caricamento.chiudi()
+st.session_state["pronta"] = True

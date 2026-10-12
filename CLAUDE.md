@@ -125,9 +125,12 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   richiesta di posizione prima del tocco. Sotto il pulsante il menu `carburante_avvio`: al tocco `_avvia` lo copia in
   `st.session_state["carburante"]`, la chiave del menu della Home. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
 - **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
-  `position: fixed` e sfondo pieno `BG`: dietro non si vede niente) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
-  il browser risponde); le cache hanno `show_spinner=False`. Nei primi 0,3 s compare in ritardo (`x-ritardo`), così
-  non lampeggia quando i dati sono già in memoria. Lo score del petrolio si legge in `ControlsView` (`bs`, `bs_err`).
+  `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio, posizione (95%, resta finché
+  il browser risponde) e distanze su strada (98%, in `app.py` prima di `compute_edges`); si chiude in fondo ad `app.py`,
+  a pagina completa (prima, mentre rispondeva OSRM, la pagina si vedeva a metà). Finché la Home non è mai stata
+  mostrata (`st.session_state["pronta"]`) ha lo sfondo pieno `BG` (`x-pieno`) e compare subito; nei ricalcoli dopo
+  compare solo oltre 0,3 s (`x-ritardo`) su sfondo semitrasparente. Le cache hanno `show_spinner=False`. Lo score del
+  petrolio si legge in `ControlsView` (`bs`, `bs_err`).
 - **Posizione**: `rileva_posizione()` in cima ad `app.py`, prima della schermata d'avvio e sempre nello stesso punto
   (così la richiesta parte all'apertura e non riparte dopo il tocco). Prima il GPS (`posizione_browser`: `getLocation()`
   di streamlit_js_eval con un tempo massimo di 15 s, `GPS_ATTESA_S`, oltre il quale vale come errore); solo se fallisce

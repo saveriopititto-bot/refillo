@@ -53,8 +53,9 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 - **Avvio**: all'apertura c'è solo un pulsante rotondo verde con il distributore (icona Material) al centro dello schermo, nello stesso riquadro del
   cerchio di caricamento. Sotto c'è già il menu del carburante: quello scelto qui passa al menu della Home. Toccando il pulsante partono la ricerca della posizione e i download, poi si apre la Home.
 - **Caricamento**: mentre l'app scarica i dati MIMIT, legge il Brent e lo score del petrolio e cerca la posizione,
-  al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso, su sfondo vuoto. Se i dati sono
-  già in memoria non compare nemmeno.
+  al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso, su sfondo vuoto, fino a pagina
+  completa (anche mentre calcola le distanze su strada). Nei ricalcoli dopo, per esempio cambiando carburante, compare
+  solo se l'attesa dura più di un attimo, sopra la pagina in trasparenza; se i dati sono già in memoria non si vede.
 - La riga in cima al riquadro delle schede, sempre su una riga anche da telefono: «Home», «Posizione»,
   «Opzioni», «Top 5» e «F.A.Q.», cinque pillole della stessa larghezza che riempiono tutta la riga, con lo stesso
   sfondo tenue e il testo normale. «Opzioni» e «Top 5» si aprono come popover, cioè un riquadro sopra la pagina

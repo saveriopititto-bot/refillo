@@ -311,7 +311,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
    posizione).
    Con .x-ritardo compare dopo un attimo, così non lampeggia quando i dati sono già in memoria. */
 .x-progress-wrap {{ position: fixed; inset: 0; z-index: 999990; display: flex; justify-content: center;
-  align-items: center; padding: 16px; background: {BG}; }}
+  align-items: center; padding: 16px; background: rgba(238, 246, 250, .72); }}
+.x-progress-wrap.x-pieno {{ background: {BG}; }}
 .x-progress-wrap.x-ritardo {{ opacity: 0; animation: x-compari .15s ease-out .3s forwards; }}
 @keyframes x-compari {{ to {{ opacity: 1; }} }}
 .x-progress-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
@@ -444,7 +445,7 @@ def cerchio_score(esito: int, etichetta: str) -> str:
             f'<circle cx="32" cy="32" r="28" fill="#fff" stroke="{colore}" stroke-width="5"/>{simbolo}</svg></span>')
 
 
-def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False) -> str:
+def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False, pieno: bool = True) -> str:
     """Riquadro con cerchio SVG e progressione percentuale (0-100%)."""
     p = max(0, min(100, int(pct)))
     raggio = 44
@@ -452,7 +453,8 @@ def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False) -> str:
     offset = circ * (1.0 - p / 100.0)
     lbl_html = f'<div class="x-progress-lbl">{escape(label)}</div>' if label else ""
     return (
-        f'<div class="x-progress-wrap{" x-ritardo" if ritardo else ""}" role="status" aria-live="polite">'
+        f'<div class="x-progress-wrap{" x-ritardo" if ritardo else ""}{" x-pieno" if pieno else ""}" '
+        f'role="status" aria-live="polite">'
         f'<div class="x-progress-box">'
         f'<svg width="110" height="110" viewBox="0 0 110 110">'
         f'<circle cx="55" cy="55" r="{raggio}" fill="none" stroke="{N200}" stroke-width="7"/>'
@@ -483,18 +485,23 @@ def avvio(carburanti: Sequence[str]) -> None:
 
 
 class Caricamento:
-    """Il cerchio di caricamento unico, al centro dello schermo: avanza con dati MIMIT, Brent, score e posizione."""
+    """Il cerchio di caricamento unico, al centro dello schermo: avanza con dati MIMIT, Brent, score, posizione e
+    distanze su strada, e si chiude in fondo ad app.py, a pagina completa.
+
+    Finché la Home non è mai stata mostrata (`st.session_state["pronta"]`) copre tutto con lo sfondo pieno e compare
+    subito; nei ricalcoli dopo compare solo se l'attesa dura più di un attimo, su sfondo semitrasparente."""
 
     def __init__(self) -> None:
         self._posto = st.empty()
         self._inizio: float | None = None
 
     def mostra(self, pct: int, label: str) -> None:
-        # nei primi istanti compare con un attimo di ritardo: se i dati sono già in memoria non si vede nemmeno
         if self._inizio is None:
             self._inizio = time.monotonic()
-        ritardo = time.monotonic() - self._inizio < 0.3
-        self._posto.markdown(cerchio_progresso(pct, label, ritardo), unsafe_allow_html=True)
+        primo = not st.session_state.get("pronta")
+        # nei ricalcoli, nei primi istanti compare con un attimo di ritardo: con i dati in memoria non si vede nemmeno
+        ritardo = not primo and time.monotonic() - self._inizio < 0.3
+        self._posto.markdown(cerchio_progresso(pct, label, ritardo, pieno=primo), unsafe_allow_html=True)
 
     def chiudi(self) -> None:
         self._posto.empty()

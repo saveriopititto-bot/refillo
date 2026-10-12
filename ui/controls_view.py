@@ -64,6 +64,7 @@ class ControlsResult:
     bs: dict | None  # score del petrolio (None se manca)
     bs_err: str  # perché manca lo score
     esclusi: int = 0  # distributori tolti perché le coordinate non tornano con il loro comune
+    caricamento: any = None  # il cerchio di caricamento, da chiudere a pagina completa
 
 
 class ControlsView:
@@ -206,7 +207,7 @@ class ControlsView:
             top5.caption("Serve la posizione per trovare i distributori migliori.")
             style.colophon()
             st.stop()
-        caricamento.chiudi()
+        # il cerchio resta aperto: si chiude in fondo ad app.py, a pagina completa (dopo le distanze su strada)
 
         u = fm.unita(fuel)
         unita_lunga = "kg" if u == "kg" else "litri"
@@ -280,4 +281,5 @@ class ControlsView:
             bs=bs,
             bs_err=bs_err,
             esclusi=anag.attrs.get("esclusi", 0),
+            caricamento=caricamento,
         )
