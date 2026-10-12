@@ -6,7 +6,6 @@ import streamlit as st
 import fuel_model as fm
 import style
 from ui.controls_view import HOME, ControlsView
-from ui.data_service import leggi_brent_score
 from ui.edges_view import EdgesView
 from ui.hero_view import HeroView
 from ui.how_view import HowView
@@ -26,12 +25,11 @@ controls = ControlsView.render(c_hero=c_hero)
 # Calcolo
 # --------------------------------------------------------------------------
 edges, info = fm.compute_edges(controls.cands, controls.origin, controls.params)
-bs, bs_err = leggi_brent_score()
 
 # --------------------------------------------------------------------------
 # Consiglio in evidenza (in cima)
 # --------------------------------------------------------------------------
-HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, bs, bs_err, controls.note_dati,
+HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, controls.bs, controls.bs_err, controls.note_dati,
          controls.nota_posizione).render()
 
 # --------------------------------------------------------------------------

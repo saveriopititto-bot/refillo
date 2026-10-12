@@ -16,6 +16,7 @@ from ui.data_service import (
     PREZZI_FILE,
     clear_all_caches,
     fonte_download,
+    leggi_brent_score,
     get_mimit_dataset,
     load_data,
     brent_yahoo,
@@ -23,7 +24,7 @@ from ui.data_service import (
     posizione_ip,
 )
 from ui.formatters import _it, num
-from ui.hero_view import render_error, render_waiting
+from ui.hero_view import render_error
 
 HOME, FAQ = "Home", "F.A.Q."
 # capacità del serbatoio e consumo ogni 100 km predefiniti, nell'unità del carburante (kg per il Metano)
@@ -59,6 +60,8 @@ class ControlsResult:
     contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
     nota_posizione: str  # «Perugia (stima)» / «Roma (ripiego)» se non viene dal GPS, altrimenti ""
     top5: any  # riquadro apribile «Top 5» nella riga dei comandi
+    bs: dict | None  # score del petrolio (None se manca)
+    bs_err: str  # perché manca lo score
 
 
 class ControlsView:
@@ -67,12 +70,15 @@ class ControlsView:
         up_a = st.session_state.get("up_anag")
         up_p = st.session_state.get("up_prezzi")
 
-        c_progress = st.empty()
+        # un solo cerchio di caricamento al centro dello schermo: dati MIMIT (fino al 60%), lettura dei CSV,
+        # Brent, score del petrolio e posizione; si chiude quando la posizione c'è
+        caricamento = style.Caricamento()
         st.session_state.pop("download_err", None)
-        (anag_b, src_a), (prezzi_b, src_p) = get_mimit_dataset(c_progress, up_a, up_p)
-        c_progress.empty()
+        (anag_b, src_a), (prezzi_b, src_p) = get_mimit_dataset(
+            lambda pct, testo: caricamento.mostra(pct * 60 // 100, testo), up_a, up_p)
 
         if anag_b is None or prezzi_b is None:
+            caricamento.chiudi()
             errori = "<br>".join(escape(e) for e in st.session_state.get("download_err", []))
             render_error(c_hero, "Non sono riuscito a scaricare i dati dal sito del MIMIT"
                          + (f":<br><code>{errori}</code><br>" if errori else ". ")
@@ -89,13 +95,18 @@ class ControlsView:
             style.colophon()
             st.stop()
 
+        caricamento.mostra(65, "Leggo i prezzi dei distributori…")
         anag, prezzi, extraction = load_data(anag_b, prezzi_b)
         if anag.empty or prezzi.empty:
+            caricamento.chiudi()
             render_error(c_hero, "Uno dei CSV non contiene righe valide: controlla di aver caricato i file giusti.")
             style.colophon()
             st.stop()
 
+        caricamento.mostra(75, "Leggo il prezzo del petrolio…")
         brent, brent_err = brent_yahoo(BRENT_GIORNI)
+        caricamento.mostra(85, "Leggo lo score del petrolio…")
+        bs, bs_err = leggi_brent_score()
         if brent:
             dB = fm.brent_delta(brent["b_t"], brent["b_tn"], brent["fx_t"], brent["fx_tn"])
             db_txt = _it(f"{dB:+.2%}")
@@ -165,6 +176,7 @@ class ControlsView:
                 key="comune_fallback",
             )
 
+        caricamento.mostra(95, "Cerco la tua posizione…")
         origin, _ = posizione_browser()
         nota_posizione = ""  # riga nel riquadro «Consiglio» quando la posizione non è quella del GPS
         if comune_override:
@@ -176,11 +188,11 @@ class ControlsView:
             if da_ip is not None:
                 origin, nota_posizione = da_ip
 
-        if origin is None:  # solo per un attimo, mentre il browser risponde
+        if origin is None:  # solo per un attimo, mentre il browser risponde: il cerchio resta al centro
             top5.caption("Serve la posizione per trovare i distributori migliori.")
-            render_waiting(hero_testo, "Cerco la tua posizione…")
             style.colophon()
             st.stop()
+        caricamento.chiudi()
 
         u = fm.unita(fuel)
         unita_lunga = "kg" if u == "kg" else "litri"
@@ -250,4 +262,6 @@ class ControlsView:
             contenuto=contenuto,
             nota_posizione=nota_posizione,
             top5=top5,
+            bs=bs,
+            bs_err=bs_err,
         )

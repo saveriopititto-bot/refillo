@@ -54,13 +54,6 @@ class HeroView:
                        "", corpo, meta_html=meta, kicker_html=self._pos())
 
 
-def render_waiting(container: any, nota: str) -> None:
-    with container:
-        style.html(f'<div class="x-lead-box"><strong>⛽ Score di rifornimento</strong><br>'
-                   f'{escape(nota)}<br>In alternativa puoi impostare un <strong>Comune</strong> '
-                   f'da «Opzioni» qui sotto.</div>')
-
-
 def render_error(container: any, msg: str) -> None:
     with container:
         style.error_card(msg)

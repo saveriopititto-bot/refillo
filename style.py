@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from html import escape
+import time
 
 import streamlit as st
 
@@ -282,14 +283,19 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stElementContainer"]:has(iframe[title^="streamlit_js_eval"]) {{ position: absolute; width: 0; height: 0;
   overflow: hidden; margin: 0; }}
 
-/* cerchio di caricamento / progressione */
-.x-progress-wrap {{ display: flex; justify-content: center; align-items: center; padding: 24px 16px; width: 100%; }}
+/* cerchio di caricamento: uno solo, al centro dello schermo, sopra la pagina (MIMIT, Brent, score, posizione).
+   Con .x-ritardo compare dopo un attimo, così non lampeggia quando i dati sono già in memoria. */
+.x-progress-wrap {{ position: fixed; inset: 0; z-index: 999990; display: flex; justify-content: center;
+  align-items: center; padding: 16px; background: rgba(238, 246, 250, .72); }}
+.x-progress-wrap.x-ritardo {{ opacity: 0; animation: x-compari .15s ease-out .3s forwards; }}
+@keyframes x-compari {{ to {{ opacity: 1; }} }}
 .x-progress-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
   padding: 26px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px; max-width: 360px; width: 100%; text-align: center; }}
+  gap: 14px; max-width: 320px; width: 100%; text-align: center; }}
 .x-progress-lbl {{ font-size: 13px; font-weight: 700; color: {DEEP}; line-height: 1.35; letter-spacing: -0.01em; }}
+[data-testid="stElementContainer"]:has(.x-progress-wrap) {{ position: absolute; width: 0; height: 0; margin: 0; }}
 @media (max-width: 640px) {{
-  .x-progress-box {{ padding: 18px 20px; max-width: 290px; gap: 10px; }}
+  .x-progress-box {{ padding: 18px 20px; max-width: 260px; gap: 10px; }}
   .x-progress-box svg {{ width: 95px; height: 95px; }}
   .x-progress-lbl {{ font-size: 12px; }}
 }}
@@ -388,7 +394,7 @@ def cerchio_score(esito: int, etichetta: str) -> str:
             f'<circle cx="32" cy="32" r="28" fill="#fff" stroke="{colore}" stroke-width="5"/>{simbolo}</svg></span>')
 
 
-def cerchio_progresso(pct: int, label: str = "") -> str:
+def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False) -> str:
     """Riquadro con cerchio SVG e progressione percentuale (0-100%)."""
     p = max(0, min(100, int(pct)))
     raggio = 44
@@ -396,7 +402,7 @@ def cerchio_progresso(pct: int, label: str = "") -> str:
     offset = circ * (1.0 - p / 100.0)
     lbl_html = f'<div class="x-progress-lbl">{escape(label)}</div>' if label else ""
     return (
-        f'<div class="x-progress-wrap">'
+        f'<div class="x-progress-wrap{" x-ritardo" if ritardo else ""}" role="status" aria-live="polite">'
         f'<div class="x-progress-box">'
         f'<svg width="110" height="110" viewBox="0 0 110 110">'
         f'<circle cx="55" cy="55" r="{raggio}" fill="none" stroke="{N200}" stroke-width="7"/>'
@@ -408,6 +414,25 @@ def cerchio_progresso(pct: int, label: str = "") -> str:
         f'{lbl_html}'
         f'</div></div>'
     )
+
+
+class Caricamento:
+    """Il cerchio di caricamento unico, al centro dello schermo: avanza con dati MIMIT, Brent, score e posizione."""
+
+    def __init__(self) -> None:
+        self._posto = st.empty()
+        self._inizio: float | None = None
+
+    def mostra(self, pct: int, label: str) -> None:
+        # nei primi istanti compare con un attimo di ritardo: se i dati sono già in memoria non si vede nemmeno
+        if self._inizio is None:
+            self._inizio = time.monotonic()
+        ritardo = time.monotonic() - self._inizio < 0.3
+        self._posto.markdown(cerchio_progresso(pct, label, ritardo), unsafe_allow_html=True)
+
+    def chiudi(self) -> None:
+        self._posto.empty()
+        self._inizio = None
 
 
 def error_card(msg: str) -> None:
