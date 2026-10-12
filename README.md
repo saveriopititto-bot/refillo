@@ -154,7 +154,7 @@ $$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
 - **D_i**: chilometri in più, cioè andata e ritorno dalla tua posizione al distributore. Le distanze sono su
   strada, chieste al server pubblico OSRM per i 99 distributori più vicini (opzione «Calcola percorsi reali»,
   attiva di default; le risposte restano in memoria finché il server è acceso, così cambiare litri, consumo o
-  soglie non rifà la richiesta). Senza OSRM, o se non risponde, sono in linea d'aria per un fattore strada
+  soglie non rifà la richiesta). Senza OSRM, o se non risponde entro 2,5 secondi (1,5 per il percorso), sono in linea d'aria per un fattore strada
   (1,3 di default).
 - **C_km**: costo al km, cioè consumo × P_market + usura.
 
@@ -182,7 +182,9 @@ alle 7:05 UTC, con due riprove alle 9:35 e alle 13:05 se GitHub la ritarda o la 
 del ministero. L'azione non scrive mai su `main`.
 
 I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
-con i giorni vecchi).
+con i giorni vecchi). Per rendere fluida l'app a ogni tocco restano in memoria anche i distributori validi per
+carburante e opzioni e la mappa già disegnata: se non cambia niente, la mappa non si ricarica. Mentre ricalcola la
+pagina non si ingrigisce.
 
 Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi, ora del
 download e provenienza (copia GitHub del branch `dati` o sito del MIMIT) compaiono nel riquadro della decisione.

@@ -18,6 +18,8 @@ from ui.data_service import (
     fonte_download,
     leggi_brent_score,
     get_mimit_dataset,
+    candidati,
+    impronta,
     load_data,
     brent_yahoo,
     posizione_browser,
@@ -255,7 +257,7 @@ class ControlsView:
             consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
             use_osrm=use_osrm, ref_mode=ref_mode, theta=theta, livello_min=livello_min,
         )
-        cands = fm.build_candidates(anag, prezzi, fuel, self_service, float(max_age), extraction)
+        cands = candidati(anag, prezzi, impronta(anag_b, prezzi_b), fuel, self_service, float(max_age), extraction)
 
         data_estrazione = f"{extraction:%d/%m/%Y}" if extraction is not None else "data sconosciuta"
         fonte = (f"Estrazione MIMIT del {data_estrazione} · {len(cands):,} distributori con prezzo "
