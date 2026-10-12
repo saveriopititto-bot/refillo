@@ -5,7 +5,10 @@ name: Storico prezzi
 # indicando uno o più archivi trimestrali MIMIT per riempire lo storico a ritroso.
 on:
   schedule:
-    - cron: "17 7 * * *"  # 7:17 UTC, dopo la pubblicazione dei prezzi delle 8
+    # 7:17 UTC, dopo la pubblicazione dei prezzi delle 8, più una riprova se GitHub la salta (lo stesso giorno
+    # sostituisce le mediane già salvate, non le raddoppia)
+    - cron: "17 7 * * *"
+    - cron: "47 13 * * *"
   workflow_dispatch:
     inputs:
       archivio:
@@ -29,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Installa le dipendenze
-        run: pip install pandas numpy
+        run: pip install -r requirements.txt  # fuel_model importa anche requests
       - name: Prepara il branch dati
         run: |
           git config user.name "github-actions[bot]"

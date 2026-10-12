@@ -176,7 +176,7 @@ ordine:
 
 I file scaricati (dal branch `dati` o dal MIMIT) restano in memoria fino al prossimo aggiornamento delle 9:00.
 La copia nel branch `dati` la prepara un'azione GitHub (`.github/workflows/aggiorna_mimit.yml`, ogni mattina
-alle 7:05 UTC, script `scripts/aggiorna_mimit.py`): scaricarla da GitHub è più veloce e affidabile del sito
+alle 7:05 UTC, con due riprove alle 9:35 e alle 13:05 se GitHub la ritarda o la salta, script `scripts/aggiorna_mimit.py`): scaricarla da GitHub è più veloce e affidabile del sito
 del ministero. L'azione non scrive mai su `main`.
 
 I CSV letti restano in memoria (al massimo le ultime due versioni, per non riempire la memoria del server
@@ -240,7 +240,7 @@ sbagliata, «tabella vuota» se l'esportazione di scorebrent non ha ancora scrit
 ## Storico dei prezzi
 
 Per confrontare i prezzi di oggi con quelli delle settimane passate, un'azione GitHub
-(`.github/workflows/storico.yml`) gira ogni mattina alle 7:17 UTC: scarica i CSV MIMIT del giorno e salva
+(`.github/workflows/storico.yml`) gira ogni mattina alle 7:17 UTC (riprova alle 13:47): scarica i CSV MIMIT del giorno e salva
 nel branch **`dati`** due file:
 
 - `storico/medie_comuni.csv.gz`: per ogni giorno, comune, carburante e self/servito, la mediana dei prezzi e
