@@ -297,18 +297,19 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* schermata d'avvio: lo stesso riquadro del cerchio di caricamento, con il pulsante (icona Material del distributore,
    verde come il cerchio) al posto del cerchio */
 .stApp .st-key-avvio {{ position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 999990;
-  background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 26px 32px;
-  width: min(320px, calc(100vw - 32px)); align-items: center; gap: 14px; text-align: center; }}
+  background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 31px 38px;
+  width: min(384px, calc(100vw - 32px)); align-items: center; gap: 17px; text-align: center; }}
 .stApp .st-key-avvio .stButton button {{ width: 132px; height: 132px; min-height: 0; padding: 0; border-radius: 50%;
   background: #fff; border: 8px solid {VERDE}; color: {VERDE}; box-shadow: none; transition: background .15s, transform .15s; }}
 .stApp .st-key-avvio .stButton button:hover {{ background: #e8f5ee; color: {VERDE}; transform: scale(1.04); }}
-.stApp .st-key-avvio .x-progress-lbl {{ text-align: center; }}
+.stApp .st-key-avvio .x-progress-lbl {{ text-align: center; font-size: 15.5px; }}
 .stApp .st-key-avvio .stButton button p {{ font-size: 60px; line-height: 1; color: {VERDE}; }}
 @media (max-width: 640px) {{
   .x-progress-box {{ padding: 18px 20px; max-width: 260px; gap: 10px; }}
   .x-progress-box svg {{ width: 95px; height: 95px; }}
   .x-progress-lbl {{ font-size: 12px; }}
-  .stApp .st-key-avvio {{ padding: 18px 20px; width: min(260px, calc(100vw - 32px)); gap: 10px; }}
+  .stApp .st-key-avvio {{ padding: 22px 24px; width: min(312px, calc(100vw - 32px)); gap: 12px; }}
+  .stApp .st-key-avvio .x-progress-lbl {{ font-size: 14.5px; }}
   .stApp .st-key-avvio .stButton button {{ width: 114px; height: 114px; border-width: 7px; }}
   .stApp .st-key-avvio .stButton button p {{ font-size: 52px; }}
 }}
