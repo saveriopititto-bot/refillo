@@ -14,6 +14,14 @@ from ui.formatters import _it, eur, num
 from ui.map_leaflet import build_fuel_map, map_html
 
 
+@st.cache_data(max_entries=16, show_spinner=False)
+def _mappa_html(origin: tuple[float, float], edges: pd.DataFrame, best_route: list | None, show_all_lines: bool,
+                unita: str) -> str:
+    """HTML della mappa, in memoria: con gli stessi dati è identico (folium cambia gli id a ogni costruzione), così la
+    mappa non si ricarica a ogni tocco e si risparmiano circa 0,2 secondi."""
+    return map_html(build_fuel_map(origin, edges, best_route=best_route, show_all_lines=show_all_lines, unita=unita))
+
+
 @dataclass
 class ResultView:
     edges: pd.DataFrame
@@ -51,14 +59,10 @@ class ResultView:
                 f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
                 f"considerando il costo del viaggio."
             )
-            mappa = build_fuel_map(
-                self.origin, self.edges,
-                best_route=self.info.get("best_route"),
-                show_all_lines=self.show_all_lines,
-                unita=self.unita,
-            )
+            html_mappa = _mappa_html(tuple(self.origin), self.edges, self.info.get("best_route"),
+                                     self.show_all_lines, self.unita)
             with st.container(key="mappa"):
-                components.html(map_html(mappa), height=400)
+                components.html(html_mappa, height=400)
             # un solo blocco, su due righe: fonte dei dati e legenda della mappa
             st.caption(self.fonte + "  \nPiù un distributore è verde, più conviene. Tocca un distributore per i "
                        "dettagli e il percorso con il navigatore.")

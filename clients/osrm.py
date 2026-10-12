@@ -16,7 +16,7 @@ def _osrm_table(origin: tuple[float, float], destinations: tuple[tuple[float, fl
     """Distanze stradali (km) dall'origine; solleva un'eccezione se OSRM non risponde, così l'errore non va in cache."""
     coords = ";".join(f"{lon:.5f},{lat:.5f}" for lat, lon in (origin, *destinations))  # OSRM vuole lon,lat
     resp = requests.get(f"{OSRM_URL}/table/v1/driving/{coords}",
-                        params={"sources": "0", "annotations": "distance"}, timeout=5)
+                        params={"sources": "0", "annotations": "distance"}, timeout=2.5)
     if resp.status_code != 200:
         raise ValueError(f"OSRM ha risposto {resp.status_code}")
     data = resp.json()
@@ -30,7 +30,7 @@ def _osrm_table(origin: tuple[float, float], destinations: tuple[tuple[float, fl
 def _osrm_route(origin: tuple[float, float], dest: tuple[float, float]) -> tuple:
     coords = f"{origin[1]:.5f},{origin[0]:.5f};{dest[1]:.5f},{dest[0]:.5f}"
     resp = requests.get(f"{OSRM_URL}/route/v1/driving/{coords}",
-                        params={"geometries": "geojson", "overview": "full"}, timeout=3)
+                        params={"geometries": "geojson", "overview": "full"}, timeout=1.5)
     if resp.status_code != 200:
         raise ValueError(f"OSRM ha risposto {resp.status_code}")
     data = resp.json()

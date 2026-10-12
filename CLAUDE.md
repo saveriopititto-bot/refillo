@@ -73,6 +73,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   sul percorso verso il migliore: posizione, distributore migliore e strada OSRM, zoom massimo 16. Sfondo OpenStreetMap standard (`TILES`),
   schiarito via CSS (`SFONDO_CSS`): niente CARTO, che ora chiede una chiave e mostra «API key required». Script caricati: solo Leaflet e jQuery (i
   popup di folium lo usano). Toccando un distributore si apre il popup con il link «Portami qui» (Google Maps).
+  L'HTML della mappa è in `st.cache_data` (`_mappa_html` in `ui/result_view.py`): folium cambia gli id a ogni costruzione,
+  e un HTML diverso fa ricaricare l'iframe a ogni tocco; con la cache resta ferma finché i dati non cambiano.
+  Fluidità: `[data-stale="true"]` resta a opacità piena (niente grigio durante i ricalcoli) e l'omino «Running» è nascosto.
   Nell'ambiente cloud i CDN e i tile sono bloccati: per provarla con Chromium servi `leaflet.js` e jQuery da npm con
   `context.route`.
 - **Dati**: prezzi e anagrafica MIMIT da `ui/data_service.get_mimit_dataset`, con precedenza: CSV caricati a
@@ -80,11 +83,14 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   estrazione + 1 giorno è quella dell'ultimo aggiornamento delle 9:00: il MIMIT data i file con il giorno prima) → sito MIMIT (`fm.download_csv`); i file scaricati
   restano in memoria fino alle 9:00 successive. La copia la salva ogni mattina `.github/workflows/aggiorna_mimit.yml`
   (`scripts/aggiorna_mimit.py`) nel branch `dati`: i CSV MIMIT non vanno mai su `main` e non si versionano.
-  Brent da Yahoo Finance (`fetch_brent_yf`, cache 3 ore). `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`).
+  Brent da Yahoo Finance (`fetch_brent_yf`, cache 3 ore). `load_data` tiene al massimo 2 versioni dei CSV (`max_entries=2`, `st.cache_resource`
+  senza copie, chiave corta `impronta` = lunghezza + CRC32 dei byte invece di far leggere a Streamlit 7 MB a ogni giro);
+  anche `candidati` (= `build_candidates`) è in `st.cache_resource`: nessuno modifica queste tabelle (`compute_edges` copia).
   `parse_anagrafica` resta con il ciclo Python: la versione con `read_csv` è stata misurata ed è più lenta.
 - **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
   OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
-  (`lru_cache`), gli errori no; se OSRM non risponde si usa la linea d'aria × fattore strada.
+  (`lru_cache`), gli errori no; se OSRM non risponde (attesa massima 2,5 s per `/table`, 1,5 s per `/route`) si usa
+  la linea d'aria × fattore strada.
 - **Storico**: `storico.py` + `scripts/raccogli_storico.py`, lanciati ogni mattina da
   `.github/workflows/storico.yml`, che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
   giorni) e `storico/comuni.csv.gz` nel branch `dati`. Non fare mai merge del branch `dati` in `main` e non

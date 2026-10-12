@@ -4,6 +4,7 @@ from __future__ import annotations
 from html import escape
 from pathlib import Path
 from typing import Callable
+import zlib
 
 import pandas as pd
 import streamlit as st
@@ -38,11 +39,29 @@ def default_path(name: str) -> Path | None:
     return None
 
 
-@st.cache_data(max_entries=2, show_spinner=False)
-def load_data(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[pd.DataFrame, pd.DataFrame, pd.Timestamp | None]:
-    anag, extraction = fm.parse_anagrafica(anag_bytes)
-    prezzi = fm.parse_prezzi(prezzi_bytes)
+def impronta(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[int, int, int, int]:
+    """Chiave corta dei due CSV (lunghezza e CRC32, pochi ms): Streamlit non deve rileggere 7 MB a ogni tocco."""
+    return len(anag_bytes), zlib.crc32(anag_bytes), len(prezzi_bytes), zlib.crc32(prezzi_bytes)
+
+
+# cache_resource: le tabelle restano in memoria senza essere copiate a ogni giro (nessuno le modifica)
+@st.cache_resource(max_entries=2, show_spinner=False)
+def _load_data(_anag_bytes: bytes, _prezzi_bytes: bytes, chiave: tuple) -> tuple[pd.DataFrame, pd.DataFrame,
+                                                                                  pd.Timestamp | None]:
+    anag, extraction = fm.parse_anagrafica(_anag_bytes)
+    prezzi = fm.parse_prezzi(_prezzi_bytes)
     return anag, prezzi, extraction
+
+
+def load_data(anag_bytes: bytes, prezzi_bytes: bytes) -> tuple[pd.DataFrame, pd.DataFrame, pd.Timestamp | None]:
+    return _load_data(anag_bytes, prezzi_bytes, impronta(anag_bytes, prezzi_bytes))
+
+
+@st.cache_resource(max_entries=16, show_spinner=False)
+def candidati(_anag: pd.DataFrame, _prezzi: pd.DataFrame, chiave: tuple, fuel: str, self_service: bool,
+              max_age: float, extraction: pd.Timestamp | None) -> pd.DataFrame:
+    """Distributori validi per carburante e opzioni, in memoria (`chiave` = impronta dei CSV): compute_edges li copia."""
+    return fm.build_candidates(_anag, _prezzi, fuel, self_service, max_age, extraction)
 
 
 @st.cache_data(ttl=CACHE_ORE * 3600, show_spinner=False)

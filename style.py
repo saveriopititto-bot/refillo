@@ -27,6 +27,10 @@ CSS = f"""
   --shadow-soft: 0 1px 2px rgba(2,48,71,.04), 0 10px 30px rgba(2,48,71,.07); }}
 html, body, .stApp {{ font-family: 'Archivo', system-ui, sans-serif; }}
 .stApp {{ background: {BG}; color: {DEEP}; }}
+/* aggiornamenti senza grigio: Streamlit sbiadisce gli elementi mentre ricalcola; qui restano nitidi e cambia solo il
+   contenuto (per le attese lunghe c'è il cerchio di caricamento). Niente omino «Running» in alto. */
+[data-stale="true"] {{ opacity: 1 !important; transition: none !important; }}
+[data-testid="stStatusWidget"] {{ visibility: hidden; }}
 .stApp *:not(svg *) {{ transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, border-color .2s ease; }}
 h1, h2, h3, h4, h5, h6 {{ font-weight: 800 !important; letter-spacing: -0.015em; color: {DEEP}; }}
 [data-testid="stHeaderActionElements"] {{ display: none; }}
