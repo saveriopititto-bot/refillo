@@ -50,7 +50,8 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
 - **Dove sei**: la posizione arriva dal browser; «Posizione» la rileva di nuovo. In alternativa si sceglie
   un comune in «Opzioni». Senza GPS l'app non si ferma: usa una posizione stimata dalla rete (vedi «Posizione»).
 - **Avvio**: all'apertura c'è solo un pulsante rotondo verde con il distributore (icona Material) al centro dello schermo, nello stesso riquadro del
-  cerchio di caricamento. Toccandolo partono la ricerca della posizione e i download, poi si apre la Home.
+  cerchio di caricamento. Sotto c'è già il menu del carburante: quello scelto qui passa al menu del riquadro
+  «Consiglio». Toccando il pulsante partono la ricerca della posizione e i download, poi si apre la Home.
 - **Caricamento**: mentre l'app scarica i dati MIMIT, legge il Brent e lo score del petrolio e cerca la posizione,
   al centro dello schermo c'è un solo cerchio con la percentuale e la fase in corso. Se i dati sono già in memoria
   non compare nemmeno.

@@ -107,7 +107,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
 - **Avvio**: finché `st.session_state["avviato"]` non è vero, `app.py` mostra solo `style.avvio()` (contenitore
   `avvio`, lo stesso riquadro del cerchio di caricamento con il pulsante `avvia`: cerchio verde `VERDE` con l'icona `:material/local_gas_station:`, 132 px, 114 da telefono; riquadro largo 384 px, 312 da telefono) e si ferma: niente download né
-  richiesta di posizione prima del tocco. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
+  richiesta di posizione prima del tocco. Sotto il pulsante il menu `carburante_avvio`: al tocco `_avvia` lo copia in
+  `st.session_state["carburante"]`, la chiave del menu del riquadro «Consiglio». Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
 - **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
   `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio e posizione (95%, resta finché
   il browser risponde); le cache hanno `show_spinner=False`. Nei primi 0,3 s compare in ritardo (`x-ritardo`), così

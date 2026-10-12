@@ -303,6 +303,18 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   background: #fff; border: 8px solid {VERDE}; color: {VERDE}; box-shadow: none; transition: background .15s, transform .15s; }}
 .stApp .st-key-avvio .stButton button:hover {{ background: #e8f5ee; color: {VERDE}; transform: scale(1.04); }}
 .stApp .st-key-avvio .x-progress-lbl {{ text-align: center; font-size: 15.5px; }}
+/* menu del carburante: la stessa pillola del riquadro «Consiglio», su sfondo tenue */
+.stApp .st-key-avvio [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {{ width: 190px !important; }}
+.stApp .st-key-avvio [data-baseweb="select"] > div {{ min-height: 38px !important; border-radius: 999px !important;
+  padding: 0 6px !important; background: {N100} !important; border-color: {N200} !important; }}
+.stApp .st-key-avvio [data-testid="stSelectbox"] > div > div {{ height: 38px !important; min-height: 0 !important;
+  border-radius: 999px !important; display: flex !important; align-items: center !important; overflow: hidden; }}
+.stApp .st-key-avvio [data-testid="stSelectbox"] input,
+.stApp .st-key-avvio [data-testid="stSelectbox"] button {{ height: 100% !important; min-height: 0 !important;
+  padding-top: 0 !important; padding-bottom: 0 !important; }}
+.stApp .st-key-avvio [data-baseweb="select"] *,
+.stApp .st-key-avvio [data-testid="stSelectbox"] input {{ font-size: 14px !important; font-weight: 700 !important;
+  color: {DEEP} !important; white-space: nowrap !important; }}
 .stApp .st-key-avvio .stButton button p {{ font-size: 60px; line-height: 1; color: {VERDE}; }}
 @media (max-width: 640px) {{
   .x-progress-box {{ padding: 18px 20px; max-width: 260px; gap: 10px; }}
@@ -432,13 +444,18 @@ def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False) -> str:
 
 def _avvia() -> None:
     st.session_state["avviato"] = True
+    # il carburante scelto qui diventa quello del menu nel riquadro «Consiglio» (chiave «carburante»)
+    if st.session_state.get("carburante_avvio"):
+        st.session_state["carburante"] = st.session_state["carburante_avvio"]
 
 
-def avvio() -> None:
-    """Schermata d'avvio: il pulsante del distributore al centro fa partire posizione e download, poi si apre la Home."""
+def avvio(carburanti: Sequence[str]) -> None:
+    """Schermata d'avvio: il pulsante del distributore al centro fa partire posizione e download, poi si apre la Home.
+    Sotto, il menu del carburante (lo stesso del riquadro «Consiglio»)."""
     with st.container(key="avvio"):
         st.button(":material/local_gas_station:", key="avvia", help="Cerca la posizione e i prezzi di oggi", on_click=_avvia)
         html('<div class="x-progress-lbl">Tocca per trovare il distributore che conviene</div>')
+        st.selectbox("Carburante", carburanti, key="carburante_avvio", label_visibility="collapsed")
 
 
 class Caricamento:

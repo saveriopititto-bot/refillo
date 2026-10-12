@@ -120,7 +120,7 @@ class ControlsView:
         hero_testo, hero_lato = style.hero_box(c_hero)
         with hero_lato:
             hero_cerchio = st.container()
-            fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed")
+            fuel = st.selectbox("Prodotto", fm.FUELS, label_visibility="collapsed", key="carburante")
 
         # riquadro delle schede: Home · Posizione · Opzioni · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
         st.session_state.setdefault("scheda", HOME)

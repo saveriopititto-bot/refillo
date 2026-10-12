@@ -16,7 +16,7 @@ style.apply_style()
 
 # all'apertura solo il pulsante ⛽: posizione e download partono quando lo si tocca
 if not st.session_state.get("avviato"):
-    style.avvio()
+    style.avvio(fm.FUELS)
     st.stop()
 
 c_hero = st.container()
