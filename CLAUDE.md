@@ -161,6 +161,11 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   perché i widget dentro il popover partirebbero dal minimo. Unica eccezione `carburante_avvio`, impostato da
   `leggi()` perché il menu d'avvio esiste già quando arriva la risposta. Non si salvano livello e litri da fare.
   Negli AppTest `streamlit_js_eval` finto risponde `None` alla chiave `opzioni_leggi`: niente preferenze.
+- **App installabile**: Streamlit Cloud non permette un manifest, quindi `docs/` (GitHub Pages da `main`, `/docs`,
+  https://saveriopititto-bot.github.io/refillo/) ha manifest, icone (`icona.svg` → PNG) e `sw.js`, e mostra l'app a tutto
+  schermo in un iframe (`?embed=true&app=1`, `allow="geolocation"`). Nell'app, `style.invito_installa()` (contenitore
+  `installa`, fisso in fondo, solo sotto i 640 px, solo nella Home) porta lì; non compare con `app=1` né dopo la ×
+  (`installa_chiuso` nelle preferenze) né prima che le preferenze siano lette (`opzioni_lette`).
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
 - La logica del modello sta in `core/`, `ingestion/` e `clients/` (riesportati da `fuel_model.py`, che i test e

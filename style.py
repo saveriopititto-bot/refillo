@@ -329,6 +329,28 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   padding: 1px 7px; border-radius: 999px; background: {N200}; color: {BLUE_GREEN}; letter-spacing: .02em; }}
 .x-colophon-dot {{ color: {N500}; }}
 .x-colophon-text {{ color: {N700}; font-size: 12px; }}
+
+/* invito a installare l'app (solo da telefono, nella Home): striscia bianca fissa in fondo, sopra la pagina */
+.stApp .st-key-installa {{ position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 999980; max-width: 480px;
+  margin: 0 auto; background: #fff; border-radius: 16px; border-left: 5px solid {AMBER};
+  box-shadow: 0 6px 24px rgba(2, 48, 71, .25); padding: 10px 30px 10px 12px; gap: 12px !important;
+  align-items: center; flex-wrap: nowrap !important; width: auto !important; }}
+.stApp .st-key-installa [data-testid="stElementContainer"] {{ width: auto !important; }}
+.stApp .st-key-installa .x-installa {{ display: flex; align-items: center; gap: 12px; }}
+.stApp .st-key-installa .x-installa-ic {{ width: 42px; height: 42px; border-radius: 12px; flex: none;
+  background: #fff; border: 3px solid {VERDE}; color: {VERDE}; display: flex; align-items: center;
+  justify-content: center; box-sizing: border-box; }}
+.stApp .st-key-installa .x-installa-txt {{ font-size: 12.5px; line-height: 1.35; color: {N700}; }}
+.stApp .st-key-installa .x-installa-txt b {{ display: block; font-size: 14px; color: {DEEP}; }}
+.stApp .st-key-installa [data-testid="stLinkButton"] a {{ background: {ORANGE}; color: #fff !important;
+  border: 0; border-radius: 999px; min-height: 0; padding: 7px 14px; white-space: nowrap; }}
+.stApp .st-key-installa [data-testid="stLinkButton"] a p {{ font-weight: 700; font-size: 13px; }}
+.stApp .st-key-installa [data-testid="stElementContainer"]:has(.stButton) {{ position: absolute; top: 2px; right: 2px; }}
+.stApp .st-key-installa .stButton button {{ border: 0; background: none; min-height: 0; padding: 2px 6px;
+  color: {N500}; box-shadow: none; }}
+.stApp .st-key-installa .stButton button p {{ font-size: 18px; line-height: 1; }}
+.stApp .st-key-installa [data-testid="stElementContainer"]:has(.x-installa) {{ flex: 1 1 auto; min-width: 0; }}
+@media (min-width: 641px) {{ .stApp .st-key-installa {{ display: none; }} }}
 </style>
 """
 
@@ -496,3 +518,26 @@ def colophon() -> None:
          '<span class="x-colophon-dot">·</span>'
          '<span class="x-colophon-text">Tutti i diritti riservati</span>'
          '</div>')
+
+
+# pagina di GitHub Pages (cartella docs/) con manifest e icone: mostra l'app a tutto schermo e si può installare
+INSTALLA_URL = "https://saveriopititto-bot.github.io/refillo/"
+_POMPA = ('<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M19.77 7.23l.01-.01-3.72-3.72'
+          'L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1'
+          's-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5'
+          's2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5zm6 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z'
+          '"/></svg>')
+
+
+def _chiudi_installa() -> None:
+    # la scelta resta nel browser con le altre preferenze (ui/preferenze.py)
+    st.session_state["installa_chiuso"] = True
+
+
+def invito_installa() -> None:
+    """Striscia in fondo alla Home, solo da telefono (CSS): porta alla pagina da cui si installa l'app."""
+    with st.container(key="installa", horizontal=True):
+        html(f'<div class="x-installa"><div class="x-installa-ic">{_POMPA}</div>'
+             '<div class="x-installa-txt"><b>Installa Refillo</b>Aprila dalla schermata Home, come un\'app.</div></div>')
+        st.link_button("Installa", INSTALLA_URL)
+        st.button("×", key="installa_chiudi", help="Non mostrare più", on_click=_chiudi_installa)

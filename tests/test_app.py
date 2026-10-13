@@ -100,3 +100,29 @@ def test_faq(app):
     assert not app.exception
     assert "Come funziona" in _testo(app)
     assert len(app.dataframe) == 1  # la tabella degli archi
+
+
+def _invito(at: AppTest) -> bool:
+    return "Installa Refillo" in _testo(at)
+
+
+def test_invito_installa(app):
+    """L'invito a installare l'app compare nella Home (lette le preferenze), sparisce con la × e resta salvato."""
+    app.session_state["avviato"] = True
+    app.session_state["opzioni_lette"] = True
+    app.run()
+    assert not app.exception
+    assert _invito(app)
+    app.button(key="installa_chiudi").click().run()
+    assert not _invito(app)
+    assert app.session_state["_preferenze"]["installa_chiuso"] is True
+
+
+def test_niente_invito_dentro_l_app_installata(app):
+    """Aperta dall'icona (pagina di GitHub Pages, ?app=1) l'app è già installata: niente invito."""
+    app.session_state["avviato"] = True
+    app.session_state["opzioni_lette"] = True
+    app.query_params["app"] = "1"
+    app.run()
+    assert not app.exception
+    assert not _invito(app)

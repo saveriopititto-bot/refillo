@@ -68,6 +68,10 @@ if st.session_state.get("scheda", HOME) == HOME:
             metriche=controls.metriche,
             valore_tempo=controls.params.valore_tempo,
         ).render()
+    # invito a installare l'app: non dentro l'app installata (app=1, vedi docs/index.html) e non dopo la ×
+    if (st.session_state.get("opzioni_lette") and not st.query_params.get("app")
+            and not st.session_state.get("installa_chiuso", preferenze.valore("installa_chiuso", False))):
+        style.invito_installa()
 
 else:
     with controls.contenuto:

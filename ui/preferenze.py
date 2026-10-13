@@ -29,6 +29,7 @@ OPZIONI: dict[str, tuple] = {
     "opt_soglia": (0.0, -1000.0, 1000.0),
     "opt_alpha": (20, 0, 40),
     "carburante": (fm.FUELS[0], tuple(fm.FUELS)),
+    "installa_chiuso": (False, (True, False)),  # l'invito a installare l'app, chiuso con la ×
 }
 # serbatoio e consumo hanno una chiave per carburante (i predefiniti sono in ui/controls_view.PREDEFINITI)
 PER_CARBURANTE = {"v_tot": (5.0, 200.0), "consumo": (1.0, 40.0)}
