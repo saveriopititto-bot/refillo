@@ -21,8 +21,8 @@ BRENT_GIORNI = 7  # n: finestra della variazione del Brent
 
 PERCHE_PETROLIO = {
     1: "Il petrolio costa più del solito. Tra pochi giorni anche il carburante costerà di più. Fai il pieno oggi.",
-    0: "Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.",
-    -1: "Il petrolio costa meno del solito. Tra pochi giorni anche la benzina costerà di meno. Se puoi, aspetta.",
+    0: "Il petrolio costa come al solito. Il carburante non cambierà molto. Fai il pieno quando ti serve.",
+    -1: "Il petrolio costa meno del solito. Tra pochi giorni anche il carburante costerà di meno. Se puoi, aspetta.",
 }
 
 
