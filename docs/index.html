@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Refillo</title>
+<meta name="description" content="Dove conviene fare rifornimento, con i prezzi di oggi.">
+<meta name="theme-color" content="#eef6fa">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icona.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Refillo">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  /* Refillo installabile: questa pagina (GitHub Pages) ha manifest e icone, e mostra l'app di Streamlit a tutto
+     schermo. Stessa palette dell'app (style.py). */
+  html, body { margin: 0; height: 100%; background: #eef6fa; overflow: hidden; }
+  body { font-family: Archivo, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #023047;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); box-sizing: border-box; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  #installa { position: fixed; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom));
+    max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; border-left: 5px solid #ffb703;
+    box-shadow: 0 6px 24px rgba(2, 48, 71, .25); padding: 12px 34px 12px 14px; display: none; gap: 12px;
+    align-items: center; z-index: 10; }
+  #installa.si { display: flex; }
+  #installa img { width: 42px; height: 42px; border-radius: 12px; flex: none; }
+  #installa .testo { flex: 1; font-size: 12.5px; line-height: 1.35; color: #3a5f74; }
+  #installa b { display: block; font-size: 14px; color: #023047; margin-bottom: 2px; }
+  #installa .tasto { display: inline-block; border: 1px solid #c9dde7; border-radius: 5px; padding: 0 4px;
+    font-size: 11.5px; color: #023047; white-space: nowrap; }
+  #installa button { font: inherit; cursor: pointer; }
+  #installa-si { flex: none; border: 0; border-radius: 999px; background: #fb8500; color: #fff; font-weight: 700;
+    font-size: 13px; padding: 8px 14px; display: none; }
+  #installa-chiudi { position: absolute; top: 4px; right: 6px; border: 0; background: none; color: #7c9fb2;
+    font-size: 18px; line-height: 1; padding: 4px; }
+</style>
+</head>
+<body>
+<!-- app=1: l'app sa di essere già dentro questa pagina e non mostra il suo invito a installarla -->
+<iframe src="https://refillo.streamlit.app/?embed=true&amp;app=1" title="Refillo"
+        allow="geolocation; clipboard-write; fullscreen"></iframe>
+
+<div id="installa" role="dialog" aria-label="Installa Refillo">
+  <img src="apple-touch-icon.png" alt="">
+  <div class="testo" id="installa-testo"></div>
+  <button id="installa-si" type="button">Installa</button>
+  <button id="installa-chiudi" type="button" aria-label="Chiudi">×</button>
+</div>
+
+<script>
+  // Invito a installare: su Android (Chrome, Edge, Samsung) il pulsante apre la finestra di installazione del
+  // browser; su iPhone e iPad le istruzioni, perché Safari non ha un pulsante da chiamare. Già installata: niente.
+  (function () {
+    var barra = document.getElementById("installa");
+    var testo = document.getElementById("installa-testo");
+    var si = document.getElementById("installa-si");
+    var CHIAVE = "refillo_installa_chiuso";
+    var installata = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    var chiusa = false;
+    try { chiusa = localStorage.getItem(CHIAVE) === "1"; } catch (e) {}
+    var richiesta = null;
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+
+    function mostra(html, pulsante) {
+      if (installata || chiusa) return;
+      testo.innerHTML = html;
+      si.style.display = pulsante ? "inline-block" : "none";
+      barra.classList.add("si");
+    }
+    function nascondi() { barra.classList.remove("si"); }
+
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      richiesta = e;
+      mostra("<b>Installa Refillo</b>Aprila dalla schermata Home, come un'app.", true);
+    });
+    si.addEventListener("click", function () {
+      if (!richiesta) return;
+      richiesta.prompt();
+      richiesta.userChoice.finally(function () { richiesta = null; nascondi(); });
+    });
+    window.addEventListener("appinstalled", nascondi);
+    document.getElementById("installa-chiudi").addEventListener("click", function () {
+      try { localStorage.setItem(CHIAVE, "1"); } catch (e) {}
+      chiusa = true;
+      nascondi();
+    });
+
+    var ua = navigator.userAgent;
+    var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (ios) {
+      mostra("<b>Metti Refillo nella Home</b>Tocca <span class=\"tasto\">Condividi ⬆︎</span>, poi " +
+             "«Aggiungi alla schermata Home».", false);
+    }
+  })();
+</script>
+</body>
+</html>

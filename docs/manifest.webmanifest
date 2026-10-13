@@ -1,0 +1,16 @@
+{
+  "name": "Refillo",
+  "short_name": "Refillo",
+  "description": "Dove conviene fare rifornimento, con i prezzi di oggi.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef6fa",
+  "theme_color": "#eef6fa",
+  "icons": [
+    {"src": "icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

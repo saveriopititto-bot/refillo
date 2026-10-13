@@ -317,6 +317,22 @@ poi `ipwho.is`, al massimo 4 secondi) e mostra subito la Home per quella zona, c
 browser di chi usa l'app: dal server si vedrebbe l'indirizzo di Streamlit Cloud. Appena il GPS risponde, o se si
 sceglie un comune in «Opzioni», la posizione esatta prende il posto di quella stimata.
 
+## App sul telefono
+
+Streamlit Community Cloud non permette di aggiungere un manifest alla pagina, quindi l'app installabile è una piccola
+pagina su GitHub Pages (cartella `docs/`, indirizzo https://saveriopititto-bot.github.io/refillo/): ha manifest,
+icone e un service worker minimo, e mostra Refillo a tutto schermo (`refillo.streamlit.app/?embed=true&app=1`, con
+il permesso per la posizione). Dati, calcoli e aggiornamenti restano quelli dell'app su Streamlit.
+
+- **Invito nell'app**: da telefono, nella Home, una striscia in fondo («Installa Refillo») porta a quella pagina. La
+  × la chiude per sempre (la scelta resta nel browser con le altre preferenze). Non compare da computer né dentro
+  l'app già installata (`app=1`).
+- **Sulla pagina di installazione**: su Android (Chrome, Edge, Samsung) il pulsante «Installa» apre la finestra di
+  installazione del browser; su iPhone e iPad dice di toccare Condividi e poi «Aggiungi alla schermata Home».
+  Installata, l'app si apre a schermo intero dall'icona.
+- Le preferenze dell'app installata sono separate da quelle salvate aprendo `refillo.streamlit.app` nel browser.
+- Per pubblicarla: nelle impostazioni del repository, Pages → «Deploy from a branch» → `main`, cartella `/docs`.
+
 ## Avvio in locale
 
 ```bash
@@ -351,6 +367,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `ui/` | Moduli interfaccia: viste delle schede (`result_view`, `edges_view`, `how_view`), hero (`hero_view`), controlli (`controls_view`), dati e geolocalizzazione (`data_service`), mappa Leaflet (`map_leaflet.py`), formattatori (`formatters.py`), configurazione (`config.py`) |
 | `style.py` | Stile dell'interfaccia: CSS, schede arrotondate, colofon e blocchi HTML |
 | `.streamlit/config.toml` | Tema: palette e angoli arrotondati |
+| `docs/` | Pagina di GitHub Pages per installare l'app sul telefono: manifest, icone, service worker |
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
