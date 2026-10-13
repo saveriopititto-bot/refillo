@@ -37,6 +37,11 @@ I prezzi e i distributori sono quelli ufficiali del MIMIT; il Brent arriva da Ya
 quelle su strada calcolate dal servizio OSRM; se non risponde, sono stimate in linea d'aria, corrette per tenere
 conto delle strade.
 
+**Il consiglio in cima funziona?** L'abbiamo provato sui prezzi medi italiani dal 2015 a oggi. Quando diceva
+«Conviene», nella settimana dopo benzina e gasolio sono saliti più di 9 volte su 10; quando diceva «Aspetta»,
+sono scesi più di 9 volte su 10. Seguirlo ha fatto risparmiare in media tra 60 centesimi e 1 € a pieno (50 litri).
+«Conviene» e «Aspetta» sono rari: quasi sempre dice «Rifornisci», perché il petrolio non spinge i prezzi né in su né in giù.
+
 **Quanto sono aggiornati i prezzi.** Il MIMIT pubblica l'elenco una volta al giorno, la mattina, con i prezzi
 comunicati dai gestori fino alle 8. Se un distributore cambia prezzo durante la giornata, l'app lo vede solo il
 giorno dopo: alla pompa vale sempre il prezzo esposto.

@@ -240,6 +240,15 @@ blu petrolio, in tutti i casi; il cerchio è bianco dentro.
 Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare
 la variazione del Brent degli ultimi 7 giorni presa da Yahoo Finance: decide solo il consiglio mostrato in cima.
 
+**Verifica (ottobre 2026)**: lo score ricalcolato giorno per giorno (solo con i dati disponibili fino a quel giorno)
+è stato confrontato con i prezzi medi italiani settimanali del Weekly Oil Bulletin della Commissione Europea
+(`AnalisiPompa.verifica_score` di scorebrent), 2015–2026. Dopo +1 la pompa è salita in media di 1,3 (benzina) e
+1,5 (gasolio) centesimi al litro in una settimana, nel 93–96% dei casi; dopo −1 è scesa di 1,1 e 1,3 centesimi,
+nel 93–94% dei casi; con 0 è rimasta quasi ferma (+0,1). Seguire lo score fa risparmiare in media 0,6–0,7 € per
+pieno da 50 litri in una settimana e 1,0–1,1 € in due, positivo in tutti gli anni dal 2015 al 2025; con i segnali
+spostati a caso il risparmio è zero. I segnali sono rari (nell'ultimo anno 4 giorni +1 e 28 giorni −1). La F.A.Q.
+lo riassume in «Il consiglio in cima funziona?».
+
 **Configurazione**: i segreti vanno nei Secrets **di questa app su Streamlit Cloud** (non nei secret del
 repository GitHub, che servono solo all'esportazione di scorebrent). Su https://share.streamlit.io, accanto a
 FuelMode, *⋮ → Settings → Secrets*, incolla e salva:
