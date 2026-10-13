@@ -63,6 +63,7 @@ if st.session_state.get("scheda", HOME) == HOME:
             fonte=controls.fonte,
             unita=controls.unita,
             metriche=controls.metriche,
+            valore_tempo=controls.params.valore_tempo,
         ).render()
 
 else:

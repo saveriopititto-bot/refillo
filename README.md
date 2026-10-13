@@ -63,7 +63,7 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
   distributori che convengono di più (insegna, comune, prezzo, distanza, risparmio; da telefono senza il comune).
 
 In «Opzioni» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
-consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, età massima
+consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, valore del tuo tempo, distributori in autostrada, età massima
 del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,
 in fondo, il blocco **Dati**: caricamento dei CSV a mano e il pulsante «Riscarica ora», che aggiorna prezzi e Brent.
 A piè di pagina in tutte le schede è presente il colofon con versione e diritti riservati.
@@ -73,10 +73,13 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Nell'app | Nella formula |
 |---|---|
 | Risparmio netto (tabella degli archi) / Risparmio migliore | S_i / S_max |
-| Risparmio (frase, mappa, Top 5) | S_i senza il termine Brent: q·(P_market − P_i) − D_i·C_km |
+| Risparmio (frase, mappa, Top 5) | S_i senza il termine Brent: q·(P_rif − P_i) − D_i·C_km − T_i·V_t |
+| Distributore più vicino (riferimento) | P_rif |
+| Valore del tuo tempo | V_t |
+| Minuti (andata) | t_i |
 | Litri da fare | q |
 | Prezzo medio (indicatore) / Prezzo tipico della zona (opzione) | P_market |
-| Km in più | D_i |
+| Km in più (rispetto al più vicino) | D_i |
 | Costo al km | C_km |
 | Soglia di convenienza | θ |
 | Peso del petrolio sui prezzi | α |
@@ -96,7 +99,9 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Litri da fare | il pieno |
 | Self o servito | self |
 | Usura dell'auto | 0,05 €/km |
-| Età massima del prezzo | 7 giorni |
+| Età massima del prezzo | 5 giorni |
+| Valore del tuo tempo | 10 €/ora |
+| Distributori in autostrada | esclusi |
 | Strada in più rispetto alla linea d'aria | × 1,3 |
 | Prezzo tipico della zona | mediana |
 | Soglia di convenienza | 0 € |
@@ -146,20 +151,31 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
 
 ## Il modello
 
-$$S_i = q\,[(P_{market}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km}$$
+$$S_i = q\,[(P_{rif}-P_i) + \alpha\,P_{market}\,\Delta B] - D_i\,C_{km} - T_i\,V_t$$
+
+Tutto è contato **rispetto al distributore più vicino** (come fare benzina sotto casa): il suo risparmio è 0.
 
 - **q**: litri da fare (di default il pieno, `V_tot·(1−L)`).
-- **P_market**: mediana (o media) dei prezzi dei distributori nel raggio.
+- **P_rif**: prezzo del distributore più vicino (su strada).
+- **P_market**: mediana (o media) dei prezzi dei distributori nel raggio: serve per il costo al km, per l'effetto
+  Brent, per l'indicatore «Prezzo medio» e per scartare i prezzi più bassi di 10 centesimi (probabili errori).
 - **ΔB**: variazione del Brent in euro negli ultimi 7 giorni (Brent `BZ=F` diviso il cambio `EURUSD=X`, da
   Yahoo Finance), limitata a ±10%; **α** è la quota che passa ai prezzi. Il termine è uguale per tutti i
   distributori: sposta il verdetto ma non la classifica.
-- **D_i**: chilometri in più, cioè andata e ritorno dalla tua posizione al distributore. Le distanze sono su
+- **D_i**: chilometri in più rispetto al più vicino, andata e ritorno: `2·(d_i − d_rif)`. Le distanze sono su
   strada, chieste al server pubblico OSRM per i 99 distributori più vicini (opzione «Calcola percorsi reali»,
   attiva di default; le risposte restano in memoria finché il server è acceso, così cambiare litri, consumo o
   soglie non rifà la richiesta). Senza OSRM, o se non risponde entro 2,5 secondi (1,5 per il percorso), sono in linea d'aria per un fattore strada
   (1,3 di default). Dopo un errore OSRM non si richiama per 3 minuti (restano valide le risposte già in memoria), così
   le pagine non aspettano un server che non risponde.
 - **C_km**: costo al km, cioè consumo × P_market + usura.
+- **T_i**: ore in più rispetto al più vicino, andata e ritorno: `2·(t_i − t_rif)/60`, con `t_i` i minuti di viaggio
+  di OSRM (senza OSRM: distanza a 40 km/h). **V_t** è il valore del tuo tempo (10 €/ora di default; 0 = conta solo
+  carburante e usura).
+
+Sono esclusi i distributori in autostrada (tipo «Autostradale» nell'anagrafica MIMIT: costano di più e si
+raggiungono solo dall'autostrada, a volte in una sola direzione; si possono includere in «Opzioni») e i prezzi
+comunicati da più di 5 giorni (con 5 giorni restano circa 95 distributori su 100; con 3 solo 72).
 
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
 riserva L_min (che vale anche sopra lo score del petrolio). Il risparmio mostrato nella frase, nella mappa e

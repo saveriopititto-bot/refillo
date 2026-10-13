@@ -26,12 +26,13 @@ class EdgesView:
                 "rank": "#", "bandiera": "Bandiera", "nome": "Impianto", "indirizzo": "Indirizzo", "comune": "Comune",
                 "prezzo": prezzo_col, "dist_km": "Distanza (km)", "dev_km": "Km in più",
                 "guadagno": "Risparmio sul prezzo (€)", "brent": "Effetto Brent (€)", "costo_log": "Costo del viaggio (€)",
-                "score": "Risparmio netto (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
+                "score": "Risparmio netto (€)", "minuti": "Minuti (andata)", "costo_tempo": "Costo del tempo (€)", "peso": "Peso arco", "peso_pos": "Peso arco (≥ 0)", "ep": "Convenienza prezzo",
                 "ep_pct": "Convenienza prezzo (posizione)", "eta_giorni": "Età prezzo (gg)",
             }
         )
         cols = ["#", "Bandiera", "Impianto", "Indirizzo", "Comune", prezzo_col, "Distanza (km)", "Km in più",
-                "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
+                "Minuti (andata)", "Risparmio sul prezzo (€)", "Effetto Brent (€)", "Costo del viaggio (€)",
+                "Costo del tempo (€)", "Risparmio netto (€)", "Peso arco", "Peso arco (≥ 0)",
                 "Convenienza prezzo", "Convenienza prezzo (posizione)", "Età prezzo (gg)", "id", "lat", "lon"]
         cols = [c for c in cols if c in tab.columns]
         export = tab[cols].copy()
@@ -54,6 +55,8 @@ class EdgesView:
                     "Risparmio sul prezzo (€)": st.column_config.NumberColumn(format="%+.2f"),
                     "Effetto Brent (€)": st.column_config.NumberColumn(format="%+.2f"),
                     "Costo del viaggio (€)": st.column_config.NumberColumn(format="%.2f"),
+                    "Minuti (andata)": st.column_config.NumberColumn(format="%.0f"),
+                    "Costo del tempo (€)": st.column_config.NumberColumn(format="%.2f"),
                     "Risparmio netto (€)": st.column_config.NumberColumn(format="%+.2f"),
                     "Peso arco": st.column_config.NumberColumn(format="%+.2f"),
                     "Peso arco (≥ 0)": st.column_config.NumberColumn(format="%.2f"),
@@ -62,7 +65,8 @@ class EdgesView:
                     "Età prezzo (gg)": st.column_config.NumberColumn(format="%.1f"),
                 },
             )
-            st.caption("Risparmio netto = risparmio sul prezzo + effetto Brent − costo del viaggio. «Peso arco» è il "
+            st.caption("Risparmio netto = risparmio sul prezzo + effetto Brent − costo del viaggio − costo del tempo, "
+                       "tutto rispetto al distributore più vicino (che ha «Km in più» 0). «Peso arco» è il "
                        "risparmio netto con il segno cambiato, per cercare il cammino minimo; «Peso arco (≥ 0)» è lo "
                        "stesso spostato perché non sia mai negativo. «Convenienza prezzo» va da 1 (il più economico "
                        "della zona) a 0 (il più caro).")

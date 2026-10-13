@@ -13,6 +13,7 @@ from clients.osrm import (
     _osrm_route,
     _osrm_table,
     get_osrm_distances,
+    get_osrm_minuti,
     get_osrm_route,
 )
 from clients.supabase import (
@@ -94,6 +95,7 @@ __all__ = [
     "fetch_brent_score",
     "fetch_brent_yf",
     "get_osrm_distances",
+    "get_osrm_minuti",
     "get_osrm_route",
     "haversine_km",
     "parse_anagrafica",
