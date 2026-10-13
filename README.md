@@ -113,13 +113,13 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 ### Schede
 
 In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in tutte le schede: blu petrolio in tutti
-i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato (più piccolo
-da telefono):
+i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato (90 px, 68
+da telefono): verde, rosso solo con «Aspetta».
 
 | Score | Consiglio | Cerchio |
 |---|---|---|
 | +1 | Conviene | verde, freccia in su |
-| 0 | Rifornisci | arancione, pallino |
+| 0 | Rifornisci | verde, pallino |
 | −1 | Aspetta | rosso, freccia in giù |
 
 Sotto il consiglio, una frase spiega il perché:
@@ -232,7 +232,7 @@ Lo score del Brent è calcolato dall'app «Prezzo del petrolio» (repository
 - **Aspetta** (−1): il Brent è sotto la sua media più del solito, e i prezzi alla pompa tendono a scendere.
 
 Lo stesso esito decide il riquadro «Consiglio» in cima, con il cerchio colorato: verde con freccia in su
-(Conviene), arancione con pallino (Rifornisci), rosso con freccia in giù (Aspetta). Il riquadro resta sempre
+(Conviene), verde con pallino (Rifornisci), rosso con freccia in giù (Aspetta). Il riquadro resta sempre
 blu petrolio, in tutti i casi; il cerchio è bianco dentro.
 
 Lo score **non entra nel calcolo** del risparmio né nella classifica dei distributori, che continuano a usare

@@ -17,7 +17,7 @@ ORANGE = "#fb8500"
 BG = "#eef6fa"
 N100, N200, N300, N500, N700 = "#f2f8fb", "#e2eef4", "#c9dde7", "#7c9fb2", "#3a5f74"
 A100, A600, A700 = "#fff3e6", "#e07600", "#a65600"
-# colori dell'indicatore del petrolio (verde = sale, rosso = scende; il neutro usa ORANGE)
+# colori dell'indicatore del petrolio (rosso solo per «Aspetta», verde per gli altri)
 VERDE, ROSSO = "#1f9d55", "#d64545"
 
 CSS = f"""
@@ -225,15 +225,15 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .x-hero p.x-hero-nota {{ margin-top: 2px; color: {N200}; max-width: 62ch; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
-.x-hero-aside svg {{ width: 72px; height: 72px; }}
-@media (max-width: 640px) {{ .x-hero-aside svg {{ width: 54px; height: 54px; }} }}
+.x-hero-aside svg {{ width: 90px; height: 90px; }}
+@media (max-width: 640px) {{ .x-hero-aside svg {{ width: 68px; height: 68px; }} }}
 /* riquadro «Consiglio» con il testo a sinistra e, a destra, il cerchio dello score:
    le due colonne restano affiancate anche da telefono */
 .st-key-hero {{ background: linear-gradient(135deg, {DEEP}, #04466a); color: #fff; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 12px 14px 12px 16px; }}
 .st-key-hero [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; gap: 16px !important; }}
 .st-key-hero [data-testid="stColumn"]:first-child {{ flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; }}
-.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 84px !important; min-width: 0 !important; width: auto !important; }}
+.st-key-hero [data-testid="stColumn"]:last-child {{ flex: 0 0 92px !important; min-width: 0 !important; width: auto !important; }}
 .st-key-hero .x-hero {{ background: none; box-shadow: none; padding: 0; border-radius: 0; display: flex;
   flex-direction: column; align-items: stretch; gap: 4px; }}
 .st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
@@ -241,14 +241,15 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* «📍 Perugia (stima)» sulla riga di «CONSIGLIO»: nessuna altezza in più */
 .x-hero .k .x-pos {{ text-transform: none; letter-spacing: 0; font-weight: 400; cursor: help; white-space: nowrap; }}
 @media (max-width: 640px) {{
-  .st-key-hero {{ padding: 8px 10px 8px 12px; }}
+  .st-key-hero {{ padding: 6px 10px 6px 12px; }}
   .x-hero .v {{ font-size: 23px; }}
-  .x-hero p {{ font-size: 13px; }}
+  .x-hero p {{ font-size: 13px; line-height: 1.25; }}
+  .st-key-hero .x-hero {{ gap: 2px; }}
   .x-lead {{ font-size: 14px; line-height: 1.4; }}
   [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 10.5px; line-height: 1.25; }}
   .st-key-hero [data-testid="stHorizontalBlock"] {{ gap: 10px !important; }}
   .st-key-carb [data-testid="stSelectbox"] > div > div {{ height: 30px !important; }}
-  .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 70px !important; }}
+  .st-key-hero [data-testid="stColumn"]:last-child {{ flex-basis: 68px !important; }}
 }}
 .x-err {{ background: {A100}; color: {A700}; font-weight: 600; border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft); padding: 20px 24px; }}
@@ -397,9 +398,9 @@ def hero_box(container):
 def cerchio_score(esito: int, etichetta: str) -> str:
     """Indicatore dello score del petrolio (HTML): cerchio bianco con bordo e simbolo colorati.
 
-    +1 = bordo verde con freccia verde in su, -1 = bordo rosso con freccia rossa in giù, 0 = bordo arancione con
-    pallino arancione. Il fondo bianco lo rende leggibile sia sul riquadro blu sia su quello ambra."""
-    colore = {1: VERDE, 0: ORANGE, -1: ROSSO}[esito]
+    +1 = freccia in su, 0 = pallino, -1 = freccia in giù; bordo e simbolo verdi, rossi solo con -1 (Aspetta). Il fondo
+    bianco lo rende leggibile sul riquadro blu."""
+    colore = ROSSO if esito == -1 else VERDE
     if esito == 0:
         simbolo = f'<circle cx="32" cy="32" r="9" fill="{colore}"/>'
     else:
