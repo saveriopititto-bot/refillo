@@ -48,8 +48,6 @@ class ModelSummary(TypedDict, total=False):
     best: pd.Series
     consiglio: bool
     motivo: str
-    p_min: float
-    p_max: float
     best_route: list[list[float]]
     vicino: pd.Series  # il distributore più vicino: riferimento del risparmio
     p_rif: float  # il suo prezzo

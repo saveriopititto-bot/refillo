@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from html import escape
 from pathlib import Path
+import time
 from typing import Callable
 import zlib
 
@@ -12,18 +13,11 @@ import streamlit_js_eval
 
 import fuel_model as fm
 from ui.config import supabase_config
-from ui.formatters import num
 
 BASE = Path(__file__).resolve().parent.parent
 ANAG_FILE, PREZZI_FILE = fm.ANAG_FILE, fm.PREZZI_FILE
 CACHE_ORE = 3  # i prezzi MIMIT cambiano una volta al giorno
 BRENT_GIORNI = 7  # n: finestra della variazione del Brent
-
-GEO_ERRORI = {
-    1: "hai negato il permesso di accedere alla posizione (puoi riattivarlo dalle impostazioni del sito nel browser)",
-    2: "il dispositivo non riesce a determinare la posizione",
-    3: "la richiesta di posizione è scaduta",
-}
 
 PERCHE_PETROLIO = {
     1: "Il petrolio costa più del solito. Tra pochi giorni anche il carburante costerà di più. Fai il pieno oggi.",
@@ -149,8 +143,6 @@ def get_mimit_dataset(
     up_p: any = None,
 ) -> tuple[tuple[bytes | None, str], tuple[bytes | None, str]]:
     """Carica o scarica anagrafica e prezzi MIMIT; `progresso(percentuale, testo)` fa avanzare il cerchio."""
-    import time
-
     if up_a is not None and up_p is not None:
         return (up_a.getvalue(), "caricato"), (up_p.getvalue(), "caricato")
     anag_b = up_a.getvalue() if up_a is not None else None
@@ -296,30 +288,20 @@ _GPS_JS = (f"Promise.race([getLocation(), new Promise(r => setTimeout(() => r({{
            f"message: 'timeout'}}}}), {GPS_ATTESA_S * 1000}))])")
 
 
-def posizione_browser() -> tuple[tuple[float, float] | None, str]:
-    """Posizione reale dal browser (API Geolocation): ((lat, lon), nota) oppure (None, motivo); il motivo è vuoto
-    finché il browser non ha risposto."""
+def posizione_browser() -> tuple[tuple[float, float] | None, bool]:
+    """Posizione reale dal browser (API Geolocation): ((lat, lon), True); (None, True) se il GPS ha risposto con un
+    errore (negato, spento, tempo scaduto); (None, False) finché il browser non ha risposto."""
     giro = st.session_state.get("geo_giro", 0)
     geo = streamlit_js_eval.streamlit_js_eval(js_expressions=_GPS_JS, key=f"geo_{giro}")
     if not geo:
-        return None, ""
-    if not isinstance(geo, dict):
-        return None, "Posizione non disponibile."
-    if "error" in geo:
-        err = geo["error"] or {}
-        msg = err.get("message", "errore sconosciuto") if isinstance(err, dict) else str(err)
-        code = err.get("code") if isinstance(err, dict) else None
-        return None, "Posizione non disponibile: " + GEO_ERRORI.get(code, msg) + "."
-    c = geo.get("coords")
-    if not c or not isinstance(c, dict):
-        return None, "Posizione non disponibile."
-    lat, lon = float(c["latitude"]), float(c["longitude"])
-    acc = c.get("accuracy")
-    nota = f"Posizione rilevata: {lat:.5f}, {lon:.5f}" + (f" (precisione ±{num(acc, 0)} m)" if acc else "")
-    la0, la1, lo0, lo1 = fm.ITALY_BBOX
-    if not (la0 <= lat <= la1 and lo0 <= lon <= lo1):
-        nota += ". Sei fuori dall'Italia: i dati MIMIT coprono solo i distributori italiani."
-    return (lat, lon), nota
+        return None, False
+    c = geo.get("coords") if isinstance(geo, dict) else None
+    if isinstance(c, dict):
+        try:
+            return (float(c["latitude"]), float(c["longitude"])), True
+        except (KeyError, TypeError, ValueError):
+            pass
+    return None, True
 
 
 def rileva_posizione() -> tuple[tuple[float, float] | None, str]:
@@ -327,10 +309,10 @@ def rileva_posizione() -> tuple[tuple[float, float] | None, str]:
     internet, o Roma. ((lat, lon), nota) con nota vuota per il GPS; (None, "") mentre il browser risponde.
 
     Si chiama in cima ad app.py, già nella schermata d'avvio: la richiesta parte appena si apre l'app."""
-    origin, motivo = posizione_browser()
+    origin, risposto = posizione_browser()
     if origin is not None:
         return origin, ""
-    if not motivo:  # il GPS non ha ancora risposto
+    if not risposto:  # il GPS non ha ancora risposto
         return None, ""
     da_ip = posizione_ip()
     return da_ip if da_ip is not None else (None, "")

@@ -1,4 +1,4 @@
-"""Vista della scheda «Come funziona»: guida descrittiva sul modello e sulle fonti dati."""
+"""Testo della scheda «F.A.Q.»: come funziona il calcolo, da dove vengono i dati, privacy."""
 from __future__ import annotations
 
 from dataclasses import dataclass

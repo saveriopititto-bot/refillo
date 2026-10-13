@@ -1,59 +1,20 @@
-"""Modello di scoring razionale per il rifornimento (facade di retrocompatibilità).
-
-Questo modulo riesporta tutti i simboli dai moduli specializzati (core, ingestion, clients)
-per garantire piena retrocompatibilità con i test, l'interfaccia Streamlit e gli script.
-"""
+"""Punto d'accesso unico al modello: riesporta da core, ingestion e clients quello che usano l'app, gli script e i test
+(importato come `fm`)."""
 from __future__ import annotations
 
-import requests  # riesportato per retrocompatibilità e test fixture
+import requests  # i test sostituiscono fm.requests.get per simulare OSRM e Supabase
 
-from clients.osrm import (
-    OSRM_URL,
-    _arrotonda,
-    _osrm_route,
-    _osrm_table,
-    get_osrm_distances,
-    get_osrm_minuti,
-    get_osrm_route,
-)
-from clients.supabase import (
-    BRENT_SCORE_TABELLA,
-    BRENT_SCORE_TESTI,
-    fetch_brent_score,
-)
+from clients.osrm import _osrm_route, _osrm_table, get_osrm_distances, get_osrm_minuti, get_osrm_route
+from clients.supabase import BRENT_SCORE_TESTI, fetch_brent_score
 from clients.yahoo import fetch_brent_yf
-from core.geo import (
-    EARTH_RADIUS_KM,
-    ITALY_BBOX,
-    haversine_km,
-)
-from core.model import (
-    brent_delta,
-    compute_edges,
-)
-from core.types import (
-    SCONTO_MAX,
-    BrentScoreResult,
-    BrentYfResult,
-    ModelParams,
-    ModelSummary,
-)
-from ingestion.downloader import (
-    ANAG_FILE,
-    DATI_URL,
-    MIMIT_URL,
-    PREZZI_FILE,
-    download_csv,
-    download_dati,
-)
+from core.geo import ITALY_BBOX, haversine_km
+from core.model import brent_delta, compute_edges
+from core.types import ModelParams
+from ingestion.downloader import ANAG_FILE, PREZZI_FILE, download_csv, download_dati
 from ingestion.parser import (
     FUELS,
-    PRICE_BOUNDS,
     SENZA_SELF,
-    UNITA,
     _extraction_date,
-    _to_bytes,
-    _to_text,
     build_candidates,
     coordinate_sospette,
     parse_anagrafica,
@@ -63,33 +24,19 @@ from ingestion.parser import (
 
 __all__ = [
     "ANAG_FILE",
-    "BRENT_SCORE_TABELLA",
     "BRENT_SCORE_TESTI",
-    "BrentScoreResult",
-    "BrentYfResult",
-    "DATI_URL",
-    "EARTH_RADIUS_KM",
     "FUELS",
     "ITALY_BBOX",
-    "MIMIT_URL",
     "ModelParams",
-    "ModelSummary",
-    "OSRM_URL",
     "PREZZI_FILE",
-    "PRICE_BOUNDS",
-    "SCONTO_MAX",
     "SENZA_SELF",
-    "UNITA",
-    "_arrotonda",
     "_extraction_date",
     "_osrm_route",
     "_osrm_table",
-    "_to_bytes",
-    "_to_text",
     "brent_delta",
     "build_candidates",
-    "coordinate_sospette",
     "compute_edges",
+    "coordinate_sospette",
     "download_csv",
     "download_dati",
     "fetch_brent_score",

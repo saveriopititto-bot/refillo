@@ -1,4 +1,4 @@
-"""Vista della scheda «Archi»: tabella completa di tutti i distributori nel raggio con download CSV."""
+"""Tabella degli archi in fondo a «F.A.Q.»: tutti i distributori nel raggio, con download CSV."""
 from __future__ import annotations
 
 from dataclasses import dataclass
