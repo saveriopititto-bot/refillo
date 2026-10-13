@@ -1,4 +1,4 @@
-streamlit>=1.65
+streamlit~=1.65.0  # fissata: lo stile si aggancia a dettagli interni della 1.65 (vedi CLAUDE.md)
 pandas
 numpy
 folium

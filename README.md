@@ -313,7 +313,7 @@ streamlit run app.py
 
 ```bash
 pip install pytest
-python -m pytest
+python -m pytest   # anche tests/test_app.py, che apre l'app con dati finti e controlla avvio, Home e F.A.Q.
 ```
 
 I test girano anche in CI con GitHub Actions, su Python 3.10 e 3.12, a ogni pull request e a ogni push su
@@ -348,5 +348,6 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 
 Lo stile è lo stesso di test4 (layout «1a»: riquadro «Consiglio» in cima e sotto la navigazione a pillole, senza titolo, schede bianche arrotondate, palette
 `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
-interni di Streamlit, testati con la 1.65: se dopo un aggiornamento un elemento perde lo stile, va aggiornato
-il selettore.
+interni di Streamlit, testati con la 1.65: per questo `requirements.txt` fissa Streamlit alla 1.65 (`~=1.65.0`, solo
+le correzioni 1.65.x). Per passare a una versione nuova: alzarla lì, provare la pagina e aggiornare i selettori che
+perdono lo stile. Anche `st.components.v1.html`, usato per la mappa, nelle versioni nuove va sostituito con `st.iframe`.
