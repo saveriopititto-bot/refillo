@@ -7,6 +7,7 @@ from typing import TypedDict
 import pandas as pd
 
 SCONTO_MAX = 0.10
+VELOCITA_MEDIA_KMH = 40.0  # per i minuti di viaggio quando OSRM non li dà
 
 
 @dataclass(slots=True)
@@ -27,6 +28,8 @@ class ModelParams:
     theta: float = 0.0
     livello_min: float = 0.10
     sconto_max: float | None = SCONTO_MAX
+    valore_tempo: float = 10.0  # €/ora: il tempo per andare al distributore e tornare conta come costo (0 = no)
+    autostrade: bool = False  # includere i distributori «Autostradale» del MIMIT
 
     @property
     def litri_effettivi(self) -> float:
@@ -48,6 +51,8 @@ class ModelSummary(TypedDict, total=False):
     p_min: float
     p_max: float
     best_route: list[list[float]]
+    vicino: pd.Series  # il distributore più vicino: riferimento del risparmio
+    p_rif: float  # il suo prezzo
 
 
 class BrentYfResult(TypedDict):

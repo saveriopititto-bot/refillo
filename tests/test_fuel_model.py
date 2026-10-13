@@ -90,7 +90,7 @@ def test_compute_edges(dati):
     assert info["n"] == 2  # Roma è fuori raggio
     assert info["q"] == pytest.approx(40)
     assert edges.iloc[0].id == "2"  # più economico, poco più lontano
-    assert (edges.score == edges.guadagno + edges.brent - edges.costo_log).all()
+    assert (edges.score == edges.guadagno + edges.brent - edges.costo_log - edges.costo_tempo).all()
     assert (edges.peso_pos >= 0).all()
     assert info["consiglio"] == (edges.score.max() > p.theta)
 
@@ -111,17 +111,22 @@ def test_compute_edges_conti_a_mano():
                       "lon": [12.0, 12.0, 12.0 + 3 / (111.195 * np.cos(np.radians(43)))],
                       "prezzo": [1.80, 1.75, 1.90]})
     p = fm.ModelParams(v_tot=50, livello=0.25, alpha=0.2, delta_brent=0.05, consumo_l100=6,
-                       usura_eur_km=0.05, road_factor=1.3, use_osrm=False)
+                       usura_eur_km=0.05, road_factor=1.3, use_osrm=False, valore_tempo=10)
     edges, info = fm.compute_edges(c, (43.0, 12.0), p)
     q, pm = 37.5, 1.80
+    p_rif = 1.80  # il più vicino è A, sotto casa
     c_km = 6 / 100 * pm + 0.05
-    assert info["c_km"] == pytest.approx(c_km)
+    assert info["c_km"] == pytest.approx(c_km) and info["p_rif"] == pytest.approx(p_rif)
     for r in edges.itertuples():
         d = {"A": 0.0, "B": 5 * 1.3, "C": 3 * 1.3}[r.id]
+        minuti = d / 40 * 60  # senza OSRM: 40 km/h
         assert r.dist_km == pytest.approx(d, abs=0.01)
-        assert r.risparmio == pytest.approx(q * (pm - r.prezzo) - 2 * d * c_km, abs=0.01)
+        assert r.minuti == pytest.approx(minuti, abs=0.05)
+        costo_tempo = 2 * minuti / 60 * 10  # andata e ritorno, 10 €/ora
+        assert r.risparmio == pytest.approx(q * (p_rif - r.prezzo) - 2 * d * c_km - costo_tempo, abs=0.01)
         assert r.score == pytest.approx(r.risparmio + q * 0.2 * pm * 0.05)
-    assert edges.id.iloc[0] == "A" and edges.risparmio.iloc[0] == pytest.approx(0)  # al prezzo medio, sotto casa
+    # B costa 5 centesimi in meno (1,88 € sul pieno) ma è a 6,5 km: 2,24 € di strada e 3,25 € di tempo
+    assert edges.id.iloc[0] == "A" and edges.risparmio.iloc[0] == pytest.approx(0)
     assert not info["riserva"]
 
 
@@ -257,7 +262,7 @@ def test_osrm_distanze_in_cache(monkeypatch):
     assert fm.get_osrm_distances(origine, dest) == [1.5, None]
     assert fm.get_osrm_distances(origine, dest) == [1.5, None]
     assert len(chiamate) == 1  # la seconda volta risponde la cache
-    assert chiamate[0][1]["annotations"] == "distance"  # senza, OSRM restituisce solo i tempi
+    assert chiamate[0][1]["annotations"] == "distance,duration"  # senza, OSRM restituisce solo i tempi
 
 
 def test_osrm_errore_non_in_cache(monkeypatch):
@@ -343,3 +348,49 @@ def test_coordinate_sospette():
     sospette = set(anag.loc[fm.coordinate_sospette(anag), "id"])
     assert sospette == {"A4", "M1", "M2", "B4"}
     assert not fm.coordinate_sospette(anag.iloc[0:0]).any()
+
+
+def test_compute_edges_rispetto_al_piu_vicino():
+    # il più vicino (A, 1 km) costa 1,90: il risparmio di B (1,80, a 2 km) si conta rispetto ad A, non alla mediana
+    c = pd.DataFrame({"id": ["A", "B", "C"], "lat": [43.0 + 1 / 111.195, 43.0 + 2 / 111.195, 43.0 + 4 / 111.195],
+                      "lon": [12.0, 12.0, 12.0], "prezzo": [1.90, 1.80, 1.85]})
+    p = fm.ModelParams(v_tot=50, livello=0.0, consumo_l100=5, usura_eur_km=0.05, road_factor=1.0,
+                       use_osrm=False, valore_tempo=0, alpha=0)
+    edges, info = fm.compute_edges(c, (43.0, 12.0), p)
+    c_km = 5 / 100 * 1.85 + 0.05
+    b = edges.set_index("id").loc["B"]
+    assert info["vicino"].id == "A" and info["p_rif"] == pytest.approx(1.90)
+    assert b.dev_km == pytest.approx(2.0, abs=0.01)  # 1 km in più, andata e ritorno
+    assert b.risparmio == pytest.approx(50 * 0.10 - 2.0 * c_km, abs=0.01)
+    assert edges.set_index("id").loc["A"].risparmio == pytest.approx(0)
+    assert edges.id.iloc[0] == "B"
+
+
+def test_compute_edges_autostradali():
+    c = pd.DataFrame({"id": ["A", "S"], "tipo": ["Stradale", "Autostradale"], "lat": [43.0, 43.0],
+                      "lon": [12.0, 12.0], "prezzo": [1.90, 1.70]})
+    edges, _ = fm.compute_edges(c, (43.0, 12.0), fm.ModelParams(use_osrm=False))
+    assert edges.id.tolist() == ["A"]  # di default fuori
+    edges, _ = fm.compute_edges(c, (43.0, 12.0), fm.ModelParams(use_osrm=False, autostrade=True, sconto_max=None))
+    assert set(edges.id) == {"A", "S"}
+
+
+def test_compute_edges_minuti_da_osrm(monkeypatch):
+    import core.model as cm
+    c = pd.DataFrame({"id": ["A", "B"], "lat": [43.0, 43.01], "lon": [12.0, 12.0], "prezzo": [1.90, 1.80]})
+    monkeypatch.setattr(cm, "get_osrm_distances", lambda o, d: [0.5, 2.0])
+    monkeypatch.setattr(cm, "get_osrm_minuti", lambda o, d: [1.0, 9.0])  # B: strada lenta
+    monkeypatch.setattr(cm, "get_osrm_route", lambda o, d: [])
+    edges, _ = fm.compute_edges(c, (43.0, 12.0), fm.ModelParams(valore_tempo=12, sconto_max=None))
+    b = edges.set_index("id").loc["B"]
+    assert b.minuti == 9.0
+    assert b.costo_tempo == pytest.approx(2 * (9.0 - 1.0) / 60 * 12)  # 3,20 €
+
+
+def test_osrm_minuti(monkeypatch):
+    fm._osrm_table.cache_clear()
+    risposta = _RispostaJSON(200, {"code": "Ok", "distances": [[0, 1500.0, None]], "durations": [[0, 180.0, None]]})
+    monkeypatch.setattr(fm.requests, "get", lambda *a, **k: risposta)
+    origine, dest = (43.23, 12.78), [(43.24, 12.79), (43.25, 12.80)]
+    assert fm.get_osrm_minuti(origine, dest) == [3.0, None]
+    assert fm.get_osrm_distances(origine, dest) == [1.5, None]

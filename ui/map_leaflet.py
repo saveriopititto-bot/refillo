@@ -27,6 +27,17 @@ def _colore(t: float) -> str:
     return "#" + "".join(f"{int(a + (b - a) * t):02x}" for a, b in zip(lo, hi))
 
 
+def _data(r) -> str:
+    """« del 12/10»: quando il gestore ha comunicato il prezzo (vuoto se non si sa)."""
+    d = getattr(r, "dt_comu", None)
+    return f" del {d:%d/%m}" if d is not None and not pd.isna(d) else ""
+
+
+def _minuti(r) -> str:
+    m = getattr(r, "minuti", None)
+    return f" · {max(1, round(m))} min" if m is not None and not pd.isna(m) else ""
+
+
 def _popup(r, unita: str = "l") -> str:
     """Riquadro che si apre toccando il distributore: dati principali e link al navigatore."""
     nome = escape(r.bandiera or r.nome or "Distributore")
@@ -34,7 +45,8 @@ def _popup(r, unita: str = "l") -> str:
     return (
         f'<div style="font-family:Archivo,sans-serif;font-size:13px;line-height:1.4;color:{style.DEEP}">'
         f"<b>{r.rank}. {nome}</b>{impianto}<br>{escape(r.indirizzo)}, {escape(r.comune)}<br>"
-        f"<b>{_it(f'{r.prezzo:.3f}')} €/{unita}</b> · {num(r.dist_km)} km · risparmio {eur(r.risparmio, sign=True)}<br>"
+        f"<b>{_it(f'{r.prezzo:.3f}')} €/{unita}</b>{_data(r)} · {num(r.dist_km)} km{_minuti(r)}<br>"
+        f"risparmio {eur(r.risparmio, sign=True)} rispetto al più vicino<br>"
         f'<a href="{NAVIGA_URL.format(lat=r.lat, lon=r.lon)}" target="_blank" rel="noopener" '
         f'style="display:inline-block;margin-top:6px;font-weight:700;color:{style.A700}">Portami qui →</a></div>'
     )

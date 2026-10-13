@@ -30,7 +30,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
 - I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
   (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
-  `fm.get_osrm_route`, `streamlit_js_eval.streamlit_js_eval`: chiave `geo_0` per il GPS, `geo_ip` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
+  `fm.get_osrm_route`, `fm.get_osrm_minuti` (in `core.model`), `streamlit_js_eval.streamlit_js_eval`: chiave `geo_0` per il GPS, `geo_ip` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
 - Nell'AppTest le schede si cambiano con `at.session_state["scheda"] = "F.A.Q."`; `st.cache_data` resta in
   memoria tra un AppTest e l'altro nello stesso processo, quindi per casi diversi usa argomenti diversi.
@@ -115,10 +115,15 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   prezzo più basso; il radio è disattivato. Il Metano è in kg (`fm.unita`: «kg» / «l»), e l'unità passa a
   `ResultView`, `EdgesView` e alla mappa. Serbatoio e consumo predefiniti per carburante: `PREDEFINITI` in
   `ui/controls_view.py` (widget con chiave per carburante). L-GNC e GNL non sono inclusi.
-- **Calcolo** (`compute_edges`): i km in più sono sempre andata e ritorno (la destinazione è stata tolta).
-  `score` = risparmio sul prezzo + effetto Brent − costo del viaggio: decide classifica e verdetto.
+- **Calcolo** (`compute_edges`): tutto rispetto al distributore più vicino (`info["vicino"]`, prezzo `p_rif`):
+  risparmio sul prezzo = litri × (`p_rif` − prezzo), km in più = 2 × (distanza − distanza del più vicino), costo del
+  tempo = 2 × (minuti − minuti del più vicino) / 60 × `valore_tempo` (€/ora, 10 di default; minuti da OSRM
+  `get_osrm_minuti`, stessa richiesta `/table` con `annotations=distance,duration`, o distanza a `VELOCITA_MEDIA_KMH`).
+  `score` = risparmio sul prezzo + effetto Brent − costo del viaggio − costo del tempo: decide classifica e verdetto.
   `risparmio` = lo stesso senza l'effetto Brent: è quello mostrato nella frase, sulla mappa e nel Top 5
-  (l'effetto Brent è uguale per tutti e non è un risparmio vero). Costo al km = consumo × prezzo di mercato +
+  (l'effetto Brent è uguale per tutti e non è un risparmio vero). Il prezzo di mercato (mediana o media nel raggio)
+  resta per costo al km, effetto Brent, indicatore e filtro dei prezzi troppo bassi (`sconto_max`). Esclusi i
+  distributori «Autostradale» (`autostrade=False`, opzione in «Opzioni»); età massima del prezzo predefinita 5 giorni. Costo al km = consumo × prezzo di mercato +
   usura. Il test `test_compute_edges_conti_a_mano` rifà i conti a mano: aggiornalo se cambi la formula.
 - **Avvio**: finché `st.session_state["avviato"]` non è vero, `app.py` mostra solo `style.avvio()` (contenitore
   `avvio`, lo stesso riquadro del cerchio di caricamento con il pulsante `avvia`: cerchio verde `VERDE` con l'icona `:material/local_gas_station:`, 132 px, 114 da telefono; riquadro largo 384 px, 312 da telefono) e si ferma: niente download né

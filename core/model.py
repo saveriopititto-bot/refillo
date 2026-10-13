@@ -4,9 +4,9 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from clients.osrm import get_osrm_distances, get_osrm_route
+from clients.osrm import get_osrm_distances, get_osrm_minuti, get_osrm_route
 from core.geo import haversine_km
-from core.types import ModelParams, ModelSummary
+from core.types import VELOCITA_MEDIA_KMH, ModelParams, ModelSummary
 
 
 def brent_delta(b_t: float, b_tn: float, eurusd_t: float = 1.0, eurusd_tn: float = 1.0, clip: float = 0.10) -> float:
@@ -31,8 +31,12 @@ def compute_edges(
     """
     olat, olon = origin
     df = cands.copy()
+    if not p.autostrade and "tipo" in df.columns:
+        # costano di più e si raggiungono solo dall'autostrada (a volte in una sola direzione): distanza poco affidabile
+        df = df[df.tipo != "Autostradale"]
     df["dist_km"] = haversine_km(olat, olon, df.lat.values, df.lon.values) * p.road_factor
     df = df[df.dist_km <= p.raggio_km].copy()
+    df["minuti"] = df.dist_km / VELOCITA_MEDIA_KMH * 60  # sola andata; OSRM, se risponde, dà quelli veri
 
     if p.use_osrm and not df.empty:
         # Prendi i 99 più vicini per rispettare i limiti di OSRM (1 origin + 99 dest = 100)
@@ -40,10 +44,13 @@ def compute_edges(
         dests = list(zip(df.loc[cands_idx, "lat"], df.loc[cands_idx, "lon"]))
 
         real_dists = get_osrm_distances(origin, dests)
+        real_min = get_osrm_minuti(origin, dests)  # stessa richiesta: è già in memoria
 
-        for idx, d in zip(cands_idx, real_dists):
+        for idx, d, m in zip(cands_idx, real_dists, real_min):
             if d is not None:
                 df.at[idx, "dist_km"] = d
+            if m is not None:
+                df.at[idx, "minuti"] = m
 
         df = df[df.dist_km <= p.raggio_km].copy()
 
@@ -64,13 +71,18 @@ def compute_edges(
     c_km = p.consumo_l100 / 100 * p_market + p.usura_eur_km
     q = p.litri_effettivi
 
-    df["dev_km"] = 2 * df.dist_km
+    # riferimento: il distributore più vicino («fare benzina sotto casa»). Prezzo, km e minuti si contano rispetto a lui
+    vicino = df.loc[df.dist_km.idxmin()]
+    p_rif = float(vicino.prezzo)
+    df["dev_km"] = 2 * (df.dist_km - vicino.dist_km)  # km in più, andata e ritorno
 
-    df["guadagno"] = q * (p_market - df.prezzo)
+    df["guadagno"] = q * (p_rif - df.prezzo)
     df["brent"] = q * p.alpha * p_market * p.delta_brent
     df["costo_log"] = df.dev_km * c_km
-    df["score"] = df.guadagno + df.brent - df.costo_log
-    df["risparmio"] = df.guadagno - df.costo_log  # quello che si risparmia davvero, senza l'effetto Brent
+    df["costo_tempo"] = 2 * (df.minuti - vicino.minuti) / 60 * p.valore_tempo
+    df["score"] = df.guadagno + df.brent - df.costo_log - df.costo_tempo
+    # quello che si risparmia davvero (contando il tempo), senza l'effetto Brent, uguale per tutti
+    df["risparmio"] = df.guadagno - df.costo_log - df.costo_tempo
     df["peso"] = -df.score
     df["peso_pos"] = df.score.max() - df.score
 
@@ -99,6 +111,8 @@ def compute_edges(
         p_min=float(pmin),
         p_max=float(pmax),
         riserva=sicurezza,
+        vicino=vicino,
+        p_rif=p_rif,
     )
     summary["best_route"] = get_osrm_route(origin, (best.lat, best.lon)) if p.use_osrm else []
 

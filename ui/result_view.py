@@ -33,6 +33,7 @@ class ResultView:
     fonte: str
     unita: str = "l"  # «kg» per il Metano
     metriche: any = None  # colonna accanto al menu del carburante, dove vanno gli indicatori
+    valore_tempo: float = 0.0  # €/ora: se > 0 la frase dice che conta anche il tempo
 
     def render(self) -> None:
         if self.edges.empty:
@@ -52,13 +53,20 @@ class ResultView:
             ])
 
         with style.card("map"):
-            style.lead(
-                f"Il distributore migliore è <strong>{escape(best.bandiera or best.nome)}</strong> "
-                f"({escape(best.indirizzo)}, {escape(best.comune)}): <strong>{prezzo_txt}</strong> a "
-                f"<strong>{num(best.dist_km)} km</strong>. Facendo il pieno lì risparmi "
-                f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al prezzo medio della zona, "
-                f"considerando il costo del viaggio."
-            )
+            vicino = self.info["vicino"]
+            dove = (f"<strong>{escape(best.bandiera or best.nome)}</strong> ({escape(best.indirizzo)}, "
+                    f"{escape(best.comune)}): <strong>{prezzo_txt}</strong> a <strong>{num(best.dist_km)} km</strong>")
+            if best.id == vicino.id:
+                style.lead(f"Il distributore migliore è anche il più vicino: {dove}.")
+            else:
+                viaggio = "costo e tempo" if self.valore_tempo > 0 else "costo"
+                style.lead(
+                    f"Il distributore migliore è {dove}. Facendo il pieno lì risparmi "
+                    f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al più vicino "
+                    f"({escape(vicino.bandiera or vicino.nome)} a {num(vicino.dist_km)} km, {_it(f'{vicino.prezzo:.3f}')}{eu}), "
+                    f"contando "
+                    f"{viaggio} del viaggio."
+                )
             html_mappa = _mappa_html(tuple(self.origin), self.edges, self.info.get("best_route"),
                                      self.show_all_lines, self.unita)
             with st.container(key="mappa"):

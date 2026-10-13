@@ -20,10 +20,12 @@ class HowView:
                 """
 L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparmi facendo lì il rifornimento**.
 
-- **Il prezzo**: confronta il prezzo di ogni distributore con quello tipico della zona e calcola quanto spendi
-  in meno (o in più) per i litri che devi fare.
-- **Il viaggio**: toglie quanto ti costa arrivarci e tornare, cioè carburante e usura dell'auto per i
-  chilometri di andata e ritorno.
+- **Il prezzo**: confronta il prezzo di ogni distributore con quello del distributore più vicino a te (come fare
+  benzina sotto casa) e calcola quanto spendi in meno (o in più) per i litri che devi fare.
+- **Il viaggio**: toglie quanto ti costano i chilometri in più, andata e ritorno, rispetto al più vicino:
+  carburante, usura dell'auto e il tuo tempo (10 € all'ora di default, si cambia in «Opzioni»).
+- **Esclusi**: i distributori in autostrada (si possono includere in «Opzioni») e i prezzi comunicati da più di
+  5 giorni.
 - **Il petrolio**: se negli ultimi giorni il Brent è salito, i prezzi alla pompa tenderanno a salire e fare
   rifornimento ora conviene un po' di più; se è sceso, conviene un po' meno. Questo vale per tutti i
   distributori allo stesso modo, quindi cambia il verdetto ma non la classifica.

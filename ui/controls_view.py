@@ -238,13 +238,24 @@ class ControlsView:
                 show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
                 usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
                                         format="%.3f")
-                max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=7)
+                valore_tempo = st.number_input(
+                    "Valore del tuo tempo (€/ora)", min_value=0.0, max_value=100.0, value=10.0, step=1.0,
+                    help="Il tempo per andare al distributore e tornare conta come un costo: un distributore lontano "
+                         "deve far risparmiare di più. 0 = conta solo carburante e usura.")
+                autostrade = st.checkbox(
+                    "Includi i distributori in autostrada", value=False,
+                    help="Di solito costano di più e si raggiungono solo dall'autostrada, a volte in una sola "
+                         "direzione: la distanza calcolata può non essere quella vera.")
+                max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=5,
+                                          help="I prezzi comunicati da più giorni possono essere cambiati. Con 5 "
+                                               "giorni restano circa 95 distributori su 100.")
                 road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, 1.3, 0.05,
                                         help="1,3 = la strada è in media il 30% più lunga della distanza in linea d'aria.")
                 ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True,
                                     help="Mediana: il prezzo di mezzo, non risente dei prezzi anomali. Media: la media semplice.")
                 theta = st.number_input("Soglia di convenienza (€)", value=0.0, step=0.5,
-                                        help="Il verdetto è «Rifornisci» solo se il risparmio supera questa cifra.")
+                                        help="Il verdetto è «Rifornisci» solo se il risparmio rispetto al "
+                                             "distributore più vicino supera questa cifra.")
                 alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
                                   help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
@@ -252,6 +263,7 @@ class ControlsView:
             v_tot=v_tot, livello=livello, litri=litri, alpha=alpha, delta_brent=dB,
             consumo_l100=consumo, usura_eur_km=usura, road_factor=road_factor, raggio_km=float(raggio),
             use_osrm=use_osrm, ref_mode=ref_mode, theta=theta, livello_min=livello_min,
+            valore_tempo=valore_tempo, autostrade=autostrade,
         )
         cands = candidati(anag, prezzi, impronta(anag_b, prezzi_b), fuel, self_service, float(max_age), extraction)
 
