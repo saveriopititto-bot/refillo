@@ -139,8 +139,10 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   il browser risponde) e distanze su strada (98%, in `app.py` prima di `compute_edges`); si chiude in fondo ad `app.py`,
   a pagina completa (prima, mentre rispondeva OSRM, la pagina si vedeva a metà). Finché la Home non è mai stata
   mostrata (`st.session_state["pronta"]`) compare subito; nei ricalcoli dopo (anche
-  «Posizione», mentre il GPS risponde) compare solo oltre 0,3 s (`x-ritardo`). Lo sfondo è sempre pieno (`BG`): dietro
-  non si vede la pagina a metà. Le cache hanno `show_spinner=False`. Lo score del
+  «Posizione», mentre il GPS risponde) compare solo oltre 0,3 s (`x-ritardo`), tranne quando la pagina si ferma a metà
+  (posizione in attesa: `mostra(..., subito=True)` prima di `st.stop`). Lo sfondo è sempre pieno (`BG`): dietro
+  non si vede la pagina a metà. Lo controllano `test_posizione_in_attesa_copre_la_pagina` e
+  `test_cerchio_sempre_su_sfondo_pieno` in `tests/test_app.py`. Le cache hanno `show_spinner=False`. Lo score del
   petrolio si legge in `ControlsView` (`bs`, `bs_err`).
 - **Posizione**: `rileva_posizione()` in cima ad `app.py`, prima della schermata d'avvio e sempre nello stesso punto
   (così la richiesta parte all'apertura e non riparte dopo il tocco). Prima il GPS (`posizione_browser`: `getLocation()`

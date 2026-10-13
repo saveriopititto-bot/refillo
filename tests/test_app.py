@@ -2,6 +2,7 @@
 
 I selettori CSS e i contenitori dipendono da Streamlit: se un aggiornamento rompe la pagina, qui fallisce."""
 from contextlib import contextmanager
+import re
 from pathlib import Path
 from unittest import mock
 
@@ -11,6 +12,7 @@ from streamlit.testing.v1 import AppTest
 
 import clients.osrm as osrm
 import fuel_model as fm
+import style
 import ui.data_service as ds
 from tests.test_fuel_model import ANAG, PREZZI
 
@@ -67,6 +69,28 @@ def test_home(app):
     assert testo.count('class="x-metric"') == 3  # prezzo medio, distributori, costo al km
     assert app.selectbox(key="carburante").value == "Benzina"
     assert 'class="x-progress-wrap' not in testo  # il cerchio di caricamento si è chiuso
+
+
+def test_posizione_in_attesa_copre_la_pagina(app):
+    """«Posizione» toccata dopo la Home: finché il GPS non risponde il cerchio copre tutto, subito e su sfondo pieno."""
+    app.session_state["avviato"] = True
+    app.run()
+    assert app.session_state["pronta"]
+    app.session_state["geo_giro"] = 1
+    with mock.patch.object(streamlit_js_eval, "streamlit_js_eval",
+                           side_effect=lambda js_expressions=None, key=None: None):  # nessuna risposta del browser
+        app.run()
+    assert not app.exception
+    testo = _testo(app)
+    assert 'class="x-progress-wrap"' in testo  # senza x-ritardo: compare subito
+    assert "Cerco la tua posizione" in testo
+
+
+def test_cerchio_sempre_su_sfondo_pieno():
+    """Dietro il cerchio di caricamento non deve mai vedersi la pagina: niente sfondi trasparenti."""
+    regole = re.findall(r"\.x-progress-wrap[^{]*\{([^}]*)\}", style.CSS)
+    assert regole and all("rgba" not in r and "transparent" not in r for r in regole)
+    assert f"background: {style.BG}" in regole[0]
 
 
 def test_faq(app):

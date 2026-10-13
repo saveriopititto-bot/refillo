@@ -463,12 +463,13 @@ class Caricamento:
         self._posto = st.empty()
         self._inizio: float | None = None
 
-    def mostra(self, pct: int, label: str) -> None:
+    def mostra(self, pct: int, label: str, subito: bool = False) -> None:
+        """`subito`: senza il ritardo dei ricalcoli, quando la pagina si ferma a metà (il resto sparirebbe)."""
         if self._inizio is None:
             self._inizio = time.monotonic()
         primo = not st.session_state.get("pronta")
         # nei ricalcoli, nei primi istanti compare con un attimo di ritardo: con i dati in memoria non si vede nemmeno
-        ritardo = not primo and time.monotonic() - self._inizio < 0.3
+        ritardo = not (primo or subito) and time.monotonic() - self._inizio < 0.3
         self._posto.markdown(cerchio_progresso(pct, label, ritardo), unsafe_allow_html=True)
 
     def chiudi(self) -> None:
