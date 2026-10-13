@@ -28,7 +28,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 
 - La CI (GitHub Actions) gira su Python **3.10** e 3.12. Niente sintassi solo 3.12+, come le f-string con
   le stesse virgolette annidate (`f"{d['k']}"` va bene, `f"{f'{x}'}"` dentro `f'...'` no).
-- I test non importano `app.py`: per l'interfaccia prova l'app con `streamlit.testing.v1.AppTest`
+- `tests/test_app.py` apre `app.py` con `AppTest` e dati finti (niente rete) e controlla schermata d'avvio, Home e
+  F.A.Q.: aggiornalo se cambi la struttura della pagina. Gli altri test non importano `app.py`: per provare
+  l'interfaccia a mano usa `streamlit.testing.v1.AppTest`
   (simulando `fm.download_csv`, `fm.download_dati`, `fm.fetch_brent_yf`, `fm.fetch_brent_score`, `fm.get_osrm_distances`,
   `fm.get_osrm_route`, `fm.get_osrm_minuti` (in `core.model`), `streamlit_js_eval.streamlit_js_eval`: chiave `geo_0` per il GPS, `geo_ip` per la posizione dall'IP) e, per i cambi visivi, con Chromium/Playwright
   (Chromium in `/opt/pw-browsers`, da passare come `executable_path`).
@@ -45,7 +47,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Stile**: `style.py` + `.streamlit/config.toml`, lo stesso di test4 (palette `#8ecae6` `#219ebc`
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
-  1.65; `requirements.txt` chiede `streamlit>=1.65`).
+  1.65; `requirements.txt` fissa `streamlit~=1.65.0`: Streamlit Cloud non deve installare da solo una versione nuova
+  che rompe lo stile; per aggiornarla alza la versione, prova con Playwright e aggiorna i selettori. Nelle versioni
+  nuove `st.components.v1.html` (la mappa) va sostituito con `st.iframe`).
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score. Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, sempre su una riga anche da telefono: Home ·
