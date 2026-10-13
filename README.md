@@ -62,6 +62,10 @@ kg e consumo in kg/100 km. Serbatoio e consumo predefiniti cambiano con il carbu
   che si chiude toccando fuori; «Opzioni» resta aperto mentre si cambiano i valori. «Top 5» mostra i 5
   distributori che convengono di più (insegna, comune, prezzo, distanza, risparmio; da telefono senza il comune).
 
+Le scelte fatte (carburante e opzioni, anche serbatoio e consumo di ogni carburante) restano nel browser di chi usa
+l'app, senza account: alla visita dopo le ritrova. Non restano il livello del serbatoio e i litri da fare, che
+cambiano a ogni rifornimento. Cancellando i dati del sito nel browser si torna ai valori predefiniti.
+
 In «Opzioni» ci sono i parametri del veicolo e del modello (capacità del serbatoio, livello attuale,
 consumo, raggio d'azione, OSRM per percorsi reali, self o servito, soglia di riserva, litri da fare, usura dell'auto, valore del tuo tempo, distributori in autostrada, età massima
 del prezzo, fattore strada, prezzo tipico della zona, soglia di convenienza e peso del petrolio sui prezzi) e,

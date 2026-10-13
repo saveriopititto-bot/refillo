@@ -7,6 +7,7 @@ import fuel_model as fm
 import style
 from ui.controls_view import HOME, ControlsView
 from ui.data_service import rileva_posizione
+from ui import preferenze
 from ui.edges_view import EdgesView
 from ui.hero_view import HeroView
 from ui.how_view import HowView
@@ -20,6 +21,8 @@ c_hero = st.container()
 # la posizione si chiede subito, già nella schermata d'avvio (sempre nello stesso punto della pagina, così la
 # richiesta non riparte dopo il tocco): GPS e, se fallisce, indirizzo internet
 posizione = rileva_posizione()
+# anche le opzioni salvate nel browser alla visita precedente: quando si tocca il pulsante sono già pronte
+preferenze.leggi()
 
 # all'apertura solo il pulsante del distributore: i download partono quando lo si tocca
 if not st.session_state.get("avviato"):
@@ -79,3 +82,4 @@ style.colophon()
 # pagina completa: si chiude il cerchio (prima la pagina si vedrebbe a metà, per esempio mentre risponde OSRM)
 controls.caricamento.chiudi()
 st.session_state["pronta"] = True
+preferenze.salva()

@@ -68,8 +68,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   carburante (contenitori `metriche` e `carb`, creati in `ControlsView` solo nella Home: quattro riquadri larghi e alti uguali a ogni larghezza (da telefono
   largo le scritte stanno su una riga e gli indicatori sarebbero più bassi: `height: 100%` li allunga; le etichette in
   alto e i valori stanno alla stessa altezza di «CARBURANTE» e «Benzina», controllato con Playwright a 390, 430 e 1280 px);
-  gli indicatori li scrive `ResultView` nella colonna `metriche`; nelle altre schede il menu non c'è e la chiave
-  `carburante` viene tenuta in vita all'inizio di `ControlsView.render`)
+  gli indicatori li scrive `ResultView` nella colonna `metriche`; nelle altre schede il menu non c'è e la scelta
+  vive in `st.session_state["_carburante"]`, che non è la chiave di un widget)
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
   rimetterla.
 - **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
@@ -133,7 +133,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
 - **Avvio**: finché `st.session_state["avviato"]` non è vero, `app.py` mostra solo `style.avvio()` (contenitore
   `avvio`, lo stesso riquadro del cerchio di caricamento con il pulsante `avvia`: cerchio verde `VERDE` con l'icona `:material/local_gas_station:`, 132 px, 114 da telefono; riquadro largo 384 px, 312 da telefono) e si ferma: niente download né
   richiesta di posizione prima del tocco. Sotto il pulsante il menu `carburante_avvio`: al tocco `_avvia` lo copia in
-  `st.session_state["carburante"]`, la chiave del menu della Home. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
+  `st.session_state["_carburante"]`, da cui il menu della Home prende `index`. Negli AppTest imposta `at.session_state["avviato"] = True` prima di `run()`.
 - **Caricamento**: un solo cerchio al centro dello schermo (`style.Caricamento`, sopra la pagina con
   `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio, posizione (95%, resta finché
   il browser risponde) e distanze su strada (98%, in `app.py` prima di `compute_edges`); si chiude in fondo ad `app.py`,
@@ -149,6 +149,15 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   (`ROMA`). Mentre il GPS non ha risposto, dopo il tocco resta il cerchio «Cerco la tua posizione…».
   La nota «📍 Perugia (stima)» / «📍 Roma (ripiego)» sta sulla riga di «CONSIGLIO» (`kicker_html`), per non
   allungare la pagina. Nei test AppTest va simulato anche `streamlit_js_eval.streamlit_js_eval`.
+- **Preferenze** (`ui/preferenze.py`): carburante e opzioni restano nel `localStorage` del browser (`refillo_opzioni`,
+  JSON). `leggi()` in cima ad `app.py` (già nella schermata d'avvio) li mette in `st.session_state["_preferenze"]`
+  dopo `valida()` (solo chiavi note, tipo e intervallo dei widget); `salva()` in fondo ad `app.py`, solo dopo averli
+  letti, li riscrive con un `streamlit_js_eval` la cui chiave cambia solo quando cambiano. I widget di «Opzioni» hanno
+  chiavi `opt_*` (più `v_tot_<carburante>` e `consumo_<carburante>`) e prendono il valore iniziale da
+  `valore(chiave, predefinito)` come `value=`/`index=`: non scrivere le loro chiavi nella sessione prima di crearli,
+  perché i widget dentro il popover partirebbero dal minimo. Unica eccezione `carburante_avvio`, impostato da
+  `leggi()` perché il menu d'avvio esiste già quando arriva la risposta. Non si salvano livello e litri da fare.
+  Negli AppTest `streamlit_js_eval` finto risponde `None` alla chiave `opzioni_leggi`: niente preferenze.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
 - La logica del modello sta in `core/`, `ingestion/` e `clients/` (riesportati da `fuel_model.py`, che i test e
