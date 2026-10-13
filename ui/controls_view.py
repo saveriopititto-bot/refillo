@@ -205,6 +205,8 @@ class ControlsView:
             origin, nota_posizione = (float(sel.lat.median()), float(sel.lon.median())), ""
 
         if origin is None:  # il browser non ha ancora risposto (al massimo 15 secondi): il cerchio resta al centro
+            # subito, senza ritardo: la pagina si ferma qui e sotto il resto sparisce
+            caricamento.mostra(95, "Cerco la tua posizione…", subito=True)
             top5.caption("Serve la posizione per trovare i distributori migliori.")
             style.colophon()
             st.stop()
