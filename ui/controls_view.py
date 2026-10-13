@@ -46,13 +46,11 @@ def _pillola(col, scheda: str, key: str) -> None:
 @dataclass
 class ControlsResult:
     origin: tuple[float, float]
-    fuel: str
     params: fm.ModelParams
     cands: pd.DataFrame
     fonte: str
     note_dati: Sequence[str]
     raggio: int | float
-    litri: float | None
     unita: str  # «l» o «kg» (Metano): unità del prezzo e del serbatoio
     ref_mode: str
     show_all_lines: bool
@@ -76,7 +74,7 @@ class ControlsView:
         up_p = st.session_state.get("up_prezzi")
 
         # un solo cerchio di caricamento al centro dello schermo: dati MIMIT (fino al 60%), lettura dei CSV,
-        # Brent, score del petrolio e posizione; si chiude quando la posizione c'è
+        # Brent, score del petrolio e posizione; si chiude in fondo ad app.py, a pagina completa
         caricamento = style.Caricamento()
         st.session_state.pop("download_err", None)
         (anag_b, src_a), (prezzi_b, src_p) = get_mimit_dataset(
@@ -126,7 +124,7 @@ class ControlsView:
         with hero_lato:
             hero_cerchio = st.container()
 
-        # riquadro delle schede: Home · Posizione · Opzioni · Top 5 · F.A.Q., tutti a sinistra, poi il contenuto
+        # riquadro delle schede: in cima la riga Home · Posizione · Opzioni · Top 5 · F.A.Q., sotto il contenuto
         st.session_state.setdefault("scheda", HOME)
         with style.card("schede"):
             with st.container(key="comandi"):
@@ -288,13 +286,11 @@ class ControlsView:
 
         return ControlsResult(
             origin=origin,
-            fuel=fuel,
             params=params,
             cands=cands,
             fonte=fonte,
             note_dati=note_dati,
             raggio=raggio,
-            litri=litri,
             unita=u,
             ref_mode=ref_mode,
             show_all_lines=show_all_lines,

@@ -124,7 +124,7 @@ da telefono):
 
 Sotto il consiglio, una frase spiega il perché:
 
-- Conviene: «Il petrolio costa più del solito. Tra pochi giorni anche la benzina costerà di più. Fai benzina oggi.»
+- Conviene: «Il petrolio costa più del solito. Tra pochi giorni anche il carburante costerà di più. Fai il pieno oggi.»
 - Rifornisci: «Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.»
 - Aspetta: «Il petrolio costa meno del solito. Tra pochi giorni anche la benzina costerà di meno. Se puoi, aspetta.»
 
@@ -134,9 +134,9 @@ conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Bre
 Lo stesso verdetto compare anche quando il serbatoio è sotto la soglia di riserva: in quel caso il riquadro dice
 sempre «Rifornisci», qualunque sia lo score del petrolio.
 
-Sotto, un unico riquadro: in cima la riga Home · «Posizione» · «Opzioni» · «Top 5» · F.A.Q., tutta a sinistra e
-sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
-degli archi partono quando si apre la loro scheda, così l'avvio è più leggero.
+Sotto, un unico riquadro: in cima la riga Home · «Posizione» · «Opzioni» · «Top 5» · F.A.Q., cinque pillole della stessa
+larghezza, sempre in linea anche da telefono, e sotto il contenuto della scheda scelta. L'app disegna solo la scheda aperta: la mappa e la tabella
+degli archi si costruiscono solo quando si apre la loro scheda, così l'avvio è più leggero.
 
 - **Home**:
   - tre indicatori compatti su una riga (prezzo medio, distributori nel raggio, costo al km), che restano su
@@ -345,7 +345,7 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | File / Cartella | Contenuto |
 |---|---|
 | `app.py` | Coordinatore dell'interfaccia Streamlit: controlli, calcolo, riquadro consiglio e schede (le viste sono in `ui/`) |
-| `fuel_model.py` | Facade pubblica e retrocompatibile del modello (riesporta core, ingestion, clients) |
+| `fuel_model.py` | Punto d'accesso unico al modello: riesporta da core, ingestion e clients quello che usano app, script e test |
 | `core/` | Logica di business: tipi (`types.py`), geometria (`geo.py`), scoring e pesi degli archi (`model.py`) |
 | `ingestion/` | Ingestione dati MIMIT: download (`downloader.py`) e parsing (`parser.py`) |
 | `clients/` | Client per API esterne: OSRM (`osrm.py`), Yahoo Finance (`yahoo.py`), Supabase (`supabase.py`) |

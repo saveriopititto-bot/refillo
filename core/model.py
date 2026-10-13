@@ -23,11 +23,11 @@ def compute_edges(
     origin: tuple[float, float],
     p: ModelParams,
 ) -> tuple[pd.DataFrame, ModelSummary]:
-    """Pesi degli archi origine -> distributore.
+    """Pesi degli archi origine -> distributore, tutti rispetto al distributore più vicino.
 
     Restituisce (tabella ordinata per score decrescente, riepilogo).
-    Colonne chiave: score = S_i (da massimizzare), peso = -S_i (costo per
-    cammino minimo), peso_pos = S_max - S_i (costo non negativo).
+    Colonne chiave: score = S_i (da massimizzare: decide classifica e verdetto), risparmio = lo stesso senza l'effetto
+    Brent (quello mostrato), peso = -S_i (costo per cammino minimo), peso_pos = S_max - S_i (costo non negativo).
     """
     olat, olon = origin
     df = cands.copy()
@@ -54,11 +54,8 @@ def compute_edges(
 
         df = df[df.dist_km <= p.raggio_km].copy()
 
-    summary: ModelSummary = {
-        "n": len(df),
-        "q": p.litri_effettivi,
-        "riserva": p.livello < p.livello_min,
-    }
+    riserva = p.livello < p.livello_min
+    summary: ModelSummary = {"n": len(df), "q": p.litri_effettivi, "riserva": riserva}
     if df.empty:
         return df, summary
 
@@ -86,15 +83,11 @@ def compute_edges(
     df["peso"] = -df.score
     df["peso_pos"] = df.score.max() - df.score
 
-    pmin, pmax = df.prezzo.min(), df.prezzo.max()
-    n = len(df)
-
     df = df.sort_values("score", ascending=False).reset_index(drop=True)
-    df.insert(0, "rank", np.arange(1, n + 1))
+    df.insert(0, "rank", np.arange(1, len(df) + 1))
 
     best = df.iloc[0]
-    sicurezza = p.livello < p.livello_min
-    if sicurezza:
+    if riserva:
         consiglio, motivo = True, f"carburante nel serbatoio sotto la soglia di riserva ({p.livello:.0%} < {p.livello_min:.0%})"
     elif best.score > p.theta:
         consiglio, motivo = True, f"il risparmio migliore ({best.score:+.2f} €) supera la soglia di convenienza ({p.theta:.2f} €)"
@@ -106,9 +99,6 @@ def compute_edges(
         best=best,
         consiglio=consiglio,
         motivo=motivo,
-        p_min=float(pmin),
-        p_max=float(pmax),
-        riserva=sicurezza,
         vicino=vicino,
         p_rif=p_rif,
     )

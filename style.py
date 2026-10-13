@@ -1,4 +1,4 @@
-"""Stile 'smooth' (opzione 1a, lo stesso di test4): CSS globale e blocchi HTML riusati da app.py."""
+"""Stile (lo stesso di test4): CSS globale e blocchi HTML usati dalle viste di ui/."""
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -73,25 +73,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 [data-testid="stSlider"] [data-baseweb="slider"] > div > div:first-child {{ border-radius: 999px; }}
 [data-testid="stTooltipIcon"] svg {{ stroke: {N500}; }}
 
-/* tab come barra di navigazione a pillole (selettori per Streamlit < 1.6x e >= 1.6x), sotto il riquadro «Consiglio» */
-.stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ gap: 4px; align-items: center; flex-wrap: wrap;
-  row-gap: 10px; background: #fff; border: 0; box-shadow: var(--shadow-soft); padding: 12px 24px;
-  border-radius: var(--radius-lg); overflow: visible; }}
-.stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ height: auto; padding: 8px 10px; margin: 0; border: 0;
-  border-radius: 999px; background: transparent; cursor: pointer; }}
-.stTabs [role="tab"] p {{ font-size: 14px; font-weight: 600; color: {DEEP}; }}
-.stTabs [role="tab"]:hover p {{ color: {ORANGE}; }}
-.stTabs [role="tab"][aria-selected="true"] {{ background: {DEEP}; }}
-.stTabs [role="tab"][aria-selected="true"] p {{ color: #fff; }}
-.stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"],
-.stTabs .react-aria-SelectionIndicator, .stTabs [role="tablist"]::before,
-.stTabs [role="tablist"]::after {{ display: none; }}
-.stTabs [role="tabpanel"] {{ padding-top: 20px; }}
-
-/* un solo riquadro bianco con le pillole e tutto il contenuto delle schede: la barra delle pillole e le
-   schede interne perdono sfondo e ombra, gli indicatori diventano riquadri tenui */
-.st-key-card-schede .stTabs [data-baseweb="tab-list"], .st-key-card-schede .stTabs [role="tablist"] {{
-  background: transparent; box-shadow: none; padding: 0; border-radius: 0; }}
+/* un solo riquadro bianco con le pillole e tutto il contenuto delle schede: le schede interne perdono sfondo e
+   ombra, gli indicatori diventano riquadri tenui */
 .st-key-card-schede [class*="st-key-card"] {{ background: transparent; box-shadow: none; padding: 0;
   border-radius: 0; }}
 .st-key-card-schede [class*="st-key-card"] + [class*="st-key-card"],
@@ -106,8 +89,8 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.35; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
-/* mappa Leaflet (cornice di components.html): quadrata, a qualunque larghezza dello schermo; al massimo 400 px di
-   larghezza (400 × 400), centrata */
+/* mappa Leaflet (cornice di components.html): quadrata, a qualunque larghezza dello schermo; al massimo 360 px di
+   larghezza (360 × 360), centrata; da telefono il 90% della larghezza */
 .st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 1 / 1; width: 100% !important;
   max-width: 360px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}
 @media (max-width: 640px) {{ .st-key-mappa iframe {{ width: 90% !important; }} }}
@@ -177,9 +160,6 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   margin-top: 4px; }}
 .x-lead {{ font-size: 15px; line-height: 1.45; text-align: justify; text-justify: inter-word; color: {DEEP}; }}
 .x-lead strong {{ color: {A700}; }}
-.x-lead-box {{ background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); padding: 22px 26px;
-  font-size: 19px; line-height: 1.5; text-wrap: pretty; }}
-.x-lead-box strong {{ color: {A700}; }}
 .x-label {{ font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: {N700}; }}
 /* indicatori: riquadri compatti, sempre tutti su una riga */
 .x-metrics {{ display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; }}
@@ -211,23 +191,18 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .st-key-comandi [data-testid="stHorizontalBlock"] {{ gap: 4px !important; }}
   .st-key-comandi button {{ min-height: 32px !important; padding: 4px 2px !important; }}
   .st-key-comandi button p {{ font-size: 11.5px !important; }}
+  /* niente freccia dei popover da telefono: c'è poco spazio */
   .st-key-comandi button div[aria-hidden="true"]:has([data-testid="stIconMaterial"]) {{ display: none !important; }}
-  /* niente freccia da telefono: c'è poco spazio */
   .st-key-carb [data-baseweb="select"] > div {{ min-height: 32px !important; padding: 0 4px !important; }}
   .st-key-carb [data-baseweb="select"] *,
   .st-key-carb [data-testid="stSelectbox"] input {{ font-size: 11px !important; }}
   .stButton button, .stDownloadButton button {{ padding: 6px 10px; min-height: 32px; }}
   .stButton button p, .stDownloadButton button p {{ font-size: 12px; font-weight: 700; }}
   [data-testid="stExpander"] summary {{ min-height: 32px; padding: 5px 10px; font-size: 12px; }}
-  .stTabs [data-baseweb="tab-list"], .stTabs [role="tablist"] {{ padding: 8px 12px; gap: 4px; }}
   .st-key-card-schede {{ padding: 8px !important; }}
-  .st-key-card-schede .stTabs [data-baseweb="tab-list"], .st-key-card-schede .stTabs [role="tablist"] {{ padding: 0; }}
-  .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
-  .stTabs [role="tab"] p {{ font-size: 12.5px; }}
   .x-metrics {{ gap: 6px; }}
   /* da telefono i valori salgono all'altezza di «Benzina»: scritta su una riga sola e 6 px sotto il valore */
-  .x-metric {{ padding: 8px 6px; }}
-  .x-metric {{ justify-content: space-between; }}
+  .x-metric {{ padding: 8px 6px; justify-content: space-between; }}
   .x-metric .x-label {{ font-size: 9px; letter-spacing: .01em; white-space: nowrap; line-height: 1.25; }}
   .x-metric .v {{ font-size: 13px; letter-spacing: -.03em; margin-bottom: 6px; }}
   .x-metric .s {{ display: none; }}
@@ -245,16 +220,10 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   gap: 8px 28px; align-items: center; }}
 .x-hero .k {{ font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: {SKY}; }}
 .x-hero .v {{ font-size: 26px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: {AMBER}; }}
-.x-hero .s {{ font-size: 15px; font-weight: 600; }}
 .x-hero .m {{ font-size: 12px; line-height: 1.4; color: {SKY}; margin: 2px 0; }}
-.x-hero.wait .m {{ color: {A100}; }}
-.x-hero.wait {{ background: linear-gradient(135deg, {A700}, {A600}); }}
-.x-hero.wait .k {{ color: {A100}; }}
-.x-hero.wait .v {{ color: #fff; }}
 .x-hero p {{ margin: 0; font-size: 14px; line-height: 1.35; text-wrap: pretty; color: #fff; }}
 .x-hero p.x-hero-nota {{ margin-top: 2px; color: {N200}; max-width: 62ch; }}
 .x-cerchio {{ display: inline-flex; line-height: 0; filter: drop-shadow(0 2px 6px rgba(2,48,71,.25)); }}
-.x-hero.aside {{ grid-template-columns: minmax(0, 1fr) auto; padding-right: 14px; }}
 .x-hero-aside {{ display: flex; align-items: center; justify-content: flex-end; margin: -8px 0; }}
 .x-hero-aside svg {{ width: 72px; height: 72px; }}
 @media (max-width: 640px) {{ .x-hero-aside svg {{ width: 54px; height: 54px; }} }}
@@ -268,8 +237,6 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-hero .x-hero {{ background: none; box-shadow: none; padding: 0; border-radius: 0; display: flex;
   flex-direction: column; align-items: stretch; gap: 4px; }}
 .st-key-hero .x-hero-aside {{ justify-content: center; margin: 0 0 4px; }}
-.st-key-hero .x-lead-box {{ background: none; box-shadow: none; padding: 0; color: #fff; font-size: 16px; }}
-.st-key-hero .x-lead-box strong {{ color: {AMBER}; }}
 .stApp .st-key-hero .x-note {{ color: {SKY}; font-size: 11px; line-height: 1.3; margin-top: 4px; }}
 /* «📍 Perugia (stima)» sulla riga di «CONSIGLIO»: nessuna altezza in più */
 .x-hero .k .x-pos {{ text-transform: none; letter-spacing: 0; font-weight: 400; cursor: help; white-space: nowrap; }}
@@ -392,7 +359,7 @@ def metrics(items: Sequence[tuple[str, str, str]]) -> None:
 
 
 def section(text: str) -> None:
-    """Titoletto di sezione nella barra laterale."""
+    """Titoletto di sezione (in «Opzioni»)."""
     html(f'<div class="x-sec">{escape(text)}</div>')
 
 
@@ -401,29 +368,26 @@ def lead(text_html: str) -> None:
     html(f'<div class="x-lead">{text_html}</div>')
 
 
-def hero(kicker: str, value: str, sub: str, body_html: str, ok: bool = True,
-         meta_html: Sequence[str] = (), aside_html: str = "", nota_html: str = "", kicker_html: str = "") -> None:
-    """Scheda scura in evidenza con il verdetto (ambra se non conviene).
+def hero(kicker: str, value: str, body_html: str = "", meta_html: Sequence[str] = (), nota_html: str = "",
+         kicker_html: str = "") -> None:
+    """Testo del riquadro «Consiglio»: etichetta, verdetto e spiegazione.
 
-    meta_html: righe sui dati usati, tra il verdetto e il sottotitolo. aside_html: al posto del testo, un elemento
-    allineato a destra e alto quanto la scheda (il cerchio dello score). nota_html: paragrafo sotto il
-    sottotitolo, nella colonna di sinistra (il perché del consiglio). Gli HTML passati vanno già validati.
+    meta_html: righe sui dati usati, sotto il verdetto. nota_html: paragrafo sotto il verdetto (il perché del
+    consiglio). kicker_html: accanto all'etichetta (la posizione stimata). Gli HTML passati vanno già validati.
     """
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
     nota = f'<p class="x-hero-nota">{nota_html}</p>' if nota_html else ""
-    sottotitolo = f'<span class="s">{escape(sub)}</span>' if sub else ""
-    classi = "x-hero" + ("" if ok else " wait") + (" aside" if aside_html else "")
-    destra = f'<div class="x-hero-aside">{aside_html}</div>' if aside_html else f"<p>{body_html}</p>"
-    html(f"""<div class="{classi}">
+    html(f"""<div class="x-hero">
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}{kicker_html}</span>
-<span class="v">{escape(value)}</span>{meta}{sottotitolo}{nota}</div>
-{destra}</div>""")
+<span class="v">{escape(value)}</span>{meta}{nota}</div>
+<p>{body_html}</p></div>""")
 
 
 def hero_box(container):
     """Riquadro scuro «Consiglio» dentro `container`.
 
-    Restituisce (colonna del testo, colonna a destra): a destra va il cerchio dello score. Il testo si scrive con hero(), che dentro il riquadro perde sfondo e ombra."""
+    Restituisce (colonna del testo, colonna a destra): a destra va il cerchio dello score. Il testo si scrive con
+    hero(), che dentro il riquadro perde sfondo e ombra."""
     with container:
         with st.container(key="hero"):
             testo, lato = st.columns([1, 0.3], gap="medium", vertical_alignment="center")
@@ -515,11 +479,9 @@ def error_card(msg: str) -> None:
     html(f'<div class="x-err">{escape(msg)}</div>')
 
 
-def table(headers: Sequence[str], rows: Sequence[Sequence[str]], widths: dict[int, str] | None = None) -> None:
+def table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:
     """Tabella senza righe di separazione; le celle sono HTML già pronto."""
-    widths = widths or {}
-    th = "".join(f'<th style="width:{widths[i]}">{h}</th>' if i in widths else f"<th>{h}</th>"
-                 for i, h in enumerate(headers))
+    th = "".join(f"<th>{h}</th>" for h in headers)
     tb = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows)
     html(f'<div class="x-scroll"><table class="x-table"><thead><tr>{th}</tr></thead><tbody>{tb}</tbody></table></div>')
 

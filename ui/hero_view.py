@@ -41,7 +41,7 @@ class HeroView:
             style.html(f'<p class="x-note">{"<br>".join(self.note_dati)}{self._pos()}</p>')
         elif self.bs is not None and not self.info["riserva"]:
             titolo = fm.BRENT_SCORE_TESTI[self.bs["esito"]]
-            style.hero("Consiglio", titolo, "", "", nota_html=perche_petrolio(self.bs), kicker_html=self._pos())
+            style.hero("Consiglio", titolo, nota_html=perche_petrolio(self.bs), kicker_html=self._pos())
             with self.cerchio:
                 style.html('<div class="x-hero-aside">'
                            + style.cerchio_score(self.bs["esito"], "Petrolio: " + titolo) + "</div>")
@@ -50,8 +50,8 @@ class HeroView:
             if not self.info["consiglio"]:
                 corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
             meta = list(self.note_dati) + ([nota_score(self.bs_err)] if self.bs is None else [])
-            style.hero("Consiglio", "Rifornisci" if self.info["consiglio"] else "Non conviene",
-                       "", corpo, meta_html=meta, kicker_html=self._pos())
+            style.hero("Consiglio", "Rifornisci" if self.info["consiglio"] else "Non conviene", corpo,
+                       meta_html=meta, kicker_html=self._pos())
 
 
 def render_error(container: any, msg: str) -> None:

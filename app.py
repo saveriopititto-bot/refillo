@@ -1,4 +1,4 @@
-"""App Streamlit: pesi degli archi (posizione -> distributori) con lo score di rifornimento."""
+"""App Streamlit: dove conviene fare rifornimento (solo coordinamento; il calcolo è in core/, le viste in ui/)."""
 from __future__ import annotations
 
 import streamlit as st
