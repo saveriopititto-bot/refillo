@@ -138,8 +138,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `position: fixed`) per dati MIMIT (0–60%), lettura dei CSV, Brent, score del petrolio, posizione (95%, resta finché
   il browser risponde) e distanze su strada (98%, in `app.py` prima di `compute_edges`); si chiude in fondo ad `app.py`,
   a pagina completa (prima, mentre rispondeva OSRM, la pagina si vedeva a metà). Finché la Home non è mai stata
-  mostrata (`st.session_state["pronta"]`) ha lo sfondo pieno `BG` (`x-pieno`) e compare subito; nei ricalcoli dopo
-  compare solo oltre 0,3 s (`x-ritardo`) su sfondo semitrasparente. Le cache hanno `show_spinner=False`. Lo score del
+  mostrata (`st.session_state["pronta"]`) compare subito; nei ricalcoli dopo (anche
+  «Posizione», mentre il GPS risponde) compare solo oltre 0,3 s (`x-ritardo`). Lo sfondo è sempre pieno (`BG`): dietro
+  non si vede la pagina a metà. Le cache hanno `show_spinner=False`. Lo score del
   petrolio si legge in `ControlsView` (`bs`, `bs_err`).
 - **Posizione**: `rileva_posizione()` in cima ad `app.py`, prima della schermata d'avvio e sempre nello stesso punto
   (così la richiesta parte all'apertura e non riparte dopo il tocco). Prima il GPS (`posizione_browser`: `getLocation()`
