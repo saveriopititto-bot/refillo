@@ -125,8 +125,8 @@ da telefono):
 Sotto il consiglio, una frase spiega il perché:
 
 - Conviene: «Il petrolio costa più del solito. Tra pochi giorni anche il carburante costerà di più. Fai il pieno oggi.»
-- Rifornisci: «Il petrolio costa come al solito. La benzina non cambierà molto. Fai benzina quando ti serve.»
-- Aspetta: «Il petrolio costa meno del solito. Tra pochi giorni anche la benzina costerà di meno. Se puoi, aspetta.»
+- Rifornisci: «Il petrolio costa come al solito. Il carburante non cambierà molto. Fai il pieno quando ti serve.»
+- Aspetta: «Il petrolio costa meno del solito. Tra pochi giorni anche il carburante costerà di meno. Se puoi, aspetta.»
 
 Se lo score del petrolio non è disponibile, il riquadro torna come prima: verdetto «Rifornisci» o «Non
 conviene» in base al risparmio, data dei prezzi MIMIT usati, variazione del Brent e motivo del verdetto
@@ -150,9 +150,8 @@ degli archi si costruiscono solo quando si apre la loro scheda, così l'avvio è
 - **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), con
   quanto sono aggiornati i prezzi (l'elenco MIMIT delle 8, uno al giorno) e quali dati si usano e dove vanno
   (posizione, OSRM, posizione dall'IP, opzioni nel browser), e sotto
-  la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
-  sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
-  negativa), minuti, costo del tempo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
+  la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, minuti,
+  risparmio sul prezzo, effetto Brent, costo del viaggio, costo del tempo, risparmio netto ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
 
 ## Il modello
 
@@ -185,8 +184,7 @@ comunicati da più di 5 giorni (con 5 giorni restano circa 95 distributori su 10
 Si rifornisce se il punteggio migliore supera la soglia θ, oppure se il serbatoio è sotto la soglia di
 riserva L_min (che vale anche sopra lo score del petrolio). Il risparmio mostrato nella frase, nella mappa e
 nel Top 5 è S_i senza il termine Brent, che è uguale per tutti e non è un risparmio vero: sposta solo il
-verdetto. La classifica non cambia. Il peso di ogni arco è `−S_i` (per il cammino minimo) oppure `S_max − S_i` se servono pesi non
-negativi.
+verdetto. La classifica non cambia.
 
 ## Dati
 

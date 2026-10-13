@@ -91,7 +91,6 @@ def test_compute_edges(dati):
     assert info["q"] == pytest.approx(40)
     assert edges.iloc[0].id == "2"  # più economico, poco più lontano
     assert (edges.score == edges.guadagno + edges.brent - edges.costo_log - edges.costo_tempo).all()
-    assert (edges.peso_pos >= 0).all()
     assert info["consiglio"] == (edges.score.max() > p.theta)
 
 

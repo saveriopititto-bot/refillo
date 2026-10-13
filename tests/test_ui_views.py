@@ -9,8 +9,8 @@ from ui.result_view import ResultView
 
 def test_perche_petrolio():
     assert "Tra pochi giorni anche il carburante costerà di più" in perche_petrolio({"esito": 1})
-    assert "La benzina non cambierà molto" in perche_petrolio({"esito": 0})
-    assert "anche la benzina costerà di meno" in perche_petrolio({"esito": -1})
+    assert "Il carburante non cambierà molto" in perche_petrolio({"esito": 0})
+    assert "anche il carburante costerà di meno" in perche_petrolio({"esito": -1})
 
 
 def test_nota_score():

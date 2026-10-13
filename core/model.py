@@ -27,7 +27,7 @@ def compute_edges(
 
     Restituisce (tabella ordinata per score decrescente, riepilogo).
     Colonne chiave: score = S_i (da massimizzare: decide classifica e verdetto), risparmio = lo stesso senza l'effetto
-    Brent (quello mostrato), peso = -S_i (costo per cammino minimo), peso_pos = S_max - S_i (costo non negativo).
+    Brent (quello mostrato).
     """
     olat, olon = origin
     df = cands.copy()
@@ -80,8 +80,6 @@ def compute_edges(
     df["score"] = df.guadagno + df.brent - df.costo_log - df.costo_tempo
     # quello che si risparmia davvero (contando il tempo), senza l'effetto Brent, uguale per tutti
     df["risparmio"] = df.guadagno - df.costo_log - df.costo_tempo
-    df["peso"] = -df.score
-    df["peso_pos"] = df.score.max() - df.score
 
     df = df.sort_values("score", ascending=False).reset_index(drop=True)
     df.insert(0, "rank", np.arange(1, len(df) + 1))
