@@ -87,9 +87,7 @@ def compute_edges(
     df["peso_pos"] = df.score.max() - df.score
 
     pmin, pmax = df.prezzo.min(), df.prezzo.max()
-    df["ep"] = 1.0 if pmax == pmin else 1 - (df.prezzo - pmin) / (pmax - pmin)
     n = len(df)
-    df["ep_pct"] = 1.0 if n == 1 else 1 - (df.prezzo.rank(method="average") - 1) / (n - 1)
 
     df = df.sort_values("score", ascending=False).reset_index(drop=True)
     df.insert(0, "rank", np.arange(1, n + 1))

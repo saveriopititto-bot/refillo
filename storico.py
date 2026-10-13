@@ -28,7 +28,8 @@ def vuoto() -> pd.DataFrame:
 
 
 def centri_comuni(anag: pd.DataFrame) -> pd.DataFrame:
-    """Centro di ogni comune: mediana delle coordinate dei suoi distributori."""
+    """Centro di ogni comune: mediana delle coordinate dei suoi distributori (senza quelli con coordinate sospette)."""
+    anag = anag[~fm.coordinate_sospette(anag)]
     g = anag.groupby(["comune", "provincia"], as_index=False).agg(lat=("lat", "median"), lon=("lon", "median"))
     g[["lat", "lon"]] = g[["lat", "lon"]].round(5)
     return g[COLONNE_COMUNI]
@@ -45,6 +46,7 @@ def medie_giornaliere(anag: pd.DataFrame, prezzi: pd.DataFrame, extraction: pd.T
     """Mediana dei prezzi del giorno per comune, carburante e self/servito (stessi filtri dell'app)."""
     if extraction is None:
         raise ValueError("Data di estrazione mancante: non so a che giorno attribuire i prezzi")
+    anag = anag[~fm.coordinate_sospette(anag)]  # come nell'app: via le coordinate in conflitto con il comune
     parti = []
     for fuel in fm.FUELS:
         for self_service in (True, False):

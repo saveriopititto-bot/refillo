@@ -66,7 +66,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `stSelectbox`. La tabella degli archi sta in fondo a
   «F.A.Q.» (la scheda Archi è stata tolta). Indicatori della Home: prezzo medio, distributori, costo al km e, accanto, il menu del
   carburante (contenitori `metriche` e `carb`, creati in `ControlsView` solo nella Home: quattro riquadri larghi e alti uguali a ogni larghezza (da telefono
-  largo le scritte stanno su una riga e gli indicatori sarebbero più bassi: `height: 100%` li allunga);
+  largo le scritte stanno su una riga e gli indicatori sarebbero più bassi: `height: 100%` li allunga; le etichette in
+  alto e i valori stanno alla stessa altezza di «CARBURANTE» e «Benzina», controllato con Playwright a 390, 430 e 1280 px);
   gli indicatori li scrive `ResultView` nella colonna `metriche`; nelle altre schede il menu non c'è e la chiave
   `carburante` viene tenuta in vita all'inizio di `ControlsView.render`)
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
@@ -95,7 +96,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `_load_data` toglie i distributori con coordinate in conflitto con il loro comune (`coordinate_sospette` in
   `ingestion/parser.py`: oltre 50 km dalla mediana del comune; con 2 soli distributori lontani più di 50 km tutti e due;
   con 1 solo oltre 200 km dalla mediana della provincia) e ne mette il numero in `anag.attrs["esclusi"]`, mostrato in
-  fondo a «F.A.Q.». Lo storico (`storico.py`) non usa il filtro.
+  fondo a «F.A.Q.». Anche lo storico (`storico.medie_giornaliere`, `centri_comuni`) usa il filtro.
 - **OSRM**: distanze su strada per i 99 distributori più vicini (`/table` con `annotations=distance`, senza
   OSRM restituisce solo i tempi) e percorso del migliore (`/route`). Le risposte riuscite restano in memoria
   (`lru_cache`), gli errori no, ma dopo un errore OSRM non si chiama per 3 minuti (`PAUSA_DOPO_ERRORE_S`, per tutti;

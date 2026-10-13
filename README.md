@@ -85,7 +85,6 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 | Peso del petrolio sui prezzi | α |
 | Variazione del Brent | ΔB |
 | Carburante nel serbatoio / Soglia di riserva | L / L_min |
-| Convenienza prezzo | E_p |
 
 ### Valori predefiniti
 
@@ -147,7 +146,7 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
 - **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
   la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
-  negativa), convenienza del prezzo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
+  negativa), minuti, costo del tempo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
 
 ## Il modello
 
@@ -273,9 +272,11 @@ Per confrontare i prezzi di oggi con quelli delle settimane passate, un'azione G
 nel branch **`dati`** due file:
 
 - `storico/medie_comuni.csv.gz`: per ogni giorno, comune, carburante e self/servito, la mediana dei prezzi e
-  il numero di distributori (stessi filtri dell'app: prezzi plausibili e non più vecchi di 7 giorni). Tiene
+  il numero di distributori (prezzi plausibili e non più vecchi di 7 giorni, senza i distributori con coordinate
+  in conflitto con il loro comune, come nell'app). Tiene
   gli ultimi 40 giorni;
-- `storico/comuni.csv.gz`: il centro di ogni comune (mediana delle coordinate dei distributori), per sapere
+- `storico/comuni.csv.gz`: il centro di ogni comune (mediana delle coordinate dei distributori, senza quelli con
+  coordinate sospette), per sapere
   quali comuni cadono nel raggio.
 
 L'azione si può avviare anche a mano da GitHub (*Actions → Storico prezzi → Run workflow*): con il campo

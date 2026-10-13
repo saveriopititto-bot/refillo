@@ -106,3 +106,11 @@ def test_centri_comuni_e_unione(tmp_path, dati):
     storico.scrivi(u, tmp_path / "comuni.csv.gz")
     assert len(storico.leggi_comuni(tmp_path / "comuni.csv.gz")) == len(u)
     assert storico.leggi_comuni(tmp_path / "manca.csv.gz").empty
+
+
+def test_storico_senza_coordinate_sospette():
+    # 4 distributori a Finale Emilia, uno con le coordinate di Milano: non entra nel centro del comune
+    anag = pd.DataFrame({"id": ["1", "2", "3", "4"], "comune": ["FINALE EMILIA"] * 4, "provincia": ["MO"] * 4,
+                         "lat": [44.833, 44.840, 44.825, 45.4642], "lon": [11.294, 11.300, 11.280, 9.19]})
+    c = storico.centri_comuni(anag)
+    assert c.lat.iloc[0] == pytest.approx(44.833) and c.lon.iloc[0] == pytest.approx(11.294)
