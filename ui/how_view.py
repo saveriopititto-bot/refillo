@@ -33,9 +33,22 @@ L'app guarda i distributori intorno a te e stima, per ciascuno, **quanto risparm
 Il risultato è un punteggio in euro: più è alto, più conviene. Il verdetto è **Rifornisci** se il distributore
 migliore fa risparmiare (oltre la soglia scelta in «Opzioni»), oppure se il serbatoio è quasi vuoto.
 
-I prezzi e i distributori sono quelli ufficiali del MIMIT, aggiornati ogni giorno; il Brent arriva da Yahoo
-Finance. Le distanze sono quelle su strada calcolate dal servizio OSRM; se non risponde, sono stimate in linea
-d'aria, corrette per tenere conto delle strade.
+I prezzi e i distributori sono quelli ufficiali del MIMIT; il Brent arriva da Yahoo Finance. Le distanze sono
+quelle su strada calcolate dal servizio OSRM; se non risponde, sono stimate in linea d'aria, corrette per tenere
+conto delle strade.
+
+**Quanto sono aggiornati i prezzi.** Il MIMIT pubblica l'elenco una volta al giorno, la mattina, con i prezzi
+comunicati dai gestori fino alle 8. Se un distributore cambia prezzo durante la giornata, l'app lo vede solo il
+giorno dopo: alla pompa vale sempre il prezzo esposto.
+
+**I tuoi dati.** Niente account e niente pubblicità.
+- La posizione serve solo a trovare i distributori vicini: l'app la usa per il calcolo e non la registra.
+- Le distanze su strada si chiedono al servizio OSRM, mandandogli le coordinate della tua posizione e dei
+  distributori.
+- Se il GPS non risponde, il browser chiede una posizione approssimativa a due servizi esterni (geojs.io e
+  ipwho.is), che per rispondere vedono il tuo indirizzo internet.
+- Le opzioni scelte restano solo nel tuo browser: cancellando i dati del sito tornano quelle di partenza.
+- «Portami qui» apre Google Maps. L'app è ospitata da Streamlit Community Cloud, che ha le sue regole sulla privacy.
 """
             )
             nota = self.fonte
