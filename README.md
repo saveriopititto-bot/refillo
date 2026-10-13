@@ -147,7 +147,9 @@ degli archi partono quando si apre la loro scheda, così l'avvio è più leggero
     dalla tua posizione al distributore migliore (gli altri restano visibili allontanando la mappa):
     sfondo OpenStreetMap schiarito, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di
     blu scuro) e, toccando un distributore, il riquadro con i dati e «Portami qui».
-- **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), e sotto
+- **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), con
+  quanto sono aggiornati i prezzi (l'elenco MIMIT delle 8, uno al giorno) e quali dati si usano e dove vanno
+  (posizione, OSRM, posizione dall'IP, opzioni nel browser), e sotto
   la tabella completa degli archi con l'export CSV. Per ogni distributore: prezzo, distanza, km in più, risparmio
   sul prezzo, effetto Brent, costo del viaggio, risparmio netto, peso dell'arco (anche nella versione mai
   negativa), minuti, costo del tempo ed età del prezzo. Le intestazioni del CSV sono le stesse della tabella.
