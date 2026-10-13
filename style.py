@@ -154,11 +154,11 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 /* freccia del popover attaccata al testo */
 .st-key-comandi button > div {{ gap: 2px !important; justify-content: center !important; }}
 .st-key-comandi button [data-testid="stIconMaterial"] {{ margin: 0 !important; font-size: 16px !important; }}
-/* menu del carburante (Home, accanto a «Costo al km»): pillola bianca alta 36 px (30 da telefono), testo centrato */
+/* menu del carburante (Home, accanto a «Costo al km»): pillola alta 28 px (30 da telefono), testo centrato */
 .st-key-carb [data-baseweb="select"] > div {{
-  min-height: 36px !important; border-radius: 999px !important; padding: 0 6px !important;
+  min-height: 28px !important; border-radius: 999px !important; padding: 0 6px !important;
 }}
-.st-key-carb [data-testid="stSelectbox"] > div > div {{ height: 36px !important; min-height: 0 !important;
+.st-key-carb [data-testid="stSelectbox"] > div > div {{ height: 28px !important; min-height: 0 !important;
   border-radius: 999px !important; display: flex !important; align-items: center !important; overflow: hidden; }}
 .st-key-carb [data-testid="stSelectbox"] input,
 .st-key-carb [data-testid="stSelectbox"] button {{ height: 100% !important; min-height: 0 !important;
@@ -198,8 +198,9 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-metriche [data-testid="stColumn"] div:has(.st-key-carb),
 .st-key-metriche [data-testid="stColumn"] div:has(.x-metrics),
 .st-key-metriche .x-metrics {{ height: 100%; }}
-.st-key-carb {{ background: {N100}; border-radius: var(--radius-md); padding: 10px 14px; gap: 4px !important;
-  height: 100%; justify-content: center; min-width: 0; }}
+/* da computer «Benzina» sta sulla riga dei valori degli indicatori: scritta in alto e menu subito sotto */
+.st-key-carb {{ background: {N100}; border-radius: var(--radius-md); padding: 12px 14px 10px; gap: 1px !important;
+  height: 100%; justify-content: flex-start; min-width: 0; }}
 .st-key-carb .x-label {{ font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 .x-metric .s {{ font-size: 12px; line-height: 1.3; color: {N700}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
 @media (max-width: 640px) {{
@@ -224,14 +225,15 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
   .stTabs [data-baseweb="tab"], .stTabs [role="tab"] {{ padding: 6px 8px; }}
   .stTabs [role="tab"] p {{ font-size: 12.5px; }}
   .x-metrics {{ gap: 6px; }}
-  .x-metric {{ padding: 8px 8px; }}
+  /* da telefono i valori salgono all'altezza di «Benzina»: scritta su una riga sola e 6 px sotto il valore */
+  .x-metric {{ padding: 8px 6px; }}
   .x-metric {{ justify-content: space-between; }}
-  .x-metric .x-label {{ font-size: 9px; letter-spacing: .03em; white-space: normal; line-height: 1.25; }}
-  .x-metric .v {{ font-size: 13px; letter-spacing: -.03em; }}
+  .x-metric .x-label {{ font-size: 9px; letter-spacing: .01em; white-space: nowrap; line-height: 1.25; }}
+  .x-metric .v {{ font-size: 13px; letter-spacing: -.03em; margin-bottom: 6px; }}
   .x-metric .s {{ display: none; }}
   .st-key-metriche [data-testid="stHorizontalBlock"] {{ gap: 6px !important; }}
   .st-key-metriche [data-testid="stColumn"]:last-child {{ flex-basis: calc((100% - 18px) / 4) !important; }}
-  .st-key-carb {{ padding: 6px 6px; gap: 2px !important; }}
+  .st-key-carb {{ padding: 8px 6px 6px; gap: 0 !important; }}
   .st-key-carb .x-label {{ font-size: 9px; letter-spacing: .03em; }}
   /* da telefono niente freccia nel menu: il nome del carburante resta intero */
   .st-key-carb [data-testid="stSelectbox"] button {{ display: none !important; }}
