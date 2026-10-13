@@ -166,6 +166,9 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   schermo in un iframe (`?embed=true&app=1`, `allow="geolocation"`). Nell'app, `style.invito_installa()` (contenitore
   `installa`, fisso in fondo, solo sotto i 640 px, solo nella Home) porta lì; non compare con `app=1` né dopo la ×
   (`installa_chiuso` nelle preferenze) né prima che le preferenze siano lette (`opzioni_lette`).
+- **Sveglia**: `.github/workflows/sveglia.yml` ogni 6 ore lancia `scripts/sveglia.py` (Playwright): apre
+  refillo.streamlit.app, tocca «Yes, get this app back up!» se l'app dorme, poi il pulsante d'avvio (`.st-key-avvia
+  button:visible`: c'è anche un pulsante nascosto del suggerimento) e aspetta la Home. Non scrive nel repository.
 - **Riserva**: sotto la soglia di riserva il «Consiglio» dice sempre «Rifornisci», anche se lo score del
   petrolio dice altro (`info["riserva"]`).
 - La logica del modello sta in `core/`, `ingestion/` e `clients/` (riesportati da `fuel_model.py`, che i test e

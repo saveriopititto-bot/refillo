@@ -1,0 +1,28 @@
+name: Sveglia app
+
+# Ogni 6 ore apre l'app su Streamlit Community Cloud con Chromium e, se dorme, la riaccende
+# (scripts/sveglia.py): chi la apre, anche dall'icona dell'app installata, la trova già pronta.
+# Non scrive niente nel repository.
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sveglia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Installa Playwright e Chromium
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Apri l'app
+        run: python scripts/sveglia.py

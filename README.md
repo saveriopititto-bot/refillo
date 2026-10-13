@@ -333,6 +333,13 @@ il permesso per la posizione). Dati, calcoli e aggiornamenti restano quelli dell
 - Le preferenze dell'app installata sono separate da quelle salvate aprendo `refillo.streamlit.app` nel browser.
 - Per pubblicarla: nelle impostazioni del repository, Pages → «Deploy from a branch» → `main`, cartella `/docs`.
 
+### Sveglia dell'app
+
+Streamlit Community Cloud spegne l'app dopo qualche ora senza visite (chi la apre vede «This app has gone to sleep»).
+Ogni 6 ore l'azione `.github/workflows/sveglia.yml` la apre con Chromium (`scripts/sveglia.py`): se dorme tocca il
+pulsante per riaccenderla, poi il pulsante d'avvio, così anche i dati del giorno restano in memoria. Si può lanciare a
+mano da Actions → «Sveglia app» → «Run workflow». Se l'app non si apre entro 4 minuti l'azione fallisce.
+
 ## Avvio in locale
 
 ```bash
@@ -371,10 +378,12 @@ L'app è pubblicata su Streamlit Community Cloud dal branch `main` (file `app.py
 | `data/` | Cartella opzionale per i CSV MIMIT (non versionati) |
 | `storico.py` | Storico dei prezzi: mediane giornaliere per comune, centri dei comuni, lettura degli archivi trimestrali MIMIT |
 | `scripts/raccogli_storico.py` | Script che aggiorna lo storico (prezzi di oggi o archivi trimestrali) |
+| `scripts/sveglia.py` | Script che apre l'app con Chromium e la riaccende se Streamlit Cloud l'ha spenta |
 | `scripts/aggiorna_mimit.py` | Script che scarica i CSV MIMIT del giorno e li salva compressi (per il branch `dati`) |
 | `tests/` | Suite di test: test del modello, dello storico, dei calcoli geometrici, dei formattatori e della configurazione |
 | `.github/workflows/tests.yml` | CI con GitHub Actions |
 | `.github/workflows/storico.yml` | Azione giornaliera che aggiorna lo storico nel branch `dati` |
+| `.github/workflows/sveglia.yml` | Azione ogni 6 ore che tiene sveglia l'app su Streamlit Cloud |
 | `.github/workflows/aggiorna_mimit.yml` | Azione giornaliera che salva i CSV MIMIT del giorno nel branch `dati` (`mimit/`) |
 | `CLAUDE.md` | Istruzioni per Claude Code: flusso di lavoro (PR e merge automatici), controlli, convenzioni |
 
