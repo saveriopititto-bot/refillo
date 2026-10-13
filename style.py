@@ -472,9 +472,9 @@ def cerchio_progresso(pct: int, label: str = "", ritardo: bool = False, pieno: b
 
 def _avvia() -> None:
     st.session_state["avviato"] = True
-    # il carburante scelto qui diventa quello del menu nel riquadro «Consiglio» (chiave «carburante»)
+    # il carburante scelto qui diventa quello della Home («_carburante», vedi ControlsView)
     if st.session_state.get("carburante_avvio"):
-        st.session_state["carburante"] = st.session_state["carburante_avvio"]
+        st.session_state["_carburante"] = st.session_state["carburante_avvio"]
 
 
 def avvio(carburanti: Sequence[str]) -> None:
@@ -483,6 +483,7 @@ def avvio(carburanti: Sequence[str]) -> None:
     with st.container(key="avvio"):
         st.button(":material/local_gas_station:", key="avvia", help="Cerca la posizione e i prezzi di oggi", on_click=_avvia)
         html('<div class="x-progress-lbl">Tocca per trovare il distributore che conviene</div>')
+        # il carburante salvato nel browser lo mette ui/preferenze.leggi nella chiave «carburante_avvio»
         st.selectbox("Carburante", carburanti, key="carburante_avvio", label_visibility="collapsed")
 
 

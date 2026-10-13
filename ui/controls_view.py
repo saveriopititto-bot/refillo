@@ -25,6 +25,7 @@ from ui.data_service import (
 )
 from ui.formatters import _it, num
 from ui.hero_view import render_error
+from ui.preferenze import OPZIONI, valore
 
 HOME, FAQ = "Home", "F.A.Q."
 # capacità del serbatoio e consumo ogni 100 km predefiniti, nell'unità del carburante (kg per il Metano)
@@ -71,9 +72,6 @@ class ControlsView:
     @staticmethod
     def render(c_hero: any, posizione: tuple[tuple[float, float] | None, str]) -> ControlsResult:
         """`posizione` = rileva_posizione(), chiesta in cima ad app.py (GPS, o indirizzo internet se fallisce)."""
-        # il menu del carburante c'è solo nella Home: così la scelta resta anche quando non è disegnato
-        if "carburante" in st.session_state:
-            st.session_state["carburante"] = st.session_state["carburante"]
         up_a = st.session_state.get("up_anag")
         up_p = st.session_state.get("up_prezzi")
 
@@ -138,6 +136,9 @@ class ControlsView:
         # Home: in cima la riga degli indicatori, con il menu del carburante accanto a «Costo al km» (gli indicatori
         # li scrive ResultView). Nelle altre schede il menu non c'è e vale il carburante già scelto.
         metriche = None
+        # il menu del carburante c'è solo nella Home: la scelta vive in «_carburante» (scritta anche dal pulsante
+        # d'avvio), così resta nelle altre schede; all'inizio vale quella salvata nel browser
+        carburante = st.session_state.get("_carburante") or valore("carburante", fm.FUELS[0])
         if st.session_state.get("scheda", HOME) == HOME:
             with contenuto:
                 with st.container(key="metriche"):
@@ -145,9 +146,11 @@ class ControlsView:
             with col_carb:
                 with st.container(key="carb"):
                     style.html('<div class="x-label">Carburante</div>')
-                    fuel = st.selectbox("Carburante", fm.FUELS, label_visibility="collapsed", key="carburante")
+                    fuel = st.selectbox("Carburante", fm.FUELS, label_visibility="collapsed", key="carburante",
+                                        index=fm.FUELS.index(carburante))
         else:
-            fuel = st.session_state.get("carburante", fm.FUELS[0])
+            fuel = carburante
+        st.session_state["_carburante"] = fuel
 
         _pillola(col_home, HOME, "nav_home")
         _pillola(col_faq, FAQ, "nav_faq")
@@ -212,17 +215,21 @@ class ControlsView:
         u = fm.unita(fuel)
         unita_lunga = "kg" if u == "kg" else "litri"
         v_tot_0, consumo_0 = PREDEFINITI.get(fuel, (50.0, 5.0))
+        # valore iniziale di ogni opzione: quello salvato nel browser alla visita precedente, o il predefinito
+        def iniziale(chiave: str, predefinito=None):
+            return valore(chiave, OPZIONI[chiave][0] if predefinito is None else predefinito)
+
         with adv_model:
             col_v1, col_v2 = st.columns(2)
             with col_v1:
                 # una chiave per carburante: cambiando carburante tornano i suoi valori predefiniti
                 v_tot = st.number_input(f"Capacità del serbatoio ({unita_lunga})", min_value=5.0, max_value=200.0,
-                                        value=v_tot_0, step=1.0, key=f"v_tot_{fuel}")
+                                        value=iniziale(f"v_tot_{fuel}", v_tot_0), step=1.0, key=f"v_tot_{fuel}")
                 livello = st.slider("Carburante nel serbatoio (%)", 0, 100, 25, 1) / 100
-                consumo = st.number_input(f"Consumo ({u}/100 km)", min_value=1.0, max_value=40.0, value=consumo_0,
-                                          step=0.1, key=f"consumo_{fuel}")
-                raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, 20)
-                livello_min = st.slider("Soglia di riserva (%)", 0, 50, 10, 1,
+                consumo = st.number_input(f"Consumo ({u}/100 km)", min_value=1.0, max_value=40.0,
+                                          value=iniziale(f"consumo_{fuel}", consumo_0), step=0.1, key=f"consumo_{fuel}")
+                raggio = st.slider("Raggio d'azione (km su strada)", 2, 60, iniziale("opt_raggio"), key="opt_raggio")
+                livello_min = st.slider("Soglia di riserva (%)", 0, 50, iniziale("opt_riserva"), 1, key="opt_riserva",
                                         help="Sotto questo livello conviene sempre fare rifornimento.") / 100
                 litri = None
                 if st.checkbox(f"Scegli quanti {unita_lunga} fare (altrimenti il pieno)"):
@@ -231,32 +238,39 @@ class ControlsView:
             with col_v2:
                 senza_self = fuel in fm.SENZA_SELF
                 self_service = st.radio(
-                    "Self o servito", ["Self", "Servito"], horizontal=True, disabled=senza_self,
+                    "Self o servito", ["Self", "Servito"], horizontal=True, disabled=senza_self, key="opt_self",
+                    index=["Self", "Servito"].index(iniziale("opt_self")),
                     help="Per GPL e Metano non conta: quasi tutti li vendono solo serviti, quindi si usa il prezzo "
                          "che c'è (se ci sono entrambi, il più basso).") == "Self"
-                use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=True, help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
-                show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa", value=False)
-                usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, value=0.05, step=0.01,
-                                        format="%.3f")
+                use_osrm = st.checkbox("Calcola percorsi reali (OSRM)", value=iniziale("opt_osrm"), key="opt_osrm",
+                                       help="Usa l'API pubblica di OSRM per distanze reali invece della linea d'aria.")
+                show_all_lines = st.checkbox("Mostra linea d'aria verso tutti i distributori sulla mappa",
+                                             value=iniziale("opt_linee"), key="opt_linee")
+                usura = st.number_input("Usura dell'auto (€/km)", min_value=0.0, max_value=1.0, step=0.01,
+                                        value=iniziale("opt_usura"), format="%.3f", key="opt_usura")
                 valore_tempo = st.number_input(
-                    "Valore del tuo tempo (€/ora)", min_value=0.0, max_value=100.0, value=10.0, step=1.0,
+                    "Valore del tuo tempo (€/ora)", min_value=0.0, max_value=100.0, step=1.0, key="opt_tempo",
+                    value=iniziale("opt_tempo"),
                     help="Il tempo per andare al distributore e tornare conta come un costo: un distributore lontano "
                          "deve far risparmiare di più. 0 = conta solo carburante e usura.")
                 autostrade = st.checkbox(
-                    "Includi i distributori in autostrada", value=False,
+                    "Includi i distributori in autostrada", value=iniziale("opt_autostrade"), key="opt_autostrade",
                     help="Di solito costano di più e si raggiungono solo dall'autostrada, a volte in una sola "
                          "direzione: la distanza calcolata può non essere quella vera.")
-                max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, value=5,
+                max_age = st.number_input("Età massima del prezzo (giorni)", min_value=1, max_value=60, key="opt_eta",
+                                          value=iniziale("opt_eta"),
                                           help="I prezzi comunicati da più giorni possono essere cambiati. Con 5 "
                                                "giorni restano circa 95 distributori su 100.")
-                road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, 1.3, 0.05,
+                road_factor = st.slider("Strada in più rispetto alla linea d'aria (×)", 1.0, 2.0, iniziale("opt_strada"), 0.05, key="opt_strada",
                                         help="1,3 = la strada è in media il 30% più lunga della distanza in linea d'aria.")
-                ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True,
+                ref_mode = st.radio("Prezzo tipico della zona", ["mediana", "media"], horizontal=True, key="opt_rif",
+                                    index=["mediana", "media"].index(iniziale("opt_rif")),
                                     help="Mediana: il prezzo di mezzo, non risente dei prezzi anomali. Media: la media semplice.")
-                theta = st.number_input("Soglia di convenienza (€)", value=0.0, step=0.5,
+                theta = st.number_input("Soglia di convenienza (€)", min_value=-1000.0, max_value=1000.0, step=0.5,
+                                        value=iniziale("opt_soglia"), key="opt_soglia",
                                         help="Il verdetto è «Rifornisci» solo se il risparmio rispetto al "
                                              "distributore più vicino supera questa cifra.")
-                alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, 20, 1,
+                alpha = st.slider("Peso del petrolio sui prezzi (%)", 0, 40, iniziale("opt_alpha"), 1, key="opt_alpha",
                                   help="Quota della variazione del Brent che si trasferisce sui prezzi alla pompa.") / 100
 
         params = fm.ModelParams(
