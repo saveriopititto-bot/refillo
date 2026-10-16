@@ -48,8 +48,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `#023047` `#ffb703` `#fb8500`, font Archivo). Le schede sono `style.card(key)`, i blocchi HTML sono le
   funzioni di `style.py`. I selettori CSS si agganciano ad attributi interni di Streamlit (testati con la
   1.65; `requirements.txt` fissa `streamlit~=1.65.0`: Streamlit Cloud non deve installare da solo una versione nuova
-  che rompe lo stile; per aggiornarla alza la versione, prova con Playwright e aggiorna i selettori. Nelle versioni
-  nuove `st.components.v1.html` (la mappa) va sostituito con `st.iframe`).
+  che rompe lo stile; per aggiornarla alza la versione, prova con Playwright e aggiorna i selettori).
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
   tutte le schede: testo a sinistra e, a destra, il cerchio dello score (90 px, 68 da telefono; verde, rosso solo con «Aspetta»). Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, sempre su una riga anche da telefono: Home ·
@@ -73,7 +72,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   (il riquadro «Litri da fare» è stato tolto). La scheda Petrolio (pagina di scorebrent) è stata tolta: non
   rimetterla.
 - **Mappa**: Leaflet con `folium` (`ui/map_leaflet.py`, niente pydeck), inserita come HTML con
-  `st.components.v1.html` dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
+  `st.iframe` (non `st.components.v1.html`, deprecato) dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
   ricaricare la pagina. Quadrata (`aspect-ratio: 1 / 1` sull'iframe in `style.py`), al massimo
   360 px di larghezza (360 × 360) da computer, centrata; da telefono il 90% della larghezza. Inquadratura (`fit_bounds`)
   sul percorso verso il migliore: posizione, distributore migliore e strada OSRM, zoom massimo 16. Sfondo OpenStreetMap standard (`TILES`),
