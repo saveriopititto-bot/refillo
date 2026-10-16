@@ -67,22 +67,23 @@ def build_fuel_map(
     folium.TileLayer(TILES, attr=ATTRIBUZIONE, max_zoom=19).add_to(m)
     smin, smax = edges.score.min(), edges.score.max()
 
+    def colore(score: float) -> str:
+        return _colore(1.0 if smax == smin else (score - smin) / (smax - smin))
+
     if show_all_lines:
         for r in edges.itertuples():
-            t = 1.0 if smax == smin else (r.score - smin) / (smax - smin)
-            folium.PolyLine([origin, (r.lat, r.lon)], color=_colore(t), weight=1, opacity=0.5).add_to(m)
+            folium.PolyLine([origin, (r.lat, r.lon)], color=colore(r.score), weight=1, opacity=0.5).add_to(m)
 
     if best_route:
         folium.PolyLine([(lat, lon) for lon, lat in best_route], color=style.DEEP, weight=5, opacity=0.8).add_to(m)
 
     # i migliori per ultimi, così restano sopra agli altri
     for r in edges.sort_values("score").itertuples():
-        t = 1.0 if smax == smin else (r.score - smin) / (smax - smin)
         migliore = r.rank == 1
         folium.CircleMarker(
             location=(r.lat, r.lon), radius=10 if migliore else 7,
             color=style.DEEP if migliore else "#ffffff", weight=3 if migliore else 1,
-            fill=True, fill_color=_colore(t), fill_opacity=0.95,
+            fill=True, fill_color=colore(r.score), fill_opacity=0.95,
             popup=folium.Popup(_popup(r, unita), max_width=260),
         ).add_to(m)
 

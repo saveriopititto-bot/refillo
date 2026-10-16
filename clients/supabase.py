@@ -14,7 +14,7 @@ BRENT_SCORE_TESTI = {1: "Conviene", 0: "Rifornisci", -1: "Aspetta"}
 def fetch_brent_score(url: str, chiave: str, timeout: float = 15) -> BrentScoreResult:
     """Ultimo score del Brent dalla tabella brent_score di Supabase, letta con la chiave pubblica (anon).
 
-    Restituisce data (giorno di borsa), esito (+1 rifornisci, 0 neutro, -1 aspetta), score, brent_eur,
+    Restituisce data (giorno di borsa), esito (+1 Conviene, 0 Rifornisci, -1 Aspetta: BRENT_SCORE_TESTI), score, brent_eur,
     media_30_eur (euro al barile) e aggiornato_il. Solleva un'eccezione se la tabella è vuota o la risposta
     non è valida."""
     r = requests.get(
