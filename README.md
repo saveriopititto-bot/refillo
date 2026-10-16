@@ -145,7 +145,8 @@ degli archi si costruiscono solo quando si apre la loro scheda, così l'avvio è
   - il riquadro della mappa, senza titolo: in cima il riepilogo in una frase (insegna e indirizzo
     del distributore migliore, prezzo, distanza e risparmio reale, cioè prezzo meno viaggio, senza l'effetto
     Brent), poi la mappa Leaflet, quadrata e al massimo larga 360 px (360 × 360; da telefono il 90% della larghezza), centrata, inquadrata sul percorso
-    dalla tua posizione al distributore migliore (gli altri restano visibili allontanando la mappa):
+    dalla tua posizione al distributore migliore (si apre già inquadrata, senza l'animazione dello zoom; gli altri restano
+    visibili allontanando la mappa):
     sfondo OpenStreetMap schiarito, la tua posizione (pallino blu scuro), il percorso su strada verso il migliore (bordato di
     blu scuro) e, toccando un distributore, il riquadro con i dati e «Portami qui».
 - **F.A.Q.**: «Come funziona», la spiegazione a parole, senza formule (la formula è qui sotto, in «Il modello»), con
