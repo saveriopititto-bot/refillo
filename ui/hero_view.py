@@ -42,7 +42,8 @@ class HeroView:
             style.html(f'<p class="x-note">{"<br>".join(self.note_dati)}{self._pos()}</p>')
         elif self.bs is not None and not self.info["riserva"]:
             titolo = fm.BRENT_SCORE_TESTI[self.bs["esito"]]
-            style.hero("Consiglio", titolo, nota_html=perche_petrolio(self.bs), kicker_html=self._pos())
+            style.hero("Consiglio", titolo, nota_html=perche_petrolio(self.bs), kicker_html=self._pos(),
+                       colore=style.colore_score(self.bs["esito"]))  # come il cerchio
             with self.cerchio:
                 style.html('<div class="x-hero-aside">'
                            + style.cerchio_score(self.bs["esito"], "Petrolio: " + titolo) + "</div>")

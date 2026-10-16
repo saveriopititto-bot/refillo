@@ -391,17 +391,19 @@ def lead(text_html: str) -> None:
 
 
 def hero(kicker: str, value: str, body_html: str = "", meta_html: Sequence[str] = (), nota_html: str = "",
-         kicker_html: str = "") -> None:
+         kicker_html: str = "", colore: str = "") -> None:
     """Testo del riquadro «Consiglio»: etichetta, verdetto e spiegazione.
 
     meta_html: righe sui dati usati, sotto il verdetto. nota_html: paragrafo sotto il verdetto (il perché del
-    consiglio). kicker_html: accanto all'etichetta (la posizione stimata). Gli HTML passati vanno già validati.
+    consiglio). kicker_html: accanto all'etichetta (la posizione stimata). colore: del verdetto, lo stesso del cerchio
+    dello score (senza, il giallo AMBER del CSS). Gli HTML passati vanno già validati.
     """
+    stile_v = f' style="color:{colore}"' if colore else ""
     meta = f'<span class="m">{"<br>".join(meta_html)}</span>' if meta_html else ""
     nota = f'<p class="x-hero-nota">{nota_html}</p>' if nota_html else ""
     html(f"""<div class="x-hero">
 <div style="display:flex;flex-direction:column;gap:2px"><span class="k">{escape(kicker)}{kicker_html}</span>
-<span class="v">{escape(value)}</span>{meta}{nota}</div>
+<span class="v"{stile_v}>{escape(value)}</span>{meta}{nota}</div>
 <p>{body_html}</p></div>""")
 
 
@@ -416,12 +418,17 @@ def hero_box(container):
     return testo, lato
 
 
+def colore_score(esito: int) -> str:
+    """Colore dello score del petrolio, per il cerchio e per il verdetto: rosso solo con -1 (Aspetta), verde gli altri."""
+    return ROSSO if esito == -1 else VERDE
+
+
 def cerchio_score(esito: int, etichetta: str) -> str:
     """Indicatore dello score del petrolio (HTML): cerchio bianco con bordo e simbolo colorati.
 
     +1 = freccia in su, 0 = pallino, -1 = freccia in giù; bordo e simbolo verdi, rossi solo con -1 (Aspetta). Il fondo
     bianco lo rende leggibile sul riquadro blu."""
-    colore = ROSSO if esito == -1 else VERDE
+    colore = colore_score(esito)
     if esito == 0:
         simbolo = f'<circle cx="32" cy="32" r="9" fill="{colore}"/>'
     else:

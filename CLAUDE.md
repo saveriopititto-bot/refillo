@@ -50,7 +50,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   1.65; `requirements.txt` fissa `streamlit~=1.65.0`: Streamlit Cloud non deve installare da solo una versione nuova
   che rompe lo stile; per aggiornarla alza la versione, prova con Playwright e aggiorna i selettori).
 - **Pagina**: niente titolo. In cima il riquadro «Consiglio» (`style.hero_box`, contenitore `hero`), visibile in
-  tutte le schede: testo a sinistra e, a destra, il cerchio dello score (90 px, 68 da telefono; verde, rosso solo con «Aspetta»). Sotto, un
+  tutte le schede: testo a sinistra e, a destra, il cerchio dello score (90 px, 68 da telefono; verde, rosso solo con «Aspetta»; il verdetto ha lo
+  stesso colore, `style.colore_score`, e senza score resta giallo `AMBER`). Sotto, un
   unico riquadro `style.card("schede")`: in cima la riga `comandi`, sempre su una riga anche da telefono: Home ·
   Posizione · Opzioni · Top 5 · F.A.Q., cinque pillole della stessa larghezza (colonne `flex: 1 1 0`, pulsanti
   `width="stretch"`) con lo sfondo tenue `N100` e testo senza grassetto. Opzioni e Top 5 sono `st.popover`
