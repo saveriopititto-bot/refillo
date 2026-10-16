@@ -52,8 +52,10 @@ class HeroView:
             if not self.info["consiglio"]:
                 corpo += " Il termine Brent è uguale per tutti i distributori: sposta lo score ma non cambia la classifica."
             meta = list(self.note_dati) + ([nota_score(self.bs_err)] if self.bs is None else [])
+            # stessi colori del cerchio: verde per «Rifornisci», rosso per «Non conviene» (come «Aspetta»)
             style.hero("Consiglio", "Rifornisci" if self.info["consiglio"] else "Non conviene", corpo,
-                       meta_html=meta, kicker_html=self._pos())
+                       meta_html=meta, kicker_html=self._pos(),
+                       colore=style.colore_score(0 if self.info["consiglio"] else -1))
 
 
 def render_error(container: Any, msg: str) -> None:

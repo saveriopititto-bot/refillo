@@ -35,6 +35,21 @@ def test_verdetto_dello_stesso_colore_del_cerchio():
         with patch("style.html") as mock_html:
             style.hero("Consiglio", "x", colore=style.colore_score(esito))
             assert f'<span class="v" style="color:{colore}">' in mock_html.call_args[0][0]
-    with patch("style.html") as mock_html:  # senza score: il giallo del CSS
+    with patch("style.html") as mock_html:  # senza colore: il giallo del CSS
         style.hero("Consiglio", "Rifornisci")
         assert '<span class="v">' in mock_html.call_args[0][0]
+
+
+def test_verdetto_senza_score_negli_stessi_colori():
+    """Senza score: «Rifornisci» verde, «Non conviene» rosso (come «Aspetta»)."""
+    import pandas as pd
+
+    from ui.hero_view import HeroView
+
+    edges = pd.DataFrame({"score": [1.0]})
+    for consiglio, titolo, colore in ((True, "Rifornisci", style.VERDE), (False, "Non conviene", style.ROSSO)):
+        info = {"riserva": False, "consiglio": consiglio, "motivo": "il risparmio migliore"}
+        with patch("style.html") as mock_html:
+            HeroView(None, None, edges, info, None, "non configurato|SUPABASE_URL|nessuno", [])._render()
+            testo = " ".join(c[0][0] for c in mock_html.call_args_list)
+        assert f'<span class="v" style="color:{colore}">{titolo}</span>' in testo

@@ -116,7 +116,7 @@ L'interfaccia usa solo nomi in italiano; i simboli della formula sono nella sezi
 In cima alla pagina, senza titolo, c'è il riquadro «Consiglio», visibile in tutte le schede: blu petrolio in tutti
 i casi e compatto anche da telefono. Segue lo score del petrolio, con a destra un cerchio colorato (90 px, 68
 da telefono): verde, rosso solo con «Aspetta». Il verdetto (Conviene / Rifornisci / Aspetta) ha lo stesso colore
-del cerchio; senza score resta giallo.
+del cerchio; senza score «Rifornisci» è verde e «Non conviene» rosso, come «Aspetta».
 
 | Score | Consiglio | Cerchio |
 |---|---|---|
