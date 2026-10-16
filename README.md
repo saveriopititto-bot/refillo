@@ -391,4 +391,4 @@ Lo stile è lo stesso di test4 (layout «1a»: riquadro «Consiglio» in cima e 
 `#8ecae6` `#219ebc` `#023047` `#ffb703` `#fb8500`, font Archivo). I selettori CSS si agganciano ad attributi
 interni di Streamlit, testati con la 1.65: per questo `requirements.txt` fissa Streamlit alla 1.65 (`~=1.65.0`, solo
 le correzioni 1.65.x). Per passare a una versione nuova: alzarla lì, provare la pagina e aggiornare i selettori che
-perdono lo stile. Anche `st.components.v1.html`, usato per la mappa, nelle versioni nuove va sostituito con `st.iframe`.
+perdono lo stile.

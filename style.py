@@ -89,7 +89,7 @@ button[data-testid="stSidebarCollapseButton"] {{ display: none !important; }}
 .st-key-card-how p, .st-key-card-how li {{ font-size: 15px; line-height: 1.6; }}
 [class*="st-key-card"] [data-testid="stCaptionContainer"] p {{ font-size: 12px; line-height: 1.35; color: {N700}; }}
 [class*="st-key-card"] [data-testid="stDataFrame"] {{ border-radius: var(--radius-md); overflow: hidden; }}
-/* mappa Leaflet (cornice di components.html): quadrata, a qualunque larghezza dello schermo; al massimo 360 px di
+/* mappa Leaflet (cornice di st.iframe): quadrata, a qualunque larghezza dello schermo; al massimo 360 px di
    larghezza (360 × 360), centrata; da telefono il 90% della larghezza */
 .st-key-mappa iframe {{ display: block; height: auto !important; aspect-ratio: 1 / 1; width: 100% !important;
   max-width: 360px; margin: 0 auto; border: 0; border-radius: var(--radius-md); }}

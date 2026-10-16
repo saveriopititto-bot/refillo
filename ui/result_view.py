@@ -7,7 +7,6 @@ from html import escape
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 import style
 from ui.formatters import _it, eur, num
@@ -70,7 +69,7 @@ class ResultView:
             html_mappa = _mappa_html(tuple(self.origin), self.edges, self.info.get("best_route"),
                                      self.show_all_lines, self.unita)
             with st.container(key="mappa"):
-                components.html(html_mappa, height=400)
+                st.iframe(html_mappa, height=400)
             # un solo blocco, su due righe: fonte dei dati e legenda della mappa
             st.caption(self.fonte + "  \nPiù un distributore è verde, più conviene. Tocca un distributore per i "
                        "dettagli e il percorso con il navigatore.")
