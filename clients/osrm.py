@@ -9,6 +9,8 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+OSRM_URL = "https://router.project-osrm.org"
+
 # dopo un errore OSRM non si richiama per qualche minuto (per tutti, è lo stesso server): intanto linea d'aria,
 # così se il servizio è giù ogni tocco non aspetta fino a 2,5 + 1,5 secondi
 PAUSA_DOPO_ERRORE_S = 180
@@ -35,9 +37,6 @@ def riprendi() -> None:
     """Toglie la pausa (per i test)."""
     global _pausa_fino
     _pausa_fino = 0.0
-
-
-OSRM_URL = "https://router.project-osrm.org"
 
 
 @lru_cache(maxsize=512)

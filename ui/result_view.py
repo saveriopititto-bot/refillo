@@ -4,6 +4,7 @@ from __future__ import annotations
 from contextlib import nullcontext
 from dataclasses import dataclass
 from html import escape
+from typing import Any
 
 import pandas as pd
 import streamlit as st
@@ -31,7 +32,7 @@ class ResultView:
     show_all_lines: bool
     fonte: str
     unita: str = "l"  # «kg» per il Metano
-    metriche: any = None  # colonna accanto al menu del carburante, dove vanno gli indicatori
+    metriche: Any = None  # colonna accanto al menu del carburante, dove vanno gli indicatori
     valore_tempo: float = 0.0  # €/ora: se > 0 la frase dice che conta anche il tempo
 
     def render(self) -> None:
@@ -63,8 +64,7 @@ class ResultView:
                     f"Il distributore migliore è {dove}. Facendo il pieno lì risparmi "
                     f"<strong>{eur(best.risparmio, sign=True)}</strong> rispetto al più vicino "
                     f"({escape(vicino.bandiera or vicino.nome)} a {num(vicino.dist_km)} km, {_it(f'{vicino.prezzo:.3f}')}{eu}), "
-                    f"contando "
-                    f"{viaggio} del viaggio."
+                    f"contando {viaggio} del viaggio."
                 )
             html_mappa = _mappa_html(tuple(self.origin), self.edges, self.info.get("best_route"),
                                      self.show_all_lines, self.unita)

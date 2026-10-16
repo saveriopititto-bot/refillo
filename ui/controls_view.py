@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from html import escape
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import pandas as pd
 import streamlit as st
@@ -54,21 +55,21 @@ class ControlsResult:
     unita: str  # «l» o «kg» (Metano): unità del prezzo e del serbatoio
     ref_mode: str
     show_all_lines: bool
-    hero_testo: any  # colonna del testo nel riquadro «Consiglio»
-    hero_cerchio: any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
-    contenuto: any  # dentro il riquadro delle schede, sotto la riga dei comandi
+    hero_testo: Any  # colonna del testo nel riquadro «Consiglio»
+    hero_cerchio: Any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
+    contenuto: Any  # dentro il riquadro delle schede, sotto la riga dei comandi
     nota_posizione: str  # «Perugia (stima)» / «Roma (ripiego)» se non viene dal GPS, altrimenti ""
-    top5: any  # riquadro apribile «Top 5» nella riga dei comandi
-    metriche: any  # posto degli indicatori della Home, accanto al menu del carburante (None nelle altre schede)
+    top5: Any  # riquadro apribile «Top 5» nella riga dei comandi
+    metriche: Any  # posto degli indicatori della Home, accanto al menu del carburante (None nelle altre schede)
     bs: dict | None  # score del petrolio (None se manca)
     bs_err: str  # perché manca lo score
     esclusi: int = 0  # distributori tolti perché le coordinate non tornano con il loro comune
-    caricamento: any = None  # il cerchio di caricamento, da chiudere a pagina completa
+    caricamento: Any = None  # il cerchio di caricamento, da chiudere a pagina completa
 
 
 class ControlsView:
     @staticmethod
-    def render(c_hero: any, posizione: tuple[tuple[float, float] | None, str]) -> ControlsResult:
+    def render(c_hero: Any, posizione: tuple[tuple[float, float] | None, str]) -> ControlsResult:
         """`posizione` = rileva_posizione(), chiesta in cima ad app.py (GPS, o indirizzo internet se fallisce)."""
         up_a = st.session_state.get("up_anag")
         up_p = st.session_state.get("up_prezzi")
@@ -76,7 +77,6 @@ class ControlsView:
         # un solo cerchio di caricamento al centro dello schermo: dati MIMIT (fino al 60%), lettura dei CSV,
         # Brent, score del petrolio e posizione; si chiude in fondo ad app.py, a pagina completa
         caricamento = style.Caricamento()
-        st.session_state.pop("download_err", None)
         (anag_b, src_a), (prezzi_b, src_p) = get_mimit_dataset(
             lambda pct, testo: caricamento.mostra(pct * 60 // 100, testo), up_a, up_p)
 
@@ -141,11 +141,10 @@ class ControlsView:
             with contenuto:
                 with st.container(key="metriche"):
                     metriche, col_carb = st.columns([3, 1], gap="small")
-            with col_carb:
-                with st.container(key="carb"):
-                    style.html('<div class="x-label">Carburante</div>')
-                    fuel = st.selectbox("Carburante", fm.FUELS, label_visibility="collapsed", key="carburante",
-                                        index=fm.FUELS.index(carburante))
+            with col_carb, st.container(key="carb"):
+                style.html('<div class="x-label">Carburante</div>')
+                fuel = st.selectbox("Carburante", fm.FUELS, label_visibility="collapsed", key="carburante",
+                                    index=fm.FUELS.index(carburante))
         else:
             fuel = carburante
         st.session_state["_carburante"] = fuel

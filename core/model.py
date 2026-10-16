@@ -54,8 +54,9 @@ def compute_edges(
 
         df = df[df.dist_km <= p.raggio_km].copy()
 
+    q = p.litri_effettivi
     riserva = p.livello < p.livello_min
-    summary: ModelSummary = {"n": len(df), "q": p.litri_effettivi, "riserva": riserva}
+    summary: ModelSummary = {"n": len(df), "q": q, "riserva": riserva}
     if df.empty:
         return df, summary
 
@@ -66,7 +67,6 @@ def compute_edges(
         if df.empty:
             return df, summary
     c_km = p.consumo_l100 / 100 * p_market + p.usura_eur_km
-    q = p.litri_effettivi
 
     # riferimento: il distributore più vicino («fare benzina sotto casa»). Prezzo, km e minuti si contano rispetto a lui
     vicino = df.loc[df.dist_km.idxmin()]

@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from html import escape
+from collections.abc import Callable
 from pathlib import Path
 import time
-from typing import Callable
+from typing import Any
 import zlib
 
 import pandas as pd
@@ -139,8 +140,8 @@ def dati_freschi(data: bytes, ora: pd.Timestamp) -> bool:
 
 def get_mimit_dataset(
     progresso: Callable[[int, str], None] | None = None,
-    up_a: any = None,
-    up_p: any = None,
+    up_a: Any = None,
+    up_p: Any = None,
 ) -> tuple[tuple[bytes | None, str], tuple[bytes | None, str]]:
     """Carica o scarica anagrafica e prezzi MIMIT; `progresso(percentuale, testo)` fa avanzare il cerchio."""
     if up_a is not None and up_p is not None:
@@ -222,7 +223,7 @@ def get_mimit_dataset(
 
         time.sleep(0.15)
         st.session_state["scaricato_alle"] = ora
-        return (cached_a, "scaricato"), (cached_p, "scaricato")
+        return (cached_a, src_a or "scaricato"), (cached_p, src_p or "scaricato")
 
     except Exception as e:
         st.session_state.setdefault("download_err", []).append(f"{e}")

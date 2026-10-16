@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from html import escape
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -15,8 +16,8 @@ from ui.formatters import _it
 
 @dataclass
 class HeroView:
-    container: any  # colonna del testo nel riquadro «Consiglio»
-    cerchio: any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
+    container: Any  # colonna del testo nel riquadro «Consiglio»
+    cerchio: Any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
     edges: pd.DataFrame
     info: dict
     bs: dict | None
@@ -54,6 +55,6 @@ class HeroView:
                        meta_html=meta, kicker_html=self._pos())
 
 
-def render_error(container: any, msg: str) -> None:
+def render_error(container: Any, msg: str) -> None:
     with container:
         style.error_card(msg)
