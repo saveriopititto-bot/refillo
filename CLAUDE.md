@@ -75,7 +75,8 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   `st.iframe` (non `st.components.v1.html`, deprecato) dentro `st.container(key="mappa")`: niente `streamlit-folium`, così toccarla non fa
   ricaricare la pagina. Quadrata (`aspect-ratio: 1 / 1` sull'iframe in `style.py`), al massimo
   360 px di larghezza (360 × 360) da computer, centrata; da telefono il 90% della larghezza. Inquadratura (`fit_bounds`)
-  sul percorso verso il migliore: posizione, distributore migliore e strada OSRM, zoom massimo 16. Sfondo OpenStreetMap standard (`TILES`),
+  sul percorso verso il migliore: posizione, distributore migliore e strada OSRM, zoom massimo 16, senza animazione
+  (`FitBounds` con `animate: false`: prima partiva dallo zoom 10 e si avvicinava). Sfondo OpenStreetMap standard (`TILES`),
   schiarito via CSS (`SFONDO_CSS`): niente CARTO, che ora chiede una chiave e mostra «API key required». Script caricati: solo Leaflet e jQuery (i
   popup di folium lo usano). Toccando un distributore si apre il popup con il link «Portami qui» (Google Maps).
   L'HTML della mappa è in `st.cache_data` (`_mappa_html` in `ui/result_view.py`): folium cambia gli id a ogni costruzione,

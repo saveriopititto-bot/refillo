@@ -4,6 +4,7 @@ from __future__ import annotations
 from html import escape
 
 import folium
+from folium.map import FitBounds
 import pandas as pd
 
 import style
@@ -97,9 +98,12 @@ def build_fuel_map(
     if best_route:
         lats += [lat for _, lat in best_route]
         lons += [lon for lon, _ in best_route]
-    # margine più largo in alto a sinistra (pulsanti + e −) e in basso (scritta OpenStreetMap)
-    m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding_top_left=(52, 40),
-                 padding_bottom_right=(32, 36), max_zoom=16)
+    # margine più largo in alto a sinistra (pulsanti + e −) e in basso (scritta OpenStreetMap); senza animazione:
+    # la mappa si apre già inquadrata, invece di partire dallo zoom 10 e avvicinarsi
+    inquadra = FitBounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding_top_left=(52, 40),
+                         padding_bottom_right=(32, 36), max_zoom=16)
+    inquadra.options["animate"] = False
+    m.add_child(inquadra)
     return m
 
 
