@@ -104,7 +104,7 @@ python -m compileall -q -x '/\.' .    # sintassi di tutti i file
   le risposte già in memoria valgono comunque, `InPausa`; nei test `osrm.riprendi()`); se OSRM non risponde (attesa massima 2,5 s per `/table`, 1,5 s per `/route`) si usa
   la linea d'aria × fattore strada.
 - **Storico**: `storico.py` + `scripts/raccogli_storico.py`, lanciati ogni mattina da
-  `.github/workflows/storico.yml`, che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
+  `.github/workflows/storico.yml` (CSV del giorno dalla copia `mimit/` del branch `dati`, `--mimit`; il sito MIMIT solo se manca), che salva `storico/medie_comuni.csv.gz` (mediane per comune, ultimi 40
   giorni) e `storico/comuni.csv.gz` nel branch `dati`. Non fare mai merge del branch `dati` in `main` e non
   modificarlo a mano. Le azioni programmate girano solo se il loro file è su `main`.
 - **Score 30 giorni (1 / 0 / -1)**: in sviluppo sul branch `claude/score-30gg`, **senza merge** su `main`

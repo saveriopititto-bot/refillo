@@ -3,12 +3,14 @@
     python scripts/raccogli_storico.py --cartella dati-wt/storico
     python scripts/raccogli_storico.py --cartella ... --archivio URL_O_FILE.tar.gz [--archivio ...]
 
-Senza --archivio scarica i CSV del giorno dal MIMIT; con --archivio legge gli archivi trimestrali
+Senza --archivio legge i CSV del giorno dalla copia del branch `dati` (--mimit, la cartella mimit/ con i
+.csv.gz) e, solo se lì mancano, li scarica dal MIMIT; con --archivio legge gli archivi trimestrali
 (solo gli ultimi giorni che il file conserva).
 """
 from __future__ import annotations
 
 import argparse
+import gzip
 import shutil
 import sys
 import tempfile
@@ -30,10 +32,22 @@ def scarica(url: str, dest: Path) -> Path:
     return dest
 
 
+def csv_del_giorno(name: str, cartella: str | None) -> bytes:
+    """Il CSV MIMIT dalla copia del branch `dati` (cartella mimit/), se c'è; altrimenti dal sito del MIMIT."""
+    if cartella:
+        f = Path(cartella) / f"{name}.gz"
+        if f.exists():
+            print(f"Leggo {f} (copia del branch dati)")
+            return gzip.decompress(f.read_bytes())
+    print(f"Scarico {name} dal sito del MIMIT")
+    return fm.download_csv(name)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--cartella", required=True, help="cartella con medie_comuni.csv.gz e comuni.csv.gz")
     ap.add_argument("--archivio", action="append", default=[], help="archivio tar.gz MIMIT (URL o percorso)")
+    ap.add_argument("--mimit", help="cartella mimit/ del branch dati con i CSV del giorno (.csv.gz)")
     ap.add_argument("--giorni", type=int, default=storico.GIORNI_TENUTI, help="giorni da conservare")
     a = ap.parse_args(argv)
 
@@ -52,8 +66,8 @@ def main(argv=None) -> int:
             dal = pd.Timestamp.today().normalize() - pd.Timedelta(days=a.giorni - 1)
             nuove, comuni = storico.medie_da_archivio(percorsi, dal=dal)
     else:
-        anag, extraction = fm.parse_anagrafica(fm.download_csv(fm.ANAG_FILE))
-        prezzi = fm.parse_prezzi(fm.download_csv(fm.PREZZI_FILE))
+        anag, extraction = fm.parse_anagrafica(csv_del_giorno(fm.ANAG_FILE, a.mimit))
+        prezzi = fm.parse_prezzi(csv_del_giorno(fm.PREZZI_FILE, a.mimit))
         print(f"Estrazione MIMIT del {extraction:%Y-%m-%d}: {len(anag)} impianti, {len(prezzi)} prezzi")
         nuove = storico.medie_giornaliere(anag, prezzi, extraction)
         comuni = storico.centri_comuni(anag)
