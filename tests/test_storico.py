@@ -114,3 +114,24 @@ def test_storico_senza_coordinate_sospette():
                          "lat": [44.833, 44.840, 44.825, 45.4642], "lon": [11.294, 11.300, 11.280, 9.19]})
     c = storico.centri_comuni(anag)
     assert c.lat.iloc[0] == pytest.approx(44.833) and c.lon.iloc[0] == pytest.approx(11.294)
+
+
+def test_script_storico_legge_la_copia_dati(monkeypatch, tmp_path):
+    """Lo storico prende i CSV del giorno dalla copia del branch dati (mimit/*.csv.gz), senza chiamare il MIMIT."""
+    import gzip
+
+    import fuel_model as fm
+    import scripts.raccogli_storico as rs
+    from tests.test_fuel_model import ANAG, PREZZI
+
+    mimit = tmp_path / "mimit"
+    mimit.mkdir()
+    (mimit / f"{fm.ANAG_FILE}.gz").write_bytes(gzip.compress(ANAG.encode()))
+    (mimit / f"{fm.PREZZI_FILE}.gz").write_bytes(gzip.compress(PREZZI.encode()))
+
+    def mimit_non_serve(*a, **k):
+        raise AssertionError("con la copia del branch dati non si scarica dal MIMIT")
+
+    monkeypatch.setattr(rs.fm, "download_csv", mimit_non_serve)
+    assert rs.main(["--cartella", str(tmp_path / "storico"), "--mimit", str(mimit)]) == 0
+    assert not storico.leggi(tmp_path / "storico" / "medie_comuni.csv.gz").empty

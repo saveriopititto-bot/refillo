@@ -292,7 +292,8 @@ sbagliata, «tabella vuota» se l'esportazione di scorebrent non ha ancora scrit
 ## Storico dei prezzi
 
 Per confrontare i prezzi di oggi con quelli delle settimane passate, un'azione GitHub
-(`.github/workflows/storico.yml`) gira ogni mattina alle 7:17 UTC (riprova alle 13:47): scarica i CSV MIMIT del giorno e salva
+(`.github/workflows/storico.yml`) gira ogni mattina alle 7:17 UTC (riprova alle 13:47): legge i CSV MIMIT del giorno dalla copia nel branch
+`dati` (`mimit/*.csv.gz`; dal sito del MIMIT solo se la copia manca) e salva
 nel branch **`dati`** due file:
 
 - `storico/medie_comuni.csv.gz`: per ogni giorno, comune, carburante e self/servito, la mediana dei prezzi e

@@ -1,7 +1,8 @@
 name: Storico prezzi
 
 # Ogni mattina salva nel branch `dati` le mediane dei prezzi per comune (storico/medie_comuni.csv.gz,
-# ultimi 40 giorni) e il centro dei comuni (storico/comuni.csv.gz). Si può avviare anche a mano,
+# ultimi 40 giorni) e il centro dei comuni (storico/comuni.csv.gz), dai CSV del giorno salvati nello stesso
+# branch (mimit/, il sito del MIMIT solo se mancano). Si può avviare anche a mano,
 # indicando uno o più archivi trimestrali MIMIT per riempire lo storico a ritroso.
 on:
   schedule:
@@ -51,7 +52,7 @@ jobs:
         run: |
           args=()
           for u in $ARCHIVIO; do args+=(--archivio "$u"); done
-          python scripts/raccogli_storico.py --cartella dati-wt/storico "${args[@]}"
+          python scripts/raccogli_storico.py --cartella dati-wt/storico --mimit dati-wt/mimit "${args[@]}"
       - name: Salva nel branch dati
         working-directory: dati-wt
         run: |
