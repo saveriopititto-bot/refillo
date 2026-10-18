@@ -16,6 +16,7 @@ from ui.data_service import (
     BRENT_GIORNI,
     PREZZI_FILE,
     clear_all_caches,
+    dati_vecchi,
     fonte_download,
     leggi_brent_score,
     get_mimit_dataset,
@@ -59,6 +60,7 @@ class ControlsResult:
     hero_cerchio: Any  # posto del cerchio dello score, a destra nel riquadro «Consiglio»
     contenuto: Any  # dentro il riquadro delle schede, sotto la riga dei comandi
     nota_posizione: str  # «Perugia (stima)» / «Roma (ripiego)» se non viene dal GPS, altrimenti ""
+    dati_vecchi: bool  # prezzi della copia precedente perché il sito del MIMIT non risponde
     top5: Any  # riquadro apribile «Top 5» nella riga dei comandi
     metriche: Any  # posto degli indicatori della Home, accanto al menu del carburante (None nelle altre schede)
     bs: dict | None  # score del petrolio (None se manca)
@@ -299,6 +301,7 @@ class ControlsView:
             hero_cerchio=hero_cerchio,
             contenuto=contenuto,
             nota_posizione=nota_posizione,
+            dati_vecchi=dati_vecchi(),
             top5=top5,
             metriche=metriche,
             bs=bs,

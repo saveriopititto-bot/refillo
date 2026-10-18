@@ -171,3 +171,61 @@ def test_origine_da_ip():
     for dato in ({"lat": 48.85, "lon": 2.35, "citta": "Paris"}, {"errore": "TypeError: Failed to fetch"}, "x", {}):
         origine, nota = origine_da_ip(dato)
         assert origine == ROMA and nota == "Roma (ripiego)"
+
+
+def test_get_mimit_dataset_mimit_giu_usa_copia_vecchia(monkeypatch):
+    """Sito MIMIT che non risponde: si usa la copia vecchia del branch dati, con l'avviso, e si riprova più tardi."""
+    import ui.data_service as ds
+
+    ds.clear_all_caches()
+    copia = b"Estrazione del 2000-01-01\nid|x\n"
+    tentativi = []
+
+    def mimit_giu(name, timeout=60.0, on_progress=None):
+        tentativi.append(name)
+        raise OSError("timed out")
+
+    monkeypatch.setattr(ds.fm, "download_csv", mimit_giu)
+    monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: copia)
+    (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()
+    assert anag_b == copia and prezzi_b == copia
+    assert ds.dati_vecchi() and ds.fonte_download() == ds.FONTE_VECCHIA
+    assert len(tentativi) == 1  # dopo il primo errore il secondo file non riprova il MIMIT
+
+    # nei 15 minuti dopo resta in memoria, senza riprovare il MIMIT
+    ds.get_mimit_dataset()
+    assert len(tentativi) == 1
+
+    # scaduta la pausa si riprova: il MIMIT è tornato e i dati vecchi spariscono
+    for name in list(ds._RIPROVA_MIMIT):
+        ds._RIPROVA_MIMIT[name] = pd.Timestamp("2000-01-01", tz="Europe/Rome")
+    monkeypatch.setattr(ds.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: b"nuovi|x")
+    (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()
+    assert anag_b == prezzi_b == b"nuovi|x"
+    assert not ds.dati_vecchi() and ds.fonte_download() == ds.FONTE_SITO
+    ds.clear_all_caches()
+
+
+def test_get_mimit_dataset_mimit_giu_senza_copia(monkeypatch):
+    import ui.data_service as ds
+
+    ds.clear_all_caches()
+
+    def giu(*a, **k):
+        raise OSError("timed out")
+
+    monkeypatch.setattr(ds.fm, "download_csv", giu)
+    monkeypatch.setattr(ds.fm, "download_dati", giu)
+    (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()
+    assert anag_b is None and prezzi_b is None
+    assert ds.st.session_state["download_err"] == ["timed out"]
+    ds.clear_all_caches()
+
+
+def test_error_card_non_mostra_i_tag(monkeypatch):
+    import style
+
+    scritto = []
+    monkeypatch.setattr(style, "html", scritto.append)
+    style.error_card("riga 1<br><code>x</code>")
+    assert scritto == ['<div class="x-err">riga 1<br><code>x</code></div>']
