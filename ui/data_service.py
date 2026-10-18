@@ -108,12 +108,23 @@ def nota_score(motivo: str) -> str:
 _CACHE_MIMIT: dict[str, tuple[bytes, pd.Timestamp]] = {}
 _FONTE_MIMIT: dict[str, str] = {}  # da dove arriva ogni file scaricato
 FONTE_DATI, FONTE_SITO = "dalla copia GitHub (branch dati)", "dal sito del MIMIT"
+FONTE_VECCHIA = "dalla copia GitHub del giorno prima (il sito del MIMIT non risponde)"
+# Copia vecchia usata perché il MIMIT non rispondeva: resta in memoria solo fino a quest'ora, poi si riprova.
+_RIPROVA_MIMIT: dict[str, pd.Timestamp] = {}
+RIPROVA_MIMIT_DOPO = pd.Timedelta(minutes=15)
+NOTA_DATI_VECCHI = ("Il sito del MIMIT non risponde: i prezzi sono quelli dell'aggiornamento precedente, "
+                    "salvati nella copia GitHub. L'app riprova da sola ogni 15 minuti.")
 
 
 def fonte_download() -> str:
     """Da dove sono stati scaricati i due file, in parole semplici (vuoto se non si sa)."""
     a, p = _FONTE_MIMIT.get(ANAG_FILE, ""), _FONTE_MIMIT.get(PREZZI_FILE, "")
     return a if a == p else f"(anagrafica {a or '?'}, prezzi {p or '?'})"
+
+
+def dati_vecchi() -> bool:
+    """Vero se almeno un file è la copia del giorno prima, usata perché il sito del MIMIT non rispondeva."""
+    return FONTE_VECCHIA in _FONTE_MIMIT.values()
 
 
 def ultimo_rilascio_mimit(ora: pd.Timestamp) -> pd.Timestamp:
@@ -168,7 +179,9 @@ def get_mimit_dataset(
     def cache_valida(name: str) -> bytes | None:
         if name in _CACHE_MIMIT:
             data, ts = _CACHE_MIMIT[name]
-            if is_fresco_mimit(ts, ora):
+            # copia vecchia (MIMIT giù): vale solo fino all'ora del nuovo tentativo
+            fresco = ora < _RIPROVA_MIMIT[name] if name in _RIPROVA_MIMIT else is_fresco_mimit(ts, ora)
+            if fresco:
                 return data
         return None
 
@@ -191,20 +204,39 @@ def get_mimit_dataset(
 
         update_progress(0, "Connessione ai server del MIMIT…")
 
+        mimit_giu: list[Exception] = []  # errore del sito MIMIT: per il secondo file non si riprova
+
         def scarica(name: str, da: int, etichetta: str) -> bytes:
-            """Copia del branch `dati` se è di oggi, altrimenti il sito MIMIT; avanza il cerchio da `da` a `da` + 50."""
+            """Copia del branch `dati` se è di oggi, altrimenti il sito MIMIT; avanza il cerchio da `da` a `da` + 50.
+
+            Se il sito MIMIT non risponde si usa la copia del branch `dati` anche se è vecchia (con un avviso),
+            e la si tiene in memoria solo RIPROVA_MIMIT_DOPO: poi si riprova."""
             def on_progress(read: int, total: int):
                 update_progress(da + (min(50, int(read / total * 50)) if total else 25), etichetta)
 
+            copia = None
             try:
-                data = fm.download_dati(name, on_progress=on_progress)
-                if dati_freschi(data, ora):
+                copia = fm.download_dati(name, on_progress=on_progress)
+                if dati_freschi(copia, ora):
                     _FONTE_MIMIT[name] = FONTE_DATI
-                    return data
+                    _RIPROVA_MIMIT.pop(name, None)
+                    return copia
             except Exception:
                 pass  # copia non raggiungibile: si scarica dal MIMIT
-            data = fm.download_csv(name, on_progress=on_progress)
+            try:
+                if mimit_giu:
+                    raise mimit_giu[0]
+                data = fm.download_csv(name, on_progress=on_progress)
+            except Exception as e:
+                if not mimit_giu:
+                    mimit_giu.append(e)
+                if copia is None:
+                    raise
+                _FONTE_MIMIT[name] = FONTE_VECCHIA
+                _RIPROVA_MIMIT[name] = ora + RIPROVA_MIMIT_DOPO
+                return copia
             _FONTE_MIMIT[name] = FONTE_SITO
+            _RIPROVA_MIMIT.pop(name, None)
             return data
 
         if cached_a is None:
@@ -234,6 +266,7 @@ def clear_all_caches() -> None:
     """Pulisce le cache Streamlit per riscaricare i dati."""
     _CACHE_MIMIT.clear()
     _FONTE_MIMIT.clear()
+    _RIPROVA_MIMIT.clear()
     brent_yahoo.clear()
     brent_score.clear()
 

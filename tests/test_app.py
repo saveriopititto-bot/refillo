@@ -126,3 +126,24 @@ def test_niente_invito_dentro_l_app_installata(app):
     app.run()
     assert not app.exception
     assert not _invito(app)
+
+
+def test_mimit_giu_usa_copia_vecchia_con_avviso(app):
+    """Copia del branch dati vecchia e sito MIMIT che non risponde: la Home c'è, con l'avviso sui prezzi."""
+    app.session_state["avviato"] = True
+    with mock.patch.object(ds, "dati_freschi", return_value=False):
+        app.run()
+    assert not app.exception
+    testo = _testo(app)
+    assert "Il distributore migliore" in testo
+    assert "prezzi non aggiornati" in testo
+
+
+def test_errore_download_senza_tag_visibili(app):
+    """Né copia né MIMIT: il messaggio d'errore usa i tag HTML, non li mostra come testo."""
+    app.session_state["avviato"] = True
+    with mock.patch.object(fm, "download_dati", side_effect=OSError("timed out")):
+        app.run()
+    testo = _testo(app)
+    assert "Non sono riuscito a scaricare" in testo
+    assert "<br><code>niente rete nei test</code>" in testo and "&lt;br&gt;" not in testo

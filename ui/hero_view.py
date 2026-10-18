@@ -10,7 +10,7 @@ import pandas as pd
 
 import fuel_model as fm
 import style
-from ui.data_service import NOTA_PRECISA, nota_score, perche_petrolio
+from ui.data_service import NOTA_DATI_VECCHI, NOTA_PRECISA, nota_score, perche_petrolio
 from ui.formatters import _it
 
 
@@ -24,16 +24,21 @@ class HeroView:
     bs_err: str
     note_dati: Sequence[str]
     nota_posizione: str = ""  # posizione approssimativa (dall'indirizzo internet o Roma)
+    dati_vecchi: bool = False  # prezzi della copia precedente: il sito del MIMIT non risponde
 
     def render(self) -> None:
         with self.container:
             self._render()
 
     def _pos(self) -> str:
-        """« · 📍 Perugia (stima)» da mettere sulla riga di «CONSIGLIO», con la spiegazione al passaggio del mouse."""
-        if not self.nota_posizione:
-            return ""
-        return f' · <span class="x-pos" title="{escape(NOTA_PRECISA)}">📍 {escape(self.nota_posizione)}</span>'
+        """« · 📍 Perugia (stima)» e « · ⚠️ prezzi non aggiornati» da mettere sulla riga di «CONSIGLIO», con la
+        spiegazione al passaggio del mouse."""
+        righe = ""
+        if self.dati_vecchi:
+            righe += f' · <span class="x-pos" title="{escape(NOTA_DATI_VECCHI)}">⚠️ prezzi non aggiornati</span>'
+        if self.nota_posizione:
+            righe += f' · <span class="x-pos" title="{escape(NOTA_PRECISA)}">📍 {escape(self.nota_posizione)}</span>'
+        return righe
 
     def _render(self) -> None:
         if self.edges.empty:

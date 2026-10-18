@@ -44,7 +44,7 @@ edges, info = fm.compute_edges(controls.cands, controls.origin, controls.params)
 # Consiglio in evidenza (in cima)
 # --------------------------------------------------------------------------
 HeroView(controls.hero_testo, controls.hero_cerchio, edges, info, controls.bs, controls.bs_err, controls.note_dati,
-         controls.nota_posizione).render()
+         controls.nota_posizione, controls.dati_vecchi).render()
 
 # --------------------------------------------------------------------------
 # Schede di dettaglio

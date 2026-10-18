@@ -506,8 +506,9 @@ class Caricamento:
         self._inizio = None
 
 
-def error_card(msg: str) -> None:
-    html(f'<div class="x-err">{escape(msg)}</div>')
+def error_card(msg_html: str) -> None:
+    """Riquadro d'errore; `msg_html` è HTML già pronto (le parti variabili vanno escapate da chi lo scrive)."""
+    html(f'<div class="x-err">{msg_html}</div>')
 
 
 def table(headers: Sequence[str], rows: Sequence[Sequence[str]]) -> None:

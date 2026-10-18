@@ -199,7 +199,9 @@ ordine:
 3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
    aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione
    del» 10);
-4. altrimenti il download dal sito del MIMIT.
+4. altrimenti il download dal sito del MIMIT;
+5. se il sito del MIMIT non risponde, la copia del branch `dati` anche se è dell'aggiornamento precedente: la riga
+   «Consiglio» mostra «⚠️ prezzi non aggiornati» e l'app riprova il MIMIT ogni 15 minuti.
 
 I file scaricati (dal branch `dati` o dal MIMIT) restano in memoria fino al prossimo aggiornamento delle 9:00.
 La copia nel branch `dati` la prepara un'azione GitHub (`.github/workflows/aggiorna_mimit.yml`, ogni mattina
@@ -217,7 +219,7 @@ con i giorni vecchi). Per rendere fluida l'app a ogni tocco restano in memoria a
 carburante e opzioni e la mappa già disegnata: se non cambia niente, la mappa non si ricarica. Mentre ricalcola la
 pagina non si ingrigisce.
 
-Se il download non riesce, l'app lo dice e propone di caricare i file a mano. Data dei prezzi, ora del
+Se il download non riesce e non c'è nemmeno la copia del branch `dati`, l'app lo dice e propone di caricare i file a mano. Data dei prezzi, ora del
 download e provenienza (copia GitHub del branch `dati` o sito del MIMIT) compaiono nel riquadro della decisione.
 
 Il Brent e il cambio EUR/USD arrivano da Yahoo Finance (`yfinance`), anche loro con una cache di 3 ore. Se
