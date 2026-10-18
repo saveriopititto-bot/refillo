@@ -4,6 +4,7 @@ from __future__ import annotations
 from html import escape
 from collections.abc import Callable
 from pathlib import Path
+import threading
 import time
 from typing import Any
 import zlib
@@ -113,7 +114,55 @@ FONTE_VECCHIA = "dalla copia GitHub del giorno prima (il sito del MIMIT non risp
 _RIPROVA_MIMIT: dict[str, pd.Timestamp] = {}
 RIPROVA_MIMIT_DOPO = pd.Timedelta(minutes=15)
 NOTA_DATI_VECCHI = ("Il sito del MIMIT non risponde: i prezzi sono quelli dell'aggiornamento precedente, "
-                    "salvati nella copia GitHub. L'app riprova da sola ogni 15 minuti.")
+                    "salvati nella copia GitHub. L'app riprova da sola ogni 15 minuti, senza farti aspettare.")
+# Controllo del sito MIMIT in background (quando la copia del branch `dati` è vecchia): uno alla volta,
+# al massimo ogni RIPROVA_MIMIT_DOPO per tutto il server.
+_CONTROLLO_MIMIT: dict[str, Any] = {"in_corso": False, "dopo": None}
+_LOCK_MIMIT = threading.Lock()
+
+
+def _in_background(fn: Callable[[], None]) -> None:
+    threading.Thread(target=fn, name="controllo-mimit", daemon=True).start()
+
+
+def _metti(name: str, data: bytes, ora: pd.Timestamp, fonte: str) -> bytes:
+    """Mette in memoria un file e la sua fonte; restituisce il file da usare.
+
+    La copia vecchia non sostituisce un file del sito MIMIT arrivato nel frattempo dal controllo in background."""
+    with _LOCK_MIMIT:
+        if fonte == FONTE_VECCHIA and _FONTE_MIMIT.get(name) == FONTE_SITO and name in _CACHE_MIMIT \
+                and _CACHE_MIMIT[name][1] >= ora:
+            return _CACHE_MIMIT[name][0]
+        _CACHE_MIMIT[name] = (data, ora)
+        _FONTE_MIMIT[name] = fonte
+        if fonte == FONTE_VECCHIA:
+            _RIPROVA_MIMIT[name] = ora + RIPROVA_MIMIT_DOPO
+        else:
+            _RIPROVA_MIMIT.pop(name, None)
+        return data
+
+
+def _controlla_mimit() -> None:
+    """Scarica i due file dal sito MIMIT; se ci riesce, li mette in memoria al posto della copia vecchia."""
+    try:
+        dati = {name: fm.download_csv(name) for name in (ANAG_FILE, PREZZI_FILE)}
+        ora = pd.Timestamp.now(tz="Europe/Rome")
+        for name, data in dati.items():
+            _metti(name, data, ora, FONTE_SITO)
+    except Exception:
+        pass  # il MIMIT non risponde ancora: resta la copia vecchia, si riprova più tardi
+    finally:
+        _CONTROLLO_MIMIT["in_corso"] = False
+
+
+def controlla_mimit_in_background(ora: pd.Timestamp) -> None:
+    """Avvia il controllo del sito MIMIT, se non ce n'è già uno in corso o fatto da poco."""
+    with _LOCK_MIMIT:
+        dopo = _CONTROLLO_MIMIT["dopo"]
+        if _CONTROLLO_MIMIT["in_corso"] or (dopo is not None and ora < dopo):
+            return
+        _CONTROLLO_MIMIT.update(in_corso=True, dopo=ora + RIPROVA_MIMIT_DOPO)
+    _in_background(_controlla_mimit)
 
 
 def fonte_download() -> str:
@@ -202,15 +251,16 @@ def get_mimit_dataset(
                 last_pct[0] = pct
                 progresso(pct, label)
 
-        update_progress(0, "Connessione ai server del MIMIT…")
+        update_progress(0, "Scarico i prezzi…")
 
         mimit_giu: list[Exception] = []  # errore del sito MIMIT: per il secondo file non si riprova
 
         def scarica(name: str, da: int, etichetta: str) -> bytes:
-            """Copia del branch `dati` se è di oggi, altrimenti il sito MIMIT; avanza il cerchio da `da` a `da` + 50.
+            """Sempre la copia del branch `dati`, se c'è; avanza il cerchio da `da` a `da` + 50.
 
-            Se il sito MIMIT non risponde si usa la copia del branch `dati` anche se è vecchia (con un avviso),
-            e la si tiene in memoria solo RIPROVA_MIMIT_DOPO: poi si riprova."""
+            Se la copia è vecchia la si usa lo stesso (con un avviso) e la si tiene in memoria solo
+            RIPROVA_MIMIT_DOPO; intanto il sito MIMIT si prova in background, senza far aspettare la pagina.
+            Solo senza copia si scarica dal MIMIT mentre la pagina aspetta."""
             def on_progress(read: int, total: int):
                 update_progress(da + (min(50, int(read / total * 50)) if total else 25), etichetta)
 
@@ -218,11 +268,14 @@ def get_mimit_dataset(
             try:
                 copia = fm.download_dati(name, on_progress=on_progress)
                 if dati_freschi(copia, ora):
-                    _FONTE_MIMIT[name] = FONTE_DATI
-                    _RIPROVA_MIMIT.pop(name, None)
-                    return copia
+                    return _metti(name, copia, ora, FONTE_DATI)
             except Exception:
                 pass  # copia non raggiungibile: si scarica dal MIMIT
+            if copia is not None:
+                # copia vecchia: la pagina la usa subito e il sito MIMIT si prova in background
+                copia = _metti(name, copia, ora, FONTE_VECCHIA)
+                controlla_mimit_in_background(ora)
+                return copia
             try:
                 if mimit_giu:
                     raise mimit_giu[0]
@@ -230,25 +283,17 @@ def get_mimit_dataset(
             except Exception as e:
                 if not mimit_giu:
                     mimit_giu.append(e)
-                if copia is None:
-                    raise
-                _FONTE_MIMIT[name] = FONTE_VECCHIA
-                _RIPROVA_MIMIT[name] = ora + RIPROVA_MIMIT_DOPO
-                return copia
-            _FONTE_MIMIT[name] = FONTE_SITO
-            _RIPROVA_MIMIT.pop(name, None)
-            return data
+                raise
+            return _metti(name, data, ora, FONTE_SITO)
 
         if cached_a is None:
             cached_a = scarica(ANAG_FILE, 0, "Scaricamento anagrafica impianti…")
-            _CACHE_MIMIT[ANAG_FILE] = (cached_a, ora)
             update_progress(50, "Anagrafica completata!")
         else:
             update_progress(50, "Anagrafica già disponibile…")
 
         if cached_p is None:
-            cached_p = scarica(PREZZI_FILE, 50, "Scaricamento prezzi dal MIMIT…")
-            _CACHE_MIMIT[PREZZI_FILE] = (cached_p, ora)
+            cached_p = scarica(PREZZI_FILE, 50, "Scaricamento prezzi…")
             update_progress(100, "Dati MIMIT completati con successo!")
         else:
             update_progress(100, "Dati MIMIT completati!")
@@ -267,6 +312,7 @@ def clear_all_caches() -> None:
     _CACHE_MIMIT.clear()
     _FONTE_MIMIT.clear()
     _RIPROVA_MIMIT.clear()
+    _CONTROLLO_MIMIT.update(in_corso=False, dopo=None)
     brent_yahoo.clear()
     brent_score.clear()
 

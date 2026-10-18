@@ -199,9 +199,15 @@ ordine:
 3. la copia compressa salvata ogni mattina nel branch **`dati`** (`mimit/*.csv.gz`), se è quella dell'ultimo
    aggiornamento delle 9:00 (il MIMIT data i file con il giorno prima: quelli dell'11 mattina dicono «Estrazione
    del» 10);
-4. altrimenti il download dal sito del MIMIT;
-5. se il sito del MIMIT non risponde, la copia del branch `dati` anche se è dell'aggiornamento precedente: la riga
-   «Consiglio» mostra «⚠️ prezzi non aggiornati» e l'app riprova il MIMIT ogni 15 minuti.
+4. se la copia del branch `dati` è dell'aggiornamento precedente, la si usa lo stesso, subito: la riga
+   «Consiglio» mostra «⚠️ prezzi non aggiornati». Intanto l'app prova il sito del MIMIT in background, senza far
+   aspettare la pagina (uno alla volta, al massimo ogni 15 minuti): se risponde, i suoi file prendono il posto della
+   copia dal giro successivo. Dopo 15 minuti l'app rilegge anche la copia del branch `dati`, nel caso sia stata
+   aggiornata a mano;
+5. solo se la copia del branch `dati` non si raggiunge, il download dal sito del MIMIT (con la pagina in attesa).
+
+Da ottobre 2026 il sito del MIMIT non accetta connessioni dai server all'estero (GitHub, Streamlit Cloud): finché
+resta così, la copia nel branch `dati` si aggiorna caricando a mano i due CSV scaricati dall'Italia.
 
 I file scaricati (dal branch `dati` o dal MIMIT) restano in memoria fino al prossimo aggiornamento delle 9:00.
 La copia nel branch `dati` la prepara un'azione GitHub (`.github/workflows/aggiorna_mimit.yml`, ogni mattina

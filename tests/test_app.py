@@ -32,6 +32,7 @@ def _senza_rete():
             mock.patch.object(fm, "download_csv", side_effect=RuntimeError("niente rete nei test")), \
             mock.patch.object(ds, "dati_freschi", return_value=True), \
             mock.patch.object(ds, "default_path", return_value=None), \
+            mock.patch.object(ds, "_in_background", side_effect=lambda fn: fn()), \
             mock.patch.object(fm, "fetch_brent_yf", side_effect=RuntimeError("niente rete nei test")), \
             mock.patch.object(fm, "fetch_brent_score", side_effect=RuntimeError("niente rete nei test")), \
             mock.patch("core.model.get_osrm_distances", side_effect=lambda o, d: [None] * len(d)), \
