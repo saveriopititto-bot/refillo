@@ -68,9 +68,10 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     monkeypatch.setattr(ds.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: (
         fake_anag if "anagrafica" in name else fake_prezzi
     ))
-    monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: (
-        b"Estrazione del 2000-01-01\n" + (fake_anag if "anagrafica" in name else fake_prezzi)  # vecchia: scartata
-    ))
+    def senza_copia(*a, **k):
+        raise OSError("copia non raggiungibile")
+
+    monkeypatch.setattr(ds.fm, "download_dati", senza_copia)
 
     (anag_b, src_a), (prezzi_b, src_p) = ds.get_mimit_dataset(lambda pct, label: progress_updates.append(pct))
 
@@ -78,7 +79,7 @@ def test_get_mimit_dataset_with_progress(monkeypatch):
     assert prezzi_b == fake_prezzi
     assert src_a == "scaricato"
     assert src_p == "scaricato"
-    assert ds.fonte_download() == ds.FONTE_SITO  # copia vecchia: scaricati dal MIMIT
+    assert ds.fonte_download() == ds.FONTE_SITO  # senza copia: scaricati dal MIMIT
     assert len(progress_updates) > 0
     assert progress_updates[0] == 0 and progress_updates[-1] == 100
 
@@ -173,13 +174,14 @@ def test_origine_da_ip():
         assert origine == ROMA and nota == "Roma (ripiego)"
 
 
-def test_get_mimit_dataset_mimit_giu_usa_copia_vecchia(monkeypatch):
-    """Sito MIMIT che non risponde: si usa la copia vecchia del branch dati, con l'avviso, e si riprova più tardi."""
+def test_get_mimit_dataset_copia_vecchia_e_mimit_in_background(monkeypatch):
+    """Copia del branch dati vecchia: la pagina la usa subito, con l'avviso; il MIMIT si prova in background,
+    uno alla volta e al massimo ogni 15 minuti; quando risponde, i suoi file prendono il posto della copia."""
     import ui.data_service as ds
 
     ds.clear_all_caches()
     copia = b"Estrazione del 2000-01-01\nid|x\n"
-    tentativi = []
+    tentativi, in_attesa = [], []
 
     def mimit_giu(name, timeout=60.0, on_progress=None):
         tentativi.append(name)
@@ -187,22 +189,41 @@ def test_get_mimit_dataset_mimit_giu_usa_copia_vecchia(monkeypatch):
 
     monkeypatch.setattr(ds.fm, "download_csv", mimit_giu)
     monkeypatch.setattr(ds.fm, "download_dati", lambda name, timeout=30.0, on_progress=None: copia)
+    monkeypatch.setattr(ds, "_in_background", in_attesa.append)  # i controlli partono quando lo dice il test
     (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()
     assert anag_b == copia and prezzi_b == copia
     assert ds.dati_vecchi() and ds.fonte_download() == ds.FONTE_VECCHIA
-    assert len(tentativi) == 1  # dopo il primo errore il secondo file non riprova il MIMIT
+    assert tentativi == [] and len(in_attesa) == 1  # la pagina non aspetta il MIMIT: un solo controllo
+    in_attesa.pop()()
+    assert tentativi == [ds.ANAG_FILE]  # il MIMIT non risponde: resta la copia
+    assert ds.dati_vecchi()
 
-    # nei 15 minuti dopo resta in memoria, senza riprovare il MIMIT
+    # nei 15 minuti dopo la copia resta in memoria e il MIMIT non si riprova
     ds.get_mimit_dataset()
-    assert len(tentativi) == 1
+    assert in_attesa == []
 
-    # scaduta la pausa si riprova: il MIMIT è tornato e i dati vecchi spariscono
+    # scaduta la pausa: si riprende la copia (magari aggiornata a mano) e si riprova il MIMIT, che ora risponde
     for name in list(ds._RIPROVA_MIMIT):
         ds._RIPROVA_MIMIT[name] = pd.Timestamp("2000-01-01", tz="Europe/Rome")
+    ds._CONTROLLO_MIMIT["dopo"] = None
     monkeypatch.setattr(ds.fm, "download_csv", lambda name, timeout=60.0, on_progress=None: b"nuovi|x")
     (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()
-    assert anag_b == prezzi_b == b"nuovi|x"
+    assert anag_b == prezzi_b == copia and len(in_attesa) == 1
+    in_attesa.pop()()
     assert not ds.dati_vecchi() and ds.fonte_download() == ds.FONTE_SITO
+    (anag_b, _), (prezzi_b, _) = ds.get_mimit_dataset()  # il giro dopo usa i file del MIMIT
+    assert anag_b == prezzi_b == b"nuovi|x"
+    ds.clear_all_caches()
+
+
+def test_copia_vecchia_non_sostituisce_il_mimit_appena_arrivato():
+    import ui.data_service as ds
+
+    ds.clear_all_caches()
+    ora = pd.Timestamp.now(tz="Europe/Rome")
+    ds._metti(ds.ANAG_FILE, b"mimit|x", ora, ds.FONTE_SITO)  # arrivato dal controllo in background
+    assert ds._metti(ds.ANAG_FILE, b"vecchia|x", ora, ds.FONTE_VECCHIA) == b"mimit|x"
+    assert ds.fonte_download() != ds.FONTE_VECCHIA and ds.ANAG_FILE not in ds._RIPROVA_MIMIT
     ds.clear_all_caches()
 
 
